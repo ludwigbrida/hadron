@@ -1,6 +1,8 @@
 import triangleShader from "./shaders/triangle.wgsl?raw";
 
 const triangleVertices = new Float32Array([0.0, 0.6, -0.6, -0.6, 0.6, -0.6]);
+const triangleIndexCount = 3;
+const triangleIndices = new Uint16Array([0, 1, 2, 0]);
 
 const identityTransform = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 
@@ -11,6 +13,7 @@ export class Renderer {
     private readonly device: GPUDevice,
     private readonly pipeline: GPURenderPipeline,
     private readonly vertexBuffer: GPUBuffer,
+    private readonly indexBuffer: GPUBuffer,
     private readonly transformBuffer: GPUBuffer,
     private readonly transformBindGroup: GPUBindGroup,
   ) {}
@@ -34,6 +37,13 @@ export class Renderer {
     });
 
     device.queue.writeBuffer(vertexBuffer, 0, triangleVertices);
+
+    const indexBuffer = device.createBuffer({
+      size: triangleIndices.byteLength,
+      usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
+    });
+
+    device.queue.writeBuffer(indexBuffer, 0, triangleIndices);
 
     const transformBuffer = device.createBuffer({
       size: identityTransform.byteLength,
@@ -109,6 +119,7 @@ export class Renderer {
       device,
       pipeline,
       vertexBuffer,
+      indexBuffer,
       transformBuffer,
       transformBindGroup,
     );
@@ -133,7 +144,8 @@ export class Renderer {
     pass.setPipeline(this.pipeline);
     pass.setBindGroup(0, this.transformBindGroup);
     pass.setVertexBuffer(0, this.vertexBuffer);
-    pass.draw(3);
+    pass.setIndexBuffer(this.indexBuffer, "uint16");
+    pass.drawIndexed(triangleIndexCount);
     pass.end();
 
     this.device.queue.submit([commandEncoder.finish()]);
@@ -141,6 +153,7 @@ export class Renderer {
 
   dispose(): void {
     this.vertexBuffer.destroy();
+    this.indexBuffer.destroy();
     this.transformBuffer.destroy();
     this.context.unconfigure();
     this.device.destroy();
