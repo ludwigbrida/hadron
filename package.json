@@ -1,4 +1,10 @@
 {
   "name": "@ludwigbrida/hadron",
-  "private": true
+  "private": true,
+  "scripts": {
+    "prettier": "prettier"
+  },
+  "devDependencies": {
+    "prettier": "3.9.6"
+  }
 }
