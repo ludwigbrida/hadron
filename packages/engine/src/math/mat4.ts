@@ -53,6 +53,29 @@ export class Mat4 {
     return out;
   }
 
+  static fromRotationY(out: Mat4, radians: number): Mat4 {
+    const cosine = Math.cos(radians);
+    const sine = Math.sin(radians);
+    const r = out.values;
+    r[0] = cosine;
+    r[1] = 0;
+    r[2] = -sine;
+    r[3] = 0;
+    r[4] = 0;
+    r[5] = 1;
+    r[6] = 0;
+    r[7] = 0;
+    r[8] = sine;
+    r[9] = 0;
+    r[10] = cosine;
+    r[11] = 0;
+    r[12] = 0;
+    r[13] = 0;
+    r[14] = 0;
+    r[15] = 1;
+    return out;
+  }
+
   // aliasing-safe multiply when out === lhs or out === rhs
   static multiply(out: Mat4, lhs: Readonly<Mat4>, rhs: Readonly<Mat4>): Mat4 {
     const a = lhs.values;
