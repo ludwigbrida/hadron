@@ -2,6 +2,7 @@ import { Mat4 } from "./math/mat4.ts";
 
 export interface MeshData {
   positions: Float32Array;
+  normals: Float32Array;
   indices: Uint16Array;
 }
 
@@ -12,6 +13,7 @@ export class Mesh {
   private constructor(
     private readonly device: GPUDevice,
     readonly vertexBuffer: GPUBuffer,
+    readonly normalBuffer: GPUBuffer,
     readonly indexBuffer: GPUBuffer,
     readonly indexCount: number,
     readonly transformBuffer: GPUBuffer,
@@ -26,6 +28,13 @@ export class Mesh {
     });
 
     device.queue.writeBuffer(vertexBuffer, 0, data.positions);
+
+    const normalBuffer = device.createBuffer({
+      size: data.normals.byteLength,
+      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+    });
+
+    device.queue.writeBuffer(normalBuffer, 0, data.normals);
 
     const paddedIndices = new Uint16Array(data.indices.length + (data.indices.length % 2));
 
@@ -73,6 +82,7 @@ export class Mesh {
     return new Mesh(
       device,
       vertexBuffer,
+      normalBuffer,
       indexBuffer,
       data.indices.length,
       transformBuffer,
@@ -91,6 +101,7 @@ export class Mesh {
 
   dispose(): void {
     this.vertexBuffer.destroy();
+    this.normalBuffer.destroy();
     this.indexBuffer.destroy();
     this.transformBuffer.destroy();
     this.colorBuffer.destroy();
