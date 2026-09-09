@@ -1,6 +1,6 @@
 import triangleShader from "./shaders/triangle.wgsl?raw";
 
-const triangleVertices = new Float32Array([0.0, 0.6, -0.6, -0.6, 0.6, -0.6]);
+const triangleVertices = new Float32Array([0.0, 0.6, 0.0, -0.6, -0.6, 0.0, 0.6, -0.6, 0.0]);
 const triangleIndexCount = 3;
 const triangleIndices = new Uint16Array([0, 1, 2, 0]);
 
@@ -76,10 +76,10 @@ export class Renderer {
         entryPoint: "vertexMain",
         buffers: [
           {
-            arrayStride: 2 * Float32Array.BYTES_PER_ELEMENT,
+            arrayStride: 3 * Float32Array.BYTES_PER_ELEMENT,
             attributes: [
               {
-                format: "float32x2",
+                format: "float32x3",
                 offset: 0,
                 shaderLocation: 0,
               },
