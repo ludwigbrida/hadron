@@ -1,8 +1,11 @@
+import triangleShader from "./shaders/triangle.wgsl?raw";
+
 export class Renderer {
   private constructor(
     private readonly canvas: HTMLCanvasElement,
     private readonly context: GPUCanvasContext,
     private readonly device: GPUDevice,
+    private readonly pipeline: GPURenderPipeline,
   ) {}
 
   static async create(canvas: HTMLCanvasElement): Promise<Renderer> {
@@ -23,12 +26,38 @@ export class Renderer {
       throw new Error("The canvas does not support WebGPU.");
     }
 
+    const format = navigator.gpu.getPreferredCanvasFormat();
+
     context.configure({
       device,
-      format: navigator.gpu.getPreferredCanvasFormat(),
+      format,
     });
 
-    return new Renderer(canvas, context, device);
+    const shaderModule = device.createShaderModule({
+      code: triangleShader,
+    });
+
+    const pipeline = await device.createRenderPipelineAsync({
+      layout: "auto",
+      vertex: {
+        module: shaderModule,
+        entryPoint: "vertexMain",
+      },
+      fragment: {
+        module: shaderModule,
+        entryPoint: "fragmentMain",
+        targets: [
+          {
+            format,
+          },
+        ],
+      },
+      primitive: {
+        topology: "triangle-list",
+      },
+    });
+
+    return new Renderer(canvas, context, device, pipeline);
   }
 
   render(): void {
@@ -47,6 +76,8 @@ export class Renderer {
       ],
     });
 
+    pass.setPipeline(this.pipeline);
+    pass.draw(3);
     pass.end();
 
     this.device.queue.submit([commandEncoder.finish()]);
