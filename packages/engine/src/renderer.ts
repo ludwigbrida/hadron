@@ -2,6 +2,8 @@ import triangleShader from "./shaders/triangle.wgsl?raw";
 import { Mesh, type MeshData } from "./mesh.ts";
 
 export class Renderer {
+  private depthTexture: GPUTexture | undefined;
+
   private constructor(
     private readonly canvas: HTMLCanvasElement,
     private readonly context: GPUCanvasContext,
@@ -69,6 +71,11 @@ export class Renderer {
       primitive: {
         topology: "triangle-list",
       },
+      depthStencil: {
+        format: "depth24plus",
+        depthWriteEnabled: true,
+        depthCompare: "less",
+      },
     });
 
     return new Renderer(canvas, context, device, pipeline);
@@ -79,7 +86,7 @@ export class Renderer {
   }
 
   render(mesh: Mesh): void {
-    this.resizeCanvas();
+    const depthTexture = this.resizeRenderTargets();
 
     const commandEncoder = this.device.createCommandEncoder();
 
@@ -92,6 +99,12 @@ export class Renderer {
           storeOp: "store",
         },
       ],
+      depthStencilAttachment: {
+        view: depthTexture.createView(),
+        depthClearValue: 1,
+        depthLoadOp: "clear",
+        depthStoreOp: "store",
+      },
     });
 
     pass.setPipeline(this.pipeline);
@@ -105,17 +118,28 @@ export class Renderer {
   }
 
   dispose(): void {
+    this.depthTexture?.destroy();
     this.context.unconfigure();
     this.device.destroy();
   }
 
-  private resizeCanvas(): void {
+  private resizeRenderTargets(): GPUTexture {
     const width = Math.round(this.canvas.clientWidth * window.devicePixelRatio);
     const height = Math.round(this.canvas.clientHeight * window.devicePixelRatio);
+    let depthTexture = this.depthTexture;
 
-    if (this.canvas.width !== width || this.canvas.height !== height) {
+    if (this.canvas.width !== width || this.canvas.height !== height || !depthTexture) {
       this.canvas.width = width;
       this.canvas.height = height;
+      depthTexture?.destroy();
+      depthTexture = this.device.createTexture({
+        size: { width, height },
+        format: "depth24plus",
+        usage: GPUTextureUsage.RENDER_ATTACHMENT,
+      });
+      this.depthTexture = depthTexture;
     }
+
+    return depthTexture;
   }
 }
