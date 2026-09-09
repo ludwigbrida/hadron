@@ -1,4 +1,4 @@
-import triangleShader from "./shaders/triangle.wgsl?raw";
+import meshShader from "./shaders/mesh.wgsl?raw";
 import { Mesh, type MeshData } from "./mesh.ts";
 import { Mat4 } from "./math/mat4.ts";
 
@@ -43,7 +43,7 @@ export class Renderer {
     });
 
     const shaderModule = device.createShaderModule({
-      code: triangleShader,
+      code: meshShader,
     });
 
     const pipeline = await device.createRenderPipelineAsync({
