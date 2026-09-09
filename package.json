@@ -1,6 +1,9 @@
 {
   "name": "@ludwigbrida/hadron",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "commitlint": "commitlint",
     "knip": "knip",
