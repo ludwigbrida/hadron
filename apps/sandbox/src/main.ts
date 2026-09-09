@@ -10,6 +10,14 @@ const mesh = renderer.createMesh({
   indices: new Uint16Array([0, 1, 2]),
 });
 
-mesh.setTransform(new Mat4().setTranslation(0.25, 0, 0));
+const transform = new Mat4();
+const translation = new Mat4();
+const rotation = new Mat4();
+
+Mat4.fromTranslation(translation, 0.25, 0, 0);
+Mat4.fromRotationZ(rotation, Math.PI / 4);
+Mat4.multiply(transform, translation, rotation);
+
+mesh.setTransform(transform);
 
 renderer.render(mesh);

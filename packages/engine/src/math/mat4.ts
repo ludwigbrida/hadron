@@ -9,8 +9,8 @@ export class Mat4 {
     this.values[15] = 1;
   }
 
-  setTranslation(x: number, y: number, z: number): this {
-    const t = this.values;
+  static fromTranslation(out: Mat4, x: number, y: number, z: number): Mat4 {
+    const t = out.values;
     t[0] = 1;
     t[1] = 0;
     t[2] = 0;
@@ -27,7 +27,30 @@ export class Mat4 {
     t[13] = y;
     t[14] = z;
     t[15] = 1;
-    return this;
+    return out;
+  }
+
+  static fromRotationZ(out: Mat4, radians: number): Mat4 {
+    const cosine = Math.cos(radians);
+    const sine = Math.sin(radians);
+    const r = out.values;
+    r[0] = cosine;
+    r[1] = sine;
+    r[2] = 0;
+    r[3] = 0;
+    r[4] = -sine;
+    r[5] = cosine;
+    r[6] = 0;
+    r[7] = 0;
+    r[8] = 0;
+    r[9] = 0;
+    r[10] = 1;
+    r[11] = 0;
+    r[12] = 0;
+    r[13] = 0;
+    r[14] = 0;
+    r[15] = 1;
+    return out;
   }
 
   // aliasing-safe multiply when out === lhs or out === rhs
