@@ -7,6 +7,7 @@ const identityTransform = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 
 
 export class Mesh {
   private constructor(
+    private readonly device: GPUDevice,
     readonly vertexBuffer: GPUBuffer,
     readonly indexBuffer: GPUBuffer,
     readonly indexCount: number,
@@ -53,12 +54,17 @@ export class Mesh {
     });
 
     return new Mesh(
+      device,
       vertexBuffer,
       indexBuffer,
       data.indices.length,
       transformBuffer,
       transformBindGroup,
     );
+  }
+
+  setTransform(transform: Float32Array): void {
+    this.device.queue.writeBuffer(this.transformBuffer, 0, transform);
   }
 
   dispose(): void {
