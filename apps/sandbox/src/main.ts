@@ -14,6 +14,9 @@ const firstMesh = renderer.createMesh(triangle);
 const secondMesh = renderer.createMesh(triangle);
 const meshes = [firstMesh, secondMesh];
 
+firstMesh.setColor(new Float32Array([0.2, 0.7, 1, 1]));
+secondMesh.setColor(new Float32Array([1, 0.3, 0.2, 1]));
+
 const firstTransform = new Mat4();
 const firstTranslation = new Mat4();
 const firstRotation = new Mat4();

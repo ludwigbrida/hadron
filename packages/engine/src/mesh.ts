@@ -6,6 +6,7 @@ export interface MeshData {
 }
 
 const identityTransform = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+const defaultColor = new Float32Array([1, 1, 1, 1]);
 
 export class Mesh {
   private constructor(
@@ -14,10 +15,11 @@ export class Mesh {
     readonly indexBuffer: GPUBuffer,
     readonly indexCount: number,
     readonly transformBuffer: GPUBuffer,
-    readonly transformBindGroup: GPUBindGroup,
+    readonly colorBuffer: GPUBuffer,
+    readonly bindGroup: GPUBindGroup,
   ) {}
 
-  static create(device: GPUDevice, transformLayout: GPUBindGroupLayout, data: MeshData): Mesh {
+  static create(device: GPUDevice, bindGroupLayout: GPUBindGroupLayout, data: MeshData): Mesh {
     const vertexBuffer = device.createBuffer({
       size: data.positions.byteLength,
       usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
@@ -43,13 +45,26 @@ export class Mesh {
 
     device.queue.writeBuffer(transformBuffer, 0, identityTransform);
 
-    const transformBindGroup = device.createBindGroup({
-      layout: transformLayout,
+    const colorBuffer = device.createBuffer({
+      size: defaultColor.byteLength,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    device.queue.writeBuffer(colorBuffer, 0, defaultColor);
+
+    const bindGroup = device.createBindGroup({
+      layout: bindGroupLayout,
       entries: [
         {
           binding: 0,
           resource: {
             buffer: transformBuffer,
+          },
+        },
+        {
+          binding: 1,
+          resource: {
+            buffer: colorBuffer,
           },
         },
       ],
@@ -61,7 +76,8 @@ export class Mesh {
       indexBuffer,
       data.indices.length,
       transformBuffer,
-      transformBindGroup,
+      colorBuffer,
+      bindGroup,
     );
   }
 
@@ -69,9 +85,14 @@ export class Mesh {
     this.device.queue.writeBuffer(this.transformBuffer, 0, transform.values);
   }
 
+  setColor(color: Float32Array): void {
+    this.device.queue.writeBuffer(this.colorBuffer, 0, color);
+  }
+
   dispose(): void {
     this.vertexBuffer.destroy();
     this.indexBuffer.destroy();
     this.transformBuffer.destroy();
+    this.colorBuffer.destroy();
   }
 }

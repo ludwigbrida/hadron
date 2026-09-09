@@ -110,7 +110,7 @@ export class Renderer {
     pass.setPipeline(this.pipeline);
 
     for (const mesh of meshes) {
-      pass.setBindGroup(0, mesh.transformBindGroup);
+      pass.setBindGroup(0, mesh.bindGroup);
       pass.setVertexBuffer(0, mesh.vertexBuffer);
       pass.setIndexBuffer(mesh.indexBuffer, "uint16");
       pass.drawIndexed(mesh.indexCount);
