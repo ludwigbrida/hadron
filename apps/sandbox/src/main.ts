@@ -1,3 +1,5 @@
-const main = document.querySelector("#canvas") as HTMLElement;
+import { Renderer } from "@hadron/engine";
 
-console.log(main);
+const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
+
+await Renderer.create(canvas);
