@@ -1,3 +1,5 @@
+import { Mat4 } from "./math/mat4.ts";
+
 export interface MeshData {
   positions: Float32Array;
   indices: Uint16Array;
@@ -63,8 +65,8 @@ export class Mesh {
     );
   }
 
-  setTransform(transform: Float32Array): void {
-    this.device.queue.writeBuffer(this.transformBuffer, 0, transform);
+  setTransform(transform: Mat4): void {
+    this.device.queue.writeBuffer(this.transformBuffer, 0, transform.values);
   }
 
   dispose(): void {

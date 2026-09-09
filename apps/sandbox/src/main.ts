@@ -1,4 +1,4 @@
-import { Renderer } from "@hadron/engine";
+import { Mat4, Renderer } from "@hadron/engine";
 import "./main.css";
 
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
@@ -10,6 +10,6 @@ const mesh = renderer.createMesh({
   indices: new Uint16Array([0, 1, 2]),
 });
 
-mesh.setTransform(new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.25, 0, 0, 1]));
+mesh.setTransform(new Mat4().setTranslation(0.25, 0, 0));
 
 renderer.render(mesh);
