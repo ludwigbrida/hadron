@@ -30,6 +30,30 @@ export class Mat4 {
     return out;
   }
 
+  // right-handed with WebGPU's 0-to-1 clip-space depth range
+  static fromPerspective(out: Mat4, fovY: number, aspect: number, near: number, far: number): Mat4 {
+    const focalLength = 1 / Math.tan(fovY / 2);
+    const depthRange = 1 / (near - far);
+    const p = out.values;
+    p[0] = focalLength / aspect;
+    p[1] = 0;
+    p[2] = 0;
+    p[3] = 0;
+    p[4] = 0;
+    p[5] = focalLength;
+    p[6] = 0;
+    p[7] = 0;
+    p[8] = 0;
+    p[9] = 0;
+    p[10] = far * depthRange;
+    p[11] = -1;
+    p[12] = 0;
+    p[13] = 0;
+    p[14] = far * near * depthRange;
+    p[15] = 0;
+    return out;
+  }
+
   static fromRotationZ(out: Mat4, radians: number): Mat4 {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
