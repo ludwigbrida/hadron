@@ -1,8 +1,5 @@
 import triangleShader from "./shaders/triangle.wgsl?raw";
-
-const triangleVertices = new Float32Array([0.0, 0.6, 0.0, -0.6, -0.6, 0.0, 0.6, -0.6, 0.0]);
-const triangleIndexCount = 3;
-const triangleIndices = new Uint16Array([0, 1, 2, 0]);
+import { Mesh, type MeshData } from "./mesh.ts";
 
 const identityTransform = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 
@@ -12,8 +9,6 @@ export class Renderer {
     private readonly context: GPUCanvasContext,
     private readonly device: GPUDevice,
     private readonly pipeline: GPURenderPipeline,
-    private readonly vertexBuffer: GPUBuffer,
-    private readonly indexBuffer: GPUBuffer,
     private readonly transformBuffer: GPUBuffer,
     private readonly transformBindGroup: GPUBindGroup,
   ) {}
@@ -30,20 +25,6 @@ export class Renderer {
     }
 
     const device = await adapter.requestDevice();
-
-    const vertexBuffer = device.createBuffer({
-      size: triangleVertices.byteLength,
-      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-    });
-
-    device.queue.writeBuffer(vertexBuffer, 0, triangleVertices);
-
-    const indexBuffer = device.createBuffer({
-      size: triangleIndices.byteLength,
-      usage: GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST,
-    });
-
-    device.queue.writeBuffer(indexBuffer, 0, triangleIndices);
 
     const transformBuffer = device.createBuffer({
       size: identityTransform.byteLength,
@@ -113,19 +94,14 @@ export class Renderer {
       ],
     });
 
-    return new Renderer(
-      canvas,
-      context,
-      device,
-      pipeline,
-      vertexBuffer,
-      indexBuffer,
-      transformBuffer,
-      transformBindGroup,
-    );
+    return new Renderer(canvas, context, device, pipeline, transformBuffer, transformBindGroup);
   }
 
-  render(): void {
+  createMesh(data: MeshData): Mesh {
+    return Mesh.create(this.device, data);
+  }
+
+  render(mesh: Mesh): void {
     this.resizeCanvas();
 
     const commandEncoder = this.device.createCommandEncoder();
@@ -143,17 +119,15 @@ export class Renderer {
 
     pass.setPipeline(this.pipeline);
     pass.setBindGroup(0, this.transformBindGroup);
-    pass.setVertexBuffer(0, this.vertexBuffer);
-    pass.setIndexBuffer(this.indexBuffer, "uint16");
-    pass.drawIndexed(triangleIndexCount);
+    pass.setVertexBuffer(0, mesh.vertexBuffer);
+    pass.setIndexBuffer(mesh.indexBuffer, "uint16");
+    pass.drawIndexed(mesh.indexCount);
     pass.end();
 
     this.device.queue.submit([commandEncoder.finish()]);
   }
 
   dispose(): void {
-    this.vertexBuffer.destroy();
-    this.indexBuffer.destroy();
     this.transformBuffer.destroy();
     this.context.unconfigure();
     this.device.destroy();
