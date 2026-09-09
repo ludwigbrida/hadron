@@ -85,7 +85,7 @@ export class Renderer {
     return Mesh.create(this.device, this.pipeline.getBindGroupLayout(0), data);
   }
 
-  render(mesh: Mesh): void {
+  render(meshes: readonly Mesh[]): void {
     const depthTexture = this.resizeRenderTargets();
 
     const commandEncoder = this.device.createCommandEncoder();
@@ -108,10 +108,14 @@ export class Renderer {
     });
 
     pass.setPipeline(this.pipeline);
-    pass.setBindGroup(0, mesh.transformBindGroup);
-    pass.setVertexBuffer(0, mesh.vertexBuffer);
-    pass.setIndexBuffer(mesh.indexBuffer, "uint16");
-    pass.drawIndexed(mesh.indexCount);
+
+    for (const mesh of meshes) {
+      pass.setBindGroup(0, mesh.transformBindGroup);
+      pass.setVertexBuffer(0, mesh.vertexBuffer);
+      pass.setIndexBuffer(mesh.indexBuffer, "uint16");
+      pass.drawIndexed(mesh.indexCount);
+    }
+
     pass.end();
 
     this.device.queue.submit([commandEncoder.finish()]);
