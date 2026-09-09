@@ -3,14 +3,18 @@ export interface MeshData {
   indices: Uint16Array;
 }
 
+const identityTransform = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+
 export class Mesh {
   private constructor(
     readonly vertexBuffer: GPUBuffer,
     readonly indexBuffer: GPUBuffer,
     readonly indexCount: number,
+    readonly transformBuffer: GPUBuffer,
+    readonly transformBindGroup: GPUBindGroup,
   ) {}
 
-  static create(device: GPUDevice, data: MeshData): Mesh {
+  static create(device: GPUDevice, transformLayout: GPUBindGroupLayout, data: MeshData): Mesh {
     const vertexBuffer = device.createBuffer({
       size: data.positions.byteLength,
       usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
@@ -29,11 +33,37 @@ export class Mesh {
 
     device.queue.writeBuffer(indexBuffer, 0, paddedIndices);
 
-    return new Mesh(vertexBuffer, indexBuffer, data.indices.length);
+    const transformBuffer = device.createBuffer({
+      size: identityTransform.byteLength,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    device.queue.writeBuffer(transformBuffer, 0, identityTransform);
+
+    const transformBindGroup = device.createBindGroup({
+      layout: transformLayout,
+      entries: [
+        {
+          binding: 0,
+          resource: {
+            buffer: transformBuffer,
+          },
+        },
+      ],
+    });
+
+    return new Mesh(
+      vertexBuffer,
+      indexBuffer,
+      data.indices.length,
+      transformBuffer,
+      transformBindGroup,
+    );
   }
 
   dispose(): void {
     this.vertexBuffer.destroy();
     this.indexBuffer.destroy();
+    this.transformBuffer.destroy();
   }
 }

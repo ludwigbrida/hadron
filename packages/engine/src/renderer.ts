@@ -1,16 +1,12 @@
 import triangleShader from "./shaders/triangle.wgsl?raw";
 import { Mesh, type MeshData } from "./mesh.ts";
 
-const identityTransform = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-
 export class Renderer {
   private constructor(
     private readonly canvas: HTMLCanvasElement,
     private readonly context: GPUCanvasContext,
     private readonly device: GPUDevice,
     private readonly pipeline: GPURenderPipeline,
-    private readonly transformBuffer: GPUBuffer,
-    private readonly transformBindGroup: GPUBindGroup,
   ) {}
 
   static async create(canvas: HTMLCanvasElement): Promise<Renderer> {
@@ -25,13 +21,6 @@ export class Renderer {
     }
 
     const device = await adapter.requestDevice();
-
-    const transformBuffer = device.createBuffer({
-      size: identityTransform.byteLength,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-    });
-
-    device.queue.writeBuffer(transformBuffer, 0, identityTransform);
 
     const context = canvas.getContext("webgpu");
 
@@ -82,23 +71,11 @@ export class Renderer {
       },
     });
 
-    const transformBindGroup = device.createBindGroup({
-      layout: pipeline.getBindGroupLayout(0),
-      entries: [
-        {
-          binding: 0,
-          resource: {
-            buffer: transformBuffer,
-          },
-        },
-      ],
-    });
-
-    return new Renderer(canvas, context, device, pipeline, transformBuffer, transformBindGroup);
+    return new Renderer(canvas, context, device, pipeline);
   }
 
   createMesh(data: MeshData): Mesh {
-    return Mesh.create(this.device, data);
+    return Mesh.create(this.device, this.pipeline.getBindGroupLayout(0), data);
   }
 
   render(mesh: Mesh): void {
@@ -118,7 +95,7 @@ export class Renderer {
     });
 
     pass.setPipeline(this.pipeline);
-    pass.setBindGroup(0, this.transformBindGroup);
+    pass.setBindGroup(0, mesh.transformBindGroup);
     pass.setVertexBuffer(0, mesh.vertexBuffer);
     pass.setIndexBuffer(mesh.indexBuffer, "uint16");
     pass.drawIndexed(mesh.indexCount);
@@ -128,7 +105,6 @@ export class Renderer {
   }
 
   dispose(): void {
-    this.transformBuffer.destroy();
     this.context.unconfigure();
     this.device.destroy();
   }
