@@ -15,9 +15,14 @@ const translation = new Mat4();
 const rotation = new Mat4();
 
 Mat4.fromTranslation(translation, 0.25, 0, 0);
-Mat4.fromRotationZ(rotation, Math.PI / 4);
-Mat4.multiply(transform, translation, rotation);
 
-mesh.setTransform(transform);
+function render(time: number): void {
+  Mat4.fromRotationZ(rotation, time / 1_000);
+  Mat4.multiply(transform, translation, rotation);
+  mesh.setTransform(transform);
+  renderer.render(mesh);
 
-renderer.render(mesh);
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
