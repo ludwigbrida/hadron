@@ -1,4 +1,5 @@
 import { Renderer } from "@hadron/engine";
+import "./main.css";
 
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 
