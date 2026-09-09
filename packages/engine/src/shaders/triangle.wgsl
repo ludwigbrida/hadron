@@ -1,8 +1,6 @@
 @vertex
-fn vertexMain(@builtin(vertex_index) vertexIndex: u32) -> @builtin(position) vec4f {
-  let positions = array<vec2f, 3>(vec2f(0.0, 0.6), vec2f(-0.6, -0.6), vec2f(0.6, -0.6));
-
-  return vec4f(positions[vertexIndex], 0.0, 1.0);
+fn vertexMain(@location(0) position: vec2f) -> @builtin(position) vec4f {
+  return vec4f(position, 0.0, 1.0);
 }
 
 @fragment

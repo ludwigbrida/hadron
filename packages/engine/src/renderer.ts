@@ -1,11 +1,14 @@
 import triangleShader from "./shaders/triangle.wgsl?raw";
 
+const triangleVertices = new Float32Array([0.0, 0.6, -0.6, -0.6, 0.6, -0.6]);
+
 export class Renderer {
   private constructor(
     private readonly canvas: HTMLCanvasElement,
     private readonly context: GPUCanvasContext,
     private readonly device: GPUDevice,
     private readonly pipeline: GPURenderPipeline,
+    private readonly vertexBuffer: GPUBuffer,
   ) {}
 
   static async create(canvas: HTMLCanvasElement): Promise<Renderer> {
@@ -20,6 +23,14 @@ export class Renderer {
     }
 
     const device = await adapter.requestDevice();
+
+    const vertexBuffer = device.createBuffer({
+      size: triangleVertices.byteLength,
+      usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+    });
+
+    device.queue.writeBuffer(vertexBuffer, 0, triangleVertices);
+
     const context = canvas.getContext("webgpu");
 
     if (!context) {
@@ -42,6 +53,18 @@ export class Renderer {
       vertex: {
         module: shaderModule,
         entryPoint: "vertexMain",
+        buffers: [
+          {
+            arrayStride: 2 * Float32Array.BYTES_PER_ELEMENT,
+            attributes: [
+              {
+                format: "float32x2",
+                offset: 0,
+                shaderLocation: 0,
+              },
+            ],
+          },
+        ],
       },
       fragment: {
         module: shaderModule,
@@ -57,7 +80,7 @@ export class Renderer {
       },
     });
 
-    return new Renderer(canvas, context, device, pipeline);
+    return new Renderer(canvas, context, device, pipeline, vertexBuffer);
   }
 
   render(): void {
@@ -77,6 +100,7 @@ export class Renderer {
     });
 
     pass.setPipeline(this.pipeline);
+    pass.setVertexBuffer(0, this.vertexBuffer);
     pass.draw(3);
     pass.end();
 
@@ -84,6 +108,7 @@ export class Renderer {
   }
 
   dispose(): void {
+    this.vertexBuffer.destroy();
     this.context.unconfigure();
     this.device.destroy();
   }
