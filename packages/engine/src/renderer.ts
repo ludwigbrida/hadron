@@ -1,5 +1,8 @@
 import triangleShader from "./shaders/triangle.wgsl?raw";
 import { Mesh, type MeshData } from "./mesh.ts";
+import { Mat4 } from "./math/mat4.ts";
+
+const identityViewProjection = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 
 export class Renderer {
   private depthTexture: GPUTexture | undefined;
@@ -9,6 +12,8 @@ export class Renderer {
     private readonly context: GPUCanvasContext,
     private readonly device: GPUDevice,
     private readonly pipeline: GPURenderPipeline,
+    private readonly viewProjectionBuffer: GPUBuffer,
+    private readonly viewProjectionBindGroup: GPUBindGroup,
   ) {}
 
   static async create(canvas: HTMLCanvasElement): Promise<Renderer> {
@@ -78,11 +83,41 @@ export class Renderer {
       },
     });
 
-    return new Renderer(canvas, context, device, pipeline);
+    const viewProjectionBuffer = device.createBuffer({
+      size: identityViewProjection.byteLength,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    device.queue.writeBuffer(viewProjectionBuffer, 0, identityViewProjection);
+
+    const viewProjectionBindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        {
+          binding: 0,
+          resource: {
+            buffer: viewProjectionBuffer,
+          },
+        },
+      ],
+    });
+
+    return new Renderer(
+      canvas,
+      context,
+      device,
+      pipeline,
+      viewProjectionBuffer,
+      viewProjectionBindGroup,
+    );
   }
 
   createMesh(data: MeshData): Mesh {
-    return Mesh.create(this.device, this.pipeline.getBindGroupLayout(0), data);
+    return Mesh.create(this.device, this.pipeline.getBindGroupLayout(1), data);
+  }
+
+  setViewProjection(viewProjection: Readonly<Mat4>): void {
+    this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, viewProjection.values);
   }
 
   render(meshes: readonly Mesh[]): void {
@@ -108,9 +143,10 @@ export class Renderer {
     });
 
     pass.setPipeline(this.pipeline);
+    pass.setBindGroup(0, this.viewProjectionBindGroup);
 
     for (const mesh of meshes) {
-      pass.setBindGroup(0, mesh.bindGroup);
+      pass.setBindGroup(1, mesh.bindGroup);
       pass.setVertexBuffer(0, mesh.vertexBuffer);
       pass.setIndexBuffer(mesh.indexBuffer, "uint16");
       pass.drawIndexed(mesh.indexCount);
@@ -123,6 +159,7 @@ export class Renderer {
 
   dispose(): void {
     this.depthTexture?.destroy();
+    this.viewProjectionBuffer.destroy();
     this.context.unconfigure();
     this.device.destroy();
   }
