@@ -2,6 +2,8 @@ import triangleShader from "./shaders/triangle.wgsl?raw";
 
 const triangleVertices = new Float32Array([0.0, 0.6, -0.6, -0.6, 0.6, -0.6]);
 
+const identityTransform = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+
 export class Renderer {
   private constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -9,6 +11,8 @@ export class Renderer {
     private readonly device: GPUDevice,
     private readonly pipeline: GPURenderPipeline,
     private readonly vertexBuffer: GPUBuffer,
+    private readonly transformBuffer: GPUBuffer,
+    private readonly transformBindGroup: GPUBindGroup,
   ) {}
 
   static async create(canvas: HTMLCanvasElement): Promise<Renderer> {
@@ -30,6 +34,13 @@ export class Renderer {
     });
 
     device.queue.writeBuffer(vertexBuffer, 0, triangleVertices);
+
+    const transformBuffer = device.createBuffer({
+      size: identityTransform.byteLength,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    device.queue.writeBuffer(transformBuffer, 0, identityTransform);
 
     const context = canvas.getContext("webgpu");
 
@@ -80,7 +91,27 @@ export class Renderer {
       },
     });
 
-    return new Renderer(canvas, context, device, pipeline, vertexBuffer);
+    const transformBindGroup = device.createBindGroup({
+      layout: pipeline.getBindGroupLayout(0),
+      entries: [
+        {
+          binding: 0,
+          resource: {
+            buffer: transformBuffer,
+          },
+        },
+      ],
+    });
+
+    return new Renderer(
+      canvas,
+      context,
+      device,
+      pipeline,
+      vertexBuffer,
+      transformBuffer,
+      transformBindGroup,
+    );
   }
 
   render(): void {
@@ -100,6 +131,7 @@ export class Renderer {
     });
 
     pass.setPipeline(this.pipeline);
+    pass.setBindGroup(0, this.transformBindGroup);
     pass.setVertexBuffer(0, this.vertexBuffer);
     pass.draw(3);
     pass.end();
@@ -109,6 +141,7 @@ export class Renderer {
 
   dispose(): void {
     this.vertexBuffer.destroy();
+    this.transformBuffer.destroy();
     this.context.unconfigure();
     this.device.destroy();
   }
