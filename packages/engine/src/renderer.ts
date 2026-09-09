@@ -3,9 +3,11 @@ import { Mesh, type MeshData } from "./mesh.ts";
 import { Mat4 } from "./math/mat4.ts";
 
 const identityViewProjection = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+const defaultLightDirection = new Float32Array([0.5, 0.8, 1, 0]);
 
 export class Renderer {
   private depthTexture: GPUTexture | undefined;
+  private readonly lightDirection = new Float32Array(4);
 
   private constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -13,7 +15,8 @@ export class Renderer {
     private readonly device: GPUDevice,
     private readonly pipeline: GPURenderPipeline,
     private readonly viewProjectionBuffer: GPUBuffer,
-    private readonly viewProjectionBindGroup: GPUBindGroup,
+    private readonly lightDirectionBuffer: GPUBuffer,
+    private readonly renderBindGroup: GPUBindGroup,
   ) {}
 
   static async create(canvas: HTMLCanvasElement): Promise<Renderer> {
@@ -100,13 +103,26 @@ export class Renderer {
 
     device.queue.writeBuffer(viewProjectionBuffer, 0, identityViewProjection);
 
-    const viewProjectionBindGroup = device.createBindGroup({
+    const lightDirectionBuffer = device.createBuffer({
+      size: defaultLightDirection.byteLength,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    device.queue.writeBuffer(lightDirectionBuffer, 0, defaultLightDirection);
+
+    const renderBindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
         {
           binding: 0,
           resource: {
             buffer: viewProjectionBuffer,
+          },
+        },
+        {
+          binding: 1,
+          resource: {
+            buffer: lightDirectionBuffer,
           },
         },
       ],
@@ -118,7 +134,8 @@ export class Renderer {
       device,
       pipeline,
       viewProjectionBuffer,
-      viewProjectionBindGroup,
+      lightDirectionBuffer,
+      renderBindGroup,
     );
   }
 
@@ -128,6 +145,13 @@ export class Renderer {
 
   setViewProjection(viewProjection: Readonly<Mat4>): void {
     this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, viewProjection.values);
+  }
+
+  setLightDirection(x: number, y: number, z: number): void {
+    this.lightDirection[0] = x;
+    this.lightDirection[1] = y;
+    this.lightDirection[2] = z;
+    this.device.queue.writeBuffer(this.lightDirectionBuffer, 0, this.lightDirection);
   }
 
   render(meshes: readonly Mesh[]): void {
@@ -153,7 +177,7 @@ export class Renderer {
     });
 
     pass.setPipeline(this.pipeline);
-    pass.setBindGroup(0, this.viewProjectionBindGroup);
+    pass.setBindGroup(0, this.renderBindGroup);
 
     for (const mesh of meshes) {
       pass.setBindGroup(1, mesh.bindGroup);
@@ -171,6 +195,7 @@ export class Renderer {
   dispose(): void {
     this.depthTexture?.destroy();
     this.viewProjectionBuffer.destroy();
+    this.lightDirectionBuffer.destroy();
     this.context.unconfigure();
     this.device.destroy();
   }

@@ -5,6 +5,8 @@ const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 
 const renderer = await Renderer.create(canvas);
 
+renderer.setLightDirection(0.5, 0.8, 1);
+
 const cube = {
   positions: new Float32Array([
     // front
