@@ -65,7 +65,7 @@ export class Mesh {
     );
   }
 
-  setTransform(transform: Mat4): void {
+  setTransform(transform: Readonly<Mat4>): void {
     this.device.queue.writeBuffer(this.transformBuffer, 0, transform.values);
   }
 
