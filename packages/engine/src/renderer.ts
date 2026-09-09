@@ -1,5 +1,6 @@
 export class Renderer {
   private constructor(
+    private readonly canvas: HTMLCanvasElement,
     private readonly context: GPUCanvasContext,
     private readonly device: GPUDevice,
   ) {}
@@ -27,10 +28,12 @@ export class Renderer {
       format: navigator.gpu.getPreferredCanvasFormat(),
     });
 
-    return new Renderer(context, device);
+    return new Renderer(canvas, context, device);
   }
 
   render(): void {
+    this.resizeCanvas();
+
     const commandEncoder = this.device.createCommandEncoder();
 
     const pass = commandEncoder.beginRenderPass({
@@ -52,5 +55,15 @@ export class Renderer {
   dispose(): void {
     this.context.unconfigure();
     this.device.destroy();
+  }
+
+  private resizeCanvas(): void {
+    const width = Math.round(this.canvas.clientWidth * window.devicePixelRatio);
+    const height = Math.round(this.canvas.clientHeight * window.devicePixelRatio);
+
+    if (this.canvas.width !== width || this.canvas.height !== height) {
+      this.canvas.width = width;
+      this.canvas.height = height;
+    }
   }
 }
