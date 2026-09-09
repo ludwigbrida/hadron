@@ -2,12 +2,22 @@
 @group(1) @binding(0) var<uniform> transform: mat4x4f;
 @group(1) @binding(1) var<uniform> color: vec4f;
 
+struct VertexOutput {
+  @builtin(position) position: vec4f,
+  @location(0) normal: vec3f,
+}
+
 @vertex
-fn vertexMain(@location(0) position: vec3f) -> @builtin(position) vec4f {
-  return viewProjection * transform * vec4f(position, 1.0);
+fn vertexMain(@location(0) position: vec3f, @location(1) normal: vec3f) -> VertexOutput {
+  var output: VertexOutput;
+  output.position = viewProjection * transform * vec4f(position, 1.0);
+  output.normal = normalize((transform * vec4f(normal, 0.0)).xyz);
+  return output;
 }
 
 @fragment
-fn fragmentMain() -> @location(0) vec4f {
-  return color;
+fn fragmentMain(@location(0) normal: vec3f) -> @location(0) vec4f {
+  let lightDirection = normalize(vec3f(0.5, 0.8, 1.0));
+  let brightness = max(dot(normal, lightDirection), 0.1);
+  return vec4f(color.rgb * brightness, color.a);
 }
