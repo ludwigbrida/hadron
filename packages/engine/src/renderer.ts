@@ -30,6 +30,25 @@ export class Renderer {
     return new Renderer(context, device);
   }
 
+  render(): void {
+    const commandEncoder = this.device.createCommandEncoder();
+
+    const pass = commandEncoder.beginRenderPass({
+      colorAttachments: [
+        {
+          view: this.context.getCurrentTexture().createView(),
+          clearValue: { r: 0.5, g: 0.4, b: 0.3, a: 1 },
+          loadOp: "clear",
+          storeOp: "store",
+        },
+      ],
+    });
+
+    pass.end();
+
+    this.device.queue.submit([commandEncoder.finish()]);
+  }
+
   dispose(): void {
     this.context.unconfigure();
     this.device.destroy();
