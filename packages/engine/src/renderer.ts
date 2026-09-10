@@ -1,6 +1,7 @@
+import { Geometry, type GeometryData } from "./geometry.ts";
 import { Mat4 } from "./math/mat4.ts";
 import type { Vec3 } from "./math/vec3.ts";
-import { Mesh, type MeshData } from "./mesh.ts";
+import { Mesh } from "./mesh.ts";
 import meshShader from "./shaders/mesh.wgsl?raw";
 
 const identityViewProjection = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
@@ -140,8 +141,12 @@ export class Renderer {
     );
   }
 
-  createMesh(data: MeshData): Mesh {
-    return Mesh.create(this.device, this.pipeline.getBindGroupLayout(1), data);
+  createGeometry(data: GeometryData): Geometry {
+    return Geometry.create(this.device, data);
+  }
+
+  createMesh(geometry: Geometry): Mesh {
+    return Mesh.create(this.device, this.pipeline.getBindGroupLayout(1), geometry);
   }
 
   setViewProjection(viewProjection: Readonly<Mat4>): void {
@@ -182,10 +187,10 @@ export class Renderer {
 
     for (const mesh of meshes) {
       pass.setBindGroup(1, mesh.bindGroup);
-      pass.setVertexBuffer(0, mesh.vertexBuffer);
-      pass.setVertexBuffer(1, mesh.normalBuffer);
-      pass.setIndexBuffer(mesh.indexBuffer, "uint16");
-      pass.drawIndexed(mesh.indexCount);
+      pass.setVertexBuffer(0, mesh.geometry.vertexBuffer);
+      pass.setVertexBuffer(1, mesh.geometry.normalBuffer);
+      pass.setIndexBuffer(mesh.geometry.indexBuffer, "uint16");
+      pass.drawIndexed(mesh.geometry.indexCount);
     }
 
     pass.end();
