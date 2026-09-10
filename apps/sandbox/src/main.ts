@@ -50,11 +50,11 @@ const secondRotationX = new Mat4();
 const secondRotationY = new Mat4();
 const projection = new Mat4();
 
-Mat4.fromTranslation(firstTranslation, 0.5, 0, -2);
-Mat4.fromTranslation(secondTranslation, -0.5, 0, -2);
+firstTranslation.setTranslation(0.5, 0, -2);
+secondTranslation.setTranslation(-0.5, 0, -2);
 
 function updateProjection(): void {
-  Mat4.fromPerspective(projection, Math.PI / 3, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+  projection.setPerspective(Math.PI / 3, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
   renderer.setViewProjection(projection);
 }
 
@@ -62,16 +62,16 @@ new ResizeObserver(updateProjection).observe(canvas);
 updateProjection();
 
 function render(time: number): void {
-  Mat4.fromRotationX(firstRotationX, time / 1_500);
-  Mat4.fromRotationY(firstRotationY, time / 1_000);
-  Mat4.multiply(firstTransform, firstRotationY, firstRotationX);
-  Mat4.multiply(firstTransform, firstTranslation, firstTransform);
+  firstRotationX.setRotationX(time / 1_500);
+  firstRotationY.setRotationY(time / 1_000);
+  firstTransform.setMultiply(firstRotationY, firstRotationX);
+  firstTransform.setMultiply(firstTranslation, firstTransform);
   firstMesh.setTransform(firstTransform);
 
-  Mat4.fromRotationX(secondRotationX, -time / 1_200);
-  Mat4.fromRotationY(secondRotationY, -time / 2_000);
-  Mat4.multiply(secondTransform, secondRotationY, secondRotationX);
-  Mat4.multiply(secondTransform, secondTranslation, secondTransform);
+  secondRotationX.setRotationX(-time / 1_200);
+  secondRotationY.setRotationY(-time / 2_000);
+  secondTransform.setMultiply(secondRotationY, secondRotationX);
+  secondTransform.setMultiply(secondTranslation, secondTransform);
   secondMesh.setTransform(secondTransform);
 
   renderer.render(meshes);

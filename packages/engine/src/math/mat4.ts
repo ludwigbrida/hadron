@@ -12,8 +12,8 @@ export class Mat4 {
     this.raw[15] = 1;
   }
 
-  static fromTranslation(out: Mat4, x: number, y: number, z: number): Mat4 {
-    const t = out.raw;
+  setTranslation(x: number, y: number, z: number): this {
+    const t = this.raw;
     t[0] = 1;
     t[1] = 0;
     t[2] = 0;
@@ -30,14 +30,14 @@ export class Mat4 {
     t[13] = y;
     t[14] = z;
     t[15] = 1;
-    return out;
+    return this;
   }
 
   // right-handed with WebGPU's 0-to-1 clip-space depth range
-  static fromPerspective(out: Mat4, fovY: number, aspect: number, near: number, far: number): Mat4 {
+  setPerspective(fovY: number, aspect: number, near: number, far: number): this {
     const focalLength = 1 / Math.tan(fovY / 2);
     const depthRange = 1 / (near - far);
-    const p = out.raw;
+    const p = this.raw;
     p[0] = focalLength / aspect;
     p[1] = 0;
     p[2] = 0;
@@ -54,13 +54,13 @@ export class Mat4 {
     p[13] = 0;
     p[14] = far * near * depthRange;
     p[15] = 0;
-    return out;
+    return this;
   }
 
-  static fromRotationX(out: Mat4, radians: number): Mat4 {
+  setRotationX(radians: number): this {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
-    const r = out.raw;
+    const r = this.raw;
     r[0] = 1;
     r[1] = 0;
     r[2] = 0;
@@ -77,13 +77,13 @@ export class Mat4 {
     r[13] = 0;
     r[14] = 0;
     r[15] = 1;
-    return out;
+    return this;
   }
 
-  static fromRotationY(out: Mat4, radians: number): Mat4 {
+  setRotationY(radians: number): this {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
-    const r = out.raw;
+    const r = this.raw;
     r[0] = cosine;
     r[1] = 0;
     r[2] = -sine;
@@ -100,13 +100,13 @@ export class Mat4 {
     r[13] = 0;
     r[14] = 0;
     r[15] = 1;
-    return out;
+    return this;
   }
 
-  static fromRotationZ(out: Mat4, radians: number): Mat4 {
+  setRotationZ(radians: number): this {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
-    const r = out.raw;
+    const r = this.raw;
     r[0] = cosine;
     r[1] = sine;
     r[2] = 0;
@@ -123,14 +123,14 @@ export class Mat4 {
     r[13] = 0;
     r[14] = 0;
     r[15] = 1;
-    return out;
+    return this;
   }
 
-  // aliasing-safe multiply when out === lhs or out === rhs
-  static multiply(out: Mat4, lhs: Readonly<Mat4>, rhs: Readonly<Mat4>): Mat4 {
+  // aliasing-safe when this === lhs or this === rhs
+  setMultiply(lhs: Readonly<Mat4>, rhs: Readonly<Mat4>): this {
     const a = lhs.raw;
     const b = rhs.raw;
-    const o = out.raw;
+    const o = this.raw;
 
     // cache all left-hand-side values upfront
     const a00 = a[0];
@@ -188,6 +188,6 @@ export class Mat4 {
     o[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32;
     o[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
 
-    return out;
+    return this;
   }
 }
