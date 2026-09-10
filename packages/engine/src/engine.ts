@@ -14,10 +14,13 @@ export class Engine {
   private scene: Scene | undefined;
   private update: UpdateCallback | undefined;
 
-  private constructor(private readonly renderer: Renderer) {}
+  private constructor(
+    private readonly canvas: HTMLCanvasElement,
+    private readonly renderer: Renderer,
+  ) {}
 
   static async create(canvas: HTMLCanvasElement): Promise<Engine> {
-    return new Engine(await Renderer.create(canvas));
+    return new Engine(canvas, await Renderer.create(canvas));
   }
 
   createScene(): Scene {
@@ -95,6 +98,8 @@ export class Engine {
       return;
     }
 
+    // TODO: move render target, camera, and dimensions into a viewport abstraction
+    scene.camera.setAspect(this.canvas.clientWidth / this.canvas.clientHeight);
     this.renderer.render(scene);
     this.frameRequest = requestAnimationFrame(this.render);
   };

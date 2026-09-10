@@ -48,14 +48,9 @@ const secondPosition = new Vec3(-0.5, 0, -2);
 const firstScale = new Vec3(1, 1.5, 1);
 const secondScale = new Vec3(1.5, 1, 1);
 
-function updateProjection(): void {
-  scene.camera
-    .setPerspective(Math.PI / 3, canvas.clientWidth / canvas.clientHeight, 0.1, 100)
-    .setLookAt(cameraPosition, cameraTarget, cameraUp);
-}
-
-new ResizeObserver(updateProjection).observe(canvas);
-updateProjection();
+scene.camera
+  .setPerspective(Math.PI / 3, 0.1, 100)
+  .setLookAt(cameraPosition, cameraTarget, cameraUp);
 
 function update(time: number): void {
   firstMesh.transform
