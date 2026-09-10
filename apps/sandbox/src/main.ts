@@ -1,4 +1,4 @@
-import { Color, Mat4, Renderer, Vec3 } from "@hadron/engine";
+import { Color, Mat4, Renderer, Scene, Vec3 } from "@hadron/engine";
 import "./main.css";
 
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
@@ -35,7 +35,7 @@ const cube = renderer.createGeometry({
 
 const firstMesh = renderer.createMesh(cube);
 const secondMesh = renderer.createMesh(cube);
-const meshes = [firstMesh, secondMesh];
+const scene = new Scene().add(firstMesh).add(secondMesh);
 
 firstMesh.setColor(new Color(0.2, 0.7, 1));
 secondMesh.setColor(new Color(1, 0.3, 0.2));
@@ -56,7 +56,7 @@ const secondScale = new Vec3(1.5, 1, 1);
 function updateProjection(): void {
   projection.setPerspective(Math.PI / 3, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
   view.setLookAt(cameraPosition, cameraTarget, cameraUp);
-  renderer.setViewProjection(viewProjection.setMultiply(projection, view));
+  scene.setViewProjection(viewProjection.setMultiply(projection, view));
 }
 
 new ResizeObserver(updateProjection).observe(canvas);
@@ -79,7 +79,7 @@ function render(time: number): void {
     .scale(secondScale);
   secondMesh.setTransform(secondTransform);
 
-  renderer.render(meshes);
+  renderer.render(scene);
 
   requestAnimationFrame(render);
 }

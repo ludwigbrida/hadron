@@ -1,7 +1,7 @@
 import { Geometry, type GeometryData } from "./geometry.ts";
-import { Mat4 } from "./math/mat4.ts";
 import type { Vec3 } from "./math/vec3.ts";
 import { Mesh } from "./mesh.ts";
+import { Scene } from "./scene.ts";
 import meshShader from "./shaders/mesh.wgsl?raw";
 
 const identityViewProjection = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
@@ -149,10 +149,6 @@ export class Renderer {
     return Mesh.create(this.device, this.pipeline.getBindGroupLayout(1), geometry);
   }
 
-  setViewProjection(viewProjection: Readonly<Mat4>): void {
-    this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, viewProjection);
-  }
-
   setLightDirection(direction: Readonly<Vec3>): void {
     this.lightDirection[0] = direction[0];
     this.lightDirection[1] = direction[1];
@@ -160,8 +156,10 @@ export class Renderer {
     this.device.queue.writeBuffer(this.lightDirectionBuffer, 0, this.lightDirection);
   }
 
-  render(meshes: readonly Mesh[]): void {
+  render(scene: Scene): void {
     const depthTexture = this.resizeRenderTargets();
+
+    this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, scene.getViewProjection());
 
     const commandEncoder = this.device.createCommandEncoder();
 
@@ -185,7 +183,7 @@ export class Renderer {
     pass.setPipeline(this.pipeline);
     pass.setBindGroup(0, this.renderBindGroup);
 
-    for (const mesh of meshes) {
+    for (const mesh of scene) {
       pass.setBindGroup(1, mesh.bindGroup);
       pass.setVertexBuffer(0, mesh.geometry.vertexBuffer);
       pass.setVertexBuffer(1, mesh.geometry.normalBuffer);
