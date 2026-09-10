@@ -1,13 +1,23 @@
 import { Camera } from "./camera.ts";
+import type { Geometry } from "./geometry.ts";
 import type { Mesh } from "./mesh.ts";
 
 export class Scene {
   private readonly meshes = new Set<Mesh>();
   readonly camera = new Camera();
 
-  add(mesh: Mesh): this {
+  /** @internal */
+  static create(createMeshInstance: (geometry: Geometry) => Mesh): Scene {
+    return new Scene(createMeshInstance);
+  }
+
+  private constructor(private readonly createMeshInstance: (geometry: Geometry) => Mesh) {}
+
+  createMesh(geometry: Geometry): Mesh {
+    const mesh = this.createMeshInstance(geometry);
+
     this.meshes.add(mesh);
-    return this;
+    return mesh;
   }
 
   remove(mesh: Mesh): this {

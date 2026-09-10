@@ -21,7 +21,7 @@ export class Engine {
   }
 
   createScene(): Scene {
-    return new Scene();
+    return Scene.create((geometry) => this.createMesh(geometry));
   }
 
   createGeometry(data: GeometryData): Geometry {
@@ -31,7 +31,7 @@ export class Engine {
     return geometry;
   }
 
-  createMesh(geometry: Geometry): Mesh {
+  private createMesh(geometry: Geometry): Mesh {
     const mesh = this.renderer.createMesh(geometry);
 
     this.meshes.add(mesh);

@@ -33,9 +33,9 @@ const cube = engine.createGeometry({
   ]),
 });
 
-const firstMesh = engine.createMesh(cube);
-const secondMesh = engine.createMesh(cube);
-const scene = engine.createScene().add(firstMesh).add(secondMesh);
+const scene = engine.createScene();
+const firstMesh = scene.createMesh(cube);
+const secondMesh = scene.createMesh(cube);
 
 firstMesh.setColor(new Color(0.2, 0.7, 1));
 secondMesh.setColor(new Color(1, 0.3, 0.2));
