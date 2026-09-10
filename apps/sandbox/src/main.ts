@@ -1,11 +1,11 @@
-import { Mat4, Renderer } from "@hadron/engine";
+import { Mat4, Renderer, Vec3 } from "@hadron/engine";
 import "./main.css";
 
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 
 const renderer = await Renderer.create(canvas);
 
-renderer.setLightDirection(0.5, 0.8, 1);
+renderer.setLightDirection(new Vec3(0.5, 0.8, 1).normalize());
 
 const cube = {
   positions: new Float32Array([

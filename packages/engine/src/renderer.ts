@@ -1,4 +1,5 @@
 import { Mat4 } from "./math/mat4.ts";
+import type { Vec3 } from "./math/vec3.ts";
 import { Mesh, type MeshData } from "./mesh.ts";
 import meshShader from "./shaders/mesh.wgsl?raw";
 
@@ -147,10 +148,10 @@ export class Renderer {
     this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, viewProjection);
   }
 
-  setLightDirection(x: number, y: number, z: number): void {
-    this.lightDirection[0] = x;
-    this.lightDirection[1] = y;
-    this.lightDirection[2] = z;
+  setLightDirection(direction: Readonly<Vec3>): void {
+    this.lightDirection[0] = direction[0];
+    this.lightDirection[1] = direction[1];
+    this.lightDirection[2] = direction[2];
     this.device.queue.writeBuffer(this.lightDirectionBuffer, 0, this.lightDirection);
   }
 
