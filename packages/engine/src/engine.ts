@@ -7,6 +7,8 @@ import { Scene } from "./scene.ts";
 export type UpdateCallback = (time: number, deltaTime: number) => void;
 
 export class Engine {
+  private readonly geometries = new Set<Geometry>();
+  private readonly meshes = new Set<Mesh>();
   private frameRequest: number | undefined;
   private previousTime: number | undefined;
   private scene: Scene | undefined;
@@ -23,11 +25,17 @@ export class Engine {
   }
 
   createGeometry(data: GeometryData): Geometry {
-    return this.renderer.createGeometry(data);
+    const geometry = this.renderer.createGeometry(data);
+
+    this.geometries.add(geometry);
+    return geometry;
   }
 
   createMesh(geometry: Geometry): Mesh {
-    return this.renderer.createMesh(geometry);
+    const mesh = this.renderer.createMesh(geometry);
+
+    this.meshes.add(mesh);
+    return mesh;
   }
 
   setLightDirection(direction: Readonly<Vec3>): void {
@@ -54,6 +62,17 @@ export class Engine {
 
   dispose(): void {
     this.stop();
+
+    for (const mesh of this.meshes) {
+      mesh.dispose();
+    }
+
+    for (const geometry of this.geometries) {
+      geometry.dispose();
+    }
+
+    this.meshes.clear();
+    this.geometries.clear();
     this.renderer.dispose();
   }
 
