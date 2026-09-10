@@ -92,7 +92,7 @@ export class Mesh {
   }
 
   setTransform(transform: Readonly<Mat4>): void {
-    this.device.queue.writeBuffer(this.transformBuffer, 0, transform.raw);
+    this.device.queue.writeBuffer(this.transformBuffer, 0, transform);
   }
 
   setColor(color: Float32Array): void {

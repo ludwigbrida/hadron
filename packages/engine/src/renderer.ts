@@ -1,6 +1,6 @@
-import meshShader from "./shaders/mesh.wgsl?raw";
-import { Mesh, type MeshData } from "./mesh.ts";
 import { Mat4 } from "./math/mat4.ts";
+import { Mesh, type MeshData } from "./mesh.ts";
+import meshShader from "./shaders/mesh.wgsl?raw";
 
 const identityViewProjection = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 const defaultLightDirection = new Float32Array([0.5, 0.8, 1, 0]);
@@ -144,7 +144,7 @@ export class Renderer {
   }
 
   setViewProjection(viewProjection: Readonly<Mat4>): void {
-    this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, viewProjection.raw);
+    this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, viewProjection);
   }
 
   setLightDirection(x: number, y: number, z: number): void {
