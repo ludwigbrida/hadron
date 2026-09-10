@@ -268,6 +268,31 @@ export class Mat4 extends Float32Array {
     return this;
   }
 
+  rotateZ(radians: number): this {
+    const cosine = Math.cos(radians);
+    const sine = Math.sin(radians);
+
+    const x0 = this[0];
+    const x1 = this[1];
+    const x2 = this[2];
+    const x3 = this[3];
+    const y0 = this[4];
+    const y1 = this[5];
+    const y2 = this[6];
+    const y3 = this[7];
+
+    this[0] = x0 * cosine + y0 * sine;
+    this[1] = x1 * cosine + y1 * sine;
+    this[2] = x2 * cosine + y2 * sine;
+    this[3] = x3 * cosine + y3 * sine;
+    this[4] = y0 * cosine - x0 * sine;
+    this[5] = y1 * cosine - x1 * sine;
+    this[6] = y2 * cosine - x2 * sine;
+    this[7] = y3 * cosine - x3 * sine;
+
+    return this;
+  }
+
   // aliasing-safe when this is either input
   setMultiply(left: Readonly<Mat4>, right: Readonly<Mat4>): this {
     // cache all left-hand-side values upfront

@@ -67,6 +67,7 @@ function render(time: number): void {
     .setTranslation(firstPosition)
     .rotateY(time / 1_000)
     .rotateX(time / 1_500)
+    .rotateZ(time / 2_000)
     .scale(firstScale);
   firstMesh.setTransform(firstTransform);
 
@@ -74,6 +75,7 @@ function render(time: number): void {
     .setTranslation(secondPosition)
     .rotateY(-time / 2_000)
     .rotateX(-time / 1_200)
+    .rotateZ(-time / 1_500)
     .scale(secondScale);
   secondMesh.setTransform(secondTransform);
 
