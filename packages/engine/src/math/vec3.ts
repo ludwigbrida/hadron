@@ -7,6 +7,14 @@ export class Vec3 extends Float32Array {
     super([x, y, z]);
   }
 
+  set(x: number, y: number, z: number): this {
+    this[0] = x;
+    this[1] = y;
+    this[2] = z;
+
+    return this;
+  }
+
   normalize(): this {
     const length = Math.hypot(this[0], this[1], this[2]);
 
