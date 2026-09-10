@@ -2,6 +2,7 @@ export { Camera } from "./camera.ts";
 export { Color } from "./color.ts";
 export { Engine, type Frame, type UpdateCallback } from "./engine.ts";
 export { Geometry, type GeometryData } from "./geometry.ts";
+export { Input } from "./input.ts";
 export { Mat4 } from "./math/mat4.ts";
 export { Vec3 } from "./math/vec3.ts";
 export { Scene } from "./scene.ts";

@@ -1,4 +1,5 @@
 import type { Geometry, GeometryData } from "./geometry.ts";
+import { Input } from "./input.ts";
 import type { Vec3 } from "./math/vec3.ts";
 import type { Mesh } from "./mesh.ts";
 import { Renderer } from "./renderer.ts";
@@ -12,6 +13,7 @@ export interface Frame {
 export type UpdateCallback = (frame: Frame) => void;
 
 export class Engine {
+  readonly input = new Input();
   private readonly geometries = new Set<Geometry>();
   private readonly meshes = new Set<Mesh>();
   private frameRequest: number | undefined;
@@ -70,6 +72,7 @@ export class Engine {
 
   dispose(): void {
     this.stop();
+    this.input.dispose();
 
     for (const mesh of this.meshes) {
       mesh.dispose();
@@ -99,6 +102,7 @@ export class Engine {
 
     this.previousTime = elapsedTime;
     update({ elapsedTime, deltaTime });
+    this.input.resetPointerDelta();
 
     if (this.scene !== scene) {
       return;
