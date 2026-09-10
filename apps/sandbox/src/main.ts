@@ -1,4 +1,4 @@
-import { Color, Engine, Vec3 } from "@hadron/engine";
+import { Color, Engine, type Frame, Vec3 } from "@hadron/engine";
 import "./main.css";
 
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
@@ -52,18 +52,18 @@ scene.camera
   .setPerspective(Math.PI / 3, 0.1, 100)
   .setLookAt(cameraPosition, cameraTarget, cameraUp);
 
-function update(time: number): void {
+function update({ elapsedTime }: Frame): void {
   firstMesh.transform
     .setTranslation(firstPosition)
-    .rotateY(time / 1_000)
-    .rotateX(time / 1_500)
-    .rotateZ(time / 2_000)
+    .rotateY(elapsedTime)
+    .rotateX(elapsedTime / 1.5)
+    .rotateZ(elapsedTime / 2)
     .scale(firstScale);
   secondMesh.transform
     .setTranslation(secondPosition)
-    .rotateY(-time / 2_000)
-    .rotateX(-time / 1_200)
-    .rotateZ(-time / 1_500)
+    .rotateY(-elapsedTime / 2)
+    .rotateX(-elapsedTime / 1.2)
+    .rotateZ(-elapsedTime / 1.5)
     .scale(secondScale);
 }
 

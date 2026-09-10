@@ -4,7 +4,12 @@ import type { Mesh } from "./mesh.ts";
 import { Renderer } from "./renderer.ts";
 import { Scene } from "./scene.ts";
 
-export type UpdateCallback = (time: number, deltaTime: number) => void;
+export interface Frame {
+  readonly elapsedTime: number;
+  readonly deltaTime: number;
+}
+
+export type UpdateCallback = (frame: Frame) => void;
 
 export class Engine {
   private readonly geometries = new Set<Geometry>();
@@ -79,7 +84,7 @@ export class Engine {
     this.renderer.dispose();
   }
 
-  private readonly render = (time: number): void => {
+  private readonly render = (timestamp: number): void => {
     this.frameRequest = undefined;
 
     const scene = this.scene;
@@ -89,10 +94,11 @@ export class Engine {
       return;
     }
 
-    const deltaTime = time - (this.previousTime ?? time);
+    const elapsedTime = timestamp / 1_000;
+    const deltaTime = elapsedTime - (this.previousTime ?? elapsedTime);
 
-    this.previousTime = time;
-    update(time, deltaTime);
+    this.previousTime = elapsedTime;
+    update({ elapsedTime, deltaTime });
 
     if (this.scene !== scene) {
       return;
