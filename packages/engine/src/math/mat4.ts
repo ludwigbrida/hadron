@@ -1,3 +1,5 @@
+import type { Vec3 } from "./vec3.ts";
+
 // column-major order
 export class Mat4 extends Float32Array {
   declare [0]: number;
@@ -21,7 +23,7 @@ export class Mat4 extends Float32Array {
     super([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
   }
 
-  setTranslation(x: number, y: number, z: number): this {
+  setTranslation(translation: Readonly<Vec3>): this {
     this[0] = 1;
     this[1] = 0;
     this[2] = 0;
@@ -34,9 +36,9 @@ export class Mat4 extends Float32Array {
     this[9] = 0;
     this[10] = 1;
     this[11] = 0;
-    this[12] = x;
-    this[13] = y;
-    this[14] = z;
+    this[12] = translation[0];
+    this[13] = translation[1];
+    this[14] = translation[2];
     this[15] = 1;
 
     return this;

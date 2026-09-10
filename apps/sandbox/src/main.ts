@@ -43,6 +43,8 @@ secondMesh.setColor(new Float32Array([1, 0.3, 0.2, 1]));
 const firstTransform = new Mat4();
 const secondTransform = new Mat4();
 const projection = new Mat4();
+const firstPosition = new Vec3(0.5, 0, -2);
+const secondPosition = new Vec3(-0.5, 0, -2);
 
 function updateProjection(): void {
   projection.setPerspective(Math.PI / 3, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
@@ -54,13 +56,13 @@ updateProjection();
 
 function render(time: number): void {
   firstTransform
-    .setTranslation(0.5, 0, -2)
+    .setTranslation(firstPosition)
     .rotateY(time / 1_000)
     .rotateX(time / 1_500);
   firstMesh.setTransform(firstTransform);
 
   secondTransform
-    .setTranslation(-0.5, 0, -2)
+    .setTranslation(secondPosition)
     .rotateY(-time / 2_000)
     .rotateX(-time / 1_200);
   secondMesh.setTransform(secondTransform);
