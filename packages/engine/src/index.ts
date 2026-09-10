@@ -1,3 +1,4 @@
+export { Camera } from "./camera.ts";
 export { Color } from "./color.ts";
 export { Geometry, type GeometryData } from "./geometry.ts";
 export { Mat4 } from "./math/mat4.ts";

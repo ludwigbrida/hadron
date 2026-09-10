@@ -42,9 +42,6 @@ secondMesh.setColor(new Color(1, 0.3, 0.2));
 
 const firstTransform = new Mat4();
 const secondTransform = new Mat4();
-const projection = new Mat4();
-const view = new Mat4();
-const viewProjection = new Mat4();
 const cameraPosition = new Vec3(0, 0.5, 1);
 const cameraTarget = new Vec3(0, 0, -2);
 const cameraUp = new Vec3(0, 1, 0);
@@ -54,9 +51,9 @@ const firstScale = new Vec3(1, 1.5, 1);
 const secondScale = new Vec3(1.5, 1, 1);
 
 function updateProjection(): void {
-  projection.setPerspective(Math.PI / 3, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
-  view.setLookAt(cameraPosition, cameraTarget, cameraUp);
-  scene.setViewProjection(viewProjection.setMultiply(projection, view));
+  scene.camera
+    .setPerspective(Math.PI / 3, canvas.clientWidth / canvas.clientHeight, 0.1, 100)
+    .setLookAt(cameraPosition, cameraTarget, cameraUp);
 }
 
 new ResizeObserver(updateProjection).observe(canvas);

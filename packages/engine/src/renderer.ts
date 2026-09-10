@@ -159,7 +159,7 @@ export class Renderer {
   render(scene: Scene): void {
     const depthTexture = this.resizeRenderTargets();
 
-    this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, scene.getViewProjection());
+    this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, scene.camera.getViewProjection());
 
     const commandEncoder = this.device.createCommandEncoder();
 
