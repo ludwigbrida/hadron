@@ -45,6 +45,8 @@ const secondTransform = new Mat4();
 const projection = new Mat4();
 const firstPosition = new Vec3(0.5, 0, -2);
 const secondPosition = new Vec3(-0.5, 0, -2);
+const firstScale = new Vec3(1, 1.5, 1);
+const secondScale = new Vec3(1.5, 1, 1);
 
 function updateProjection(): void {
   projection.setPerspective(Math.PI / 3, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
@@ -58,13 +60,15 @@ function render(time: number): void {
   firstTransform
     .setTranslation(firstPosition)
     .rotateY(time / 1_000)
-    .rotateX(time / 1_500);
+    .rotateX(time / 1_500)
+    .scale(firstScale);
   firstMesh.setTransform(firstTransform);
 
   secondTransform
     .setTranslation(secondPosition)
     .rotateY(-time / 2_000)
-    .rotateX(-time / 1_200);
+    .rotateX(-time / 1_200)
+    .scale(secondScale);
   secondMesh.setTransform(secondTransform);
 
   renderer.render(meshes);

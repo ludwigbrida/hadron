@@ -168,6 +168,27 @@ export class Mat4 extends Float32Array {
     return this;
   }
 
+  scale(scale: Readonly<Vec3>): this {
+    const x = scale[0];
+    const y = scale[1];
+    const z = scale[2];
+
+    this[0] *= x;
+    this[1] *= x;
+    this[2] *= x;
+    this[3] *= x;
+    this[4] *= y;
+    this[5] *= y;
+    this[6] *= y;
+    this[7] *= y;
+    this[8] *= z;
+    this[9] *= z;
+    this[10] *= z;
+    this[11] *= z;
+
+    return this;
+  }
+
   setRotationZ(radians: number): this {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
