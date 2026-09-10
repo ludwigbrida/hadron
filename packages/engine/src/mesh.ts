@@ -1,4 +1,4 @@
-import type { Color } from "./color.ts";
+import { Color } from "./color.ts";
 import { Mat4 } from "./math/mat4.ts";
 
 export interface MeshData {
@@ -8,7 +8,7 @@ export interface MeshData {
 }
 
 const identityTransform = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-const defaultColor = new Float32Array([1, 1, 1, 1]);
+const defaultColor = new Color(1, 1, 1);
 
 export class Mesh {
   private constructor(

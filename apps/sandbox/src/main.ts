@@ -37,8 +37,8 @@ const firstMesh = renderer.createMesh(cube);
 const secondMesh = renderer.createMesh(cube);
 const meshes = [firstMesh, secondMesh];
 
-firstMesh.setColor(new Color(0.2, 0.7, 1, 1));
-secondMesh.setColor(new Color(1, 0.3, 0.2, 1));
+firstMesh.setColor(new Color(0.2, 0.7, 1));
+secondMesh.setColor(new Color(1, 0.3, 0.2));
 
 const firstTransform = new Mat4();
 const secondTransform = new Mat4();
