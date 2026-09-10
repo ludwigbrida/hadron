@@ -14,6 +14,7 @@ export class Mat4 {
 
   setTranslation(x: number, y: number, z: number): this {
     const out = this.raw;
+
     out[0] = 1;
     out[1] = 0;
     out[2] = 0;
@@ -30,6 +31,7 @@ export class Mat4 {
     out[13] = y;
     out[14] = z;
     out[15] = 1;
+
     return this;
   }
 
@@ -38,7 +40,9 @@ export class Mat4 {
   setPerspective(fovY: number, aspect: number, near: number, far: number): this {
     const focalLength = 1 / Math.tan(fovY / 2);
     const inverseDepthRange = 1 / (near - far);
+
     const out = this.raw;
+
     out[0] = focalLength / aspect;
     out[1] = 0;
     out[2] = 0;
@@ -55,13 +59,16 @@ export class Mat4 {
     out[13] = 0;
     out[14] = far * near * inverseDepthRange;
     out[15] = 0;
+
     return this;
   }
 
   setRotationX(radians: number): this {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
+
     const out = this.raw;
+
     out[0] = 1;
     out[1] = 0;
     out[2] = 0;
@@ -78,13 +85,43 @@ export class Mat4 {
     out[13] = 0;
     out[14] = 0;
     out[15] = 1;
+
+    return this;
+  }
+
+  rotateX(radians: number): this {
+    const cosine = Math.cos(radians);
+    const sine = Math.sin(radians);
+
+    const out = this.raw;
+
+    const y0 = out[4];
+    const y1 = out[5];
+    const y2 = out[6];
+    const y3 = out[7];
+    const z0 = out[8];
+    const z1 = out[9];
+    const z2 = out[10];
+    const z3 = out[11];
+
+    out[4] = y0 * cosine + z0 * sine;
+    out[5] = y1 * cosine + z1 * sine;
+    out[6] = y2 * cosine + z2 * sine;
+    out[7] = y3 * cosine + z3 * sine;
+    out[8] = z0 * cosine - y0 * sine;
+    out[9] = z1 * cosine - y1 * sine;
+    out[10] = z2 * cosine - y2 * sine;
+    out[11] = z3 * cosine - y3 * sine;
+
     return this;
   }
 
   setRotationY(radians: number): this {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
+
     const out = this.raw;
+
     out[0] = cosine;
     out[1] = 0;
     out[2] = -sine;
@@ -101,13 +138,43 @@ export class Mat4 {
     out[13] = 0;
     out[14] = 0;
     out[15] = 1;
+
+    return this;
+  }
+
+  rotateY(radians: number): this {
+    const cosine = Math.cos(radians);
+    const sine = Math.sin(radians);
+
+    const out = this.raw;
+
+    const x0 = out[0];
+    const x1 = out[1];
+    const x2 = out[2];
+    const x3 = out[3];
+    const z0 = out[8];
+    const z1 = out[9];
+    const z2 = out[10];
+    const z3 = out[11];
+
+    out[0] = x0 * cosine - z0 * sine;
+    out[1] = x1 * cosine - z1 * sine;
+    out[2] = x2 * cosine - z2 * sine;
+    out[3] = x3 * cosine - z3 * sine;
+    out[8] = x0 * sine + z0 * cosine;
+    out[9] = x1 * sine + z1 * cosine;
+    out[10] = x2 * sine + z2 * cosine;
+    out[11] = x3 * sine + z3 * cosine;
+
     return this;
   }
 
   setRotationZ(radians: number): this {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
+
     const out = this.raw;
+
     out[0] = cosine;
     out[1] = sine;
     out[2] = 0;
@@ -124,6 +191,7 @@ export class Mat4 {
     out[13] = 0;
     out[14] = 0;
     out[15] = 1;
+
     return this;
   }
 
@@ -191,5 +259,9 @@ export class Mat4 {
     out[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33;
 
     return this;
+  }
+
+  multiply(right: Readonly<Mat4>): this {
+    return this.setMultiply(this, right);
   }
 }

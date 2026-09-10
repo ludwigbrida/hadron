@@ -41,17 +41,8 @@ firstMesh.setColor(new Float32Array([0.2, 0.7, 1, 1]));
 secondMesh.setColor(new Float32Array([1, 0.3, 0.2, 1]));
 
 const firstTransform = new Mat4();
-const firstTranslation = new Mat4();
-const firstRotationX = new Mat4();
-const firstRotationY = new Mat4();
 const secondTransform = new Mat4();
-const secondTranslation = new Mat4();
-const secondRotationX = new Mat4();
-const secondRotationY = new Mat4();
 const projection = new Mat4();
-
-firstTranslation.setTranslation(0.5, 0, -2);
-secondTranslation.setTranslation(-0.5, 0, -2);
 
 function updateProjection(): void {
   projection.setPerspective(Math.PI / 3, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
@@ -62,16 +53,16 @@ new ResizeObserver(updateProjection).observe(canvas);
 updateProjection();
 
 function render(time: number): void {
-  firstRotationX.setRotationX(time / 1_500);
-  firstRotationY.setRotationY(time / 1_000);
-  firstTransform.setMultiply(firstRotationY, firstRotationX);
-  firstTransform.setMultiply(firstTranslation, firstTransform);
+  firstTransform
+    .setTranslation(0.5, 0, -2)
+    .rotateY(time / 1_000)
+    .rotateX(time / 1_500);
   firstMesh.setTransform(firstTransform);
 
-  secondRotationX.setRotationX(-time / 1_200);
-  secondRotationY.setRotationY(-time / 2_000);
-  secondTransform.setMultiply(secondRotationY, secondRotationX);
-  secondTransform.setMultiply(secondTranslation, secondTransform);
+  secondTransform
+    .setTranslation(-0.5, 0, -2)
+    .rotateY(-time / 2_000)
+    .rotateX(-time / 1_200);
   secondMesh.setTransform(secondTransform);
 
   renderer.render(meshes);
