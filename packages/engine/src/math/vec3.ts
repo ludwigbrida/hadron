@@ -1,4 +1,5 @@
 export class Vec3 {
+  /** @internal */
   readonly raw = new Float32Array(3);
 
   constructor(x = 0, y = 0, z = 0) {

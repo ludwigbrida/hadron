@@ -1,5 +1,6 @@
 // column-major order
 export class Mat4 {
+  /** @internal */
   readonly raw = new Float32Array(16);
 
   constructor() {
