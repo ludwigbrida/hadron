@@ -70,6 +70,61 @@ export class Mat4 extends Float32Array {
     return this;
   }
 
+  setLookAt(eye: Readonly<Vec3>, target: Readonly<Vec3>, up: Readonly<Vec3>): this {
+    let z0 = eye[0] - target[0];
+    let z1 = eye[1] - target[1];
+    let z2 = eye[2] - target[2];
+    let length = Math.hypot(z0, z1, z2);
+
+    if (length === 0) {
+      this.set([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+      return this;
+    }
+
+    length = 1 / length;
+    z0 *= length;
+    z1 *= length;
+    z2 *= length;
+
+    let x0 = up[1] * z2 - up[2] * z1;
+    let x1 = up[2] * z0 - up[0] * z2;
+    let x2 = up[0] * z1 - up[1] * z0;
+    length = Math.hypot(x0, x1, x2);
+
+    if (length === 0) {
+      this.set([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+      return this;
+    }
+
+    length = 1 / length;
+    x0 *= length;
+    x1 *= length;
+    x2 *= length;
+
+    const y0 = z1 * x2 - z2 * x1;
+    const y1 = z2 * x0 - z0 * x2;
+    const y2 = z0 * x1 - z1 * x0;
+
+    this[0] = x0;
+    this[1] = y0;
+    this[2] = z0;
+    this[3] = 0;
+    this[4] = x1;
+    this[5] = y1;
+    this[6] = z1;
+    this[7] = 0;
+    this[8] = x2;
+    this[9] = y2;
+    this[10] = z2;
+    this[11] = 0;
+    this[12] = -(x0 * eye[0] + x1 * eye[1] + x2 * eye[2]);
+    this[13] = -(y0 * eye[0] + y1 * eye[1] + y2 * eye[2]);
+    this[14] = -(z0 * eye[0] + z1 * eye[1] + z2 * eye[2]);
+    this[15] = 1;
+
+    return this;
+  }
+
   setRotationX(radians: number): this {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
