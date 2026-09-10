@@ -1,16 +1,16 @@
 // column-major order
 export class Mat4 {
-  readonly values = new Float32Array(16);
+  readonly raw = new Float32Array(16);
 
   constructor() {
-    this.values[0] = 1;
-    this.values[5] = 1;
-    this.values[10] = 1;
-    this.values[15] = 1;
+    this.raw[0] = 1;
+    this.raw[5] = 1;
+    this.raw[10] = 1;
+    this.raw[15] = 1;
   }
 
   static fromTranslation(out: Mat4, x: number, y: number, z: number): Mat4 {
-    const t = out.values;
+    const t = out.raw;
     t[0] = 1;
     t[1] = 0;
     t[2] = 0;
@@ -34,7 +34,7 @@ export class Mat4 {
   static fromPerspective(out: Mat4, fovY: number, aspect: number, near: number, far: number): Mat4 {
     const focalLength = 1 / Math.tan(fovY / 2);
     const depthRange = 1 / (near - far);
-    const p = out.values;
+    const p = out.raw;
     p[0] = focalLength / aspect;
     p[1] = 0;
     p[2] = 0;
@@ -57,7 +57,7 @@ export class Mat4 {
   static fromRotationX(out: Mat4, radians: number): Mat4 {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
-    const r = out.values;
+    const r = out.raw;
     r[0] = 1;
     r[1] = 0;
     r[2] = 0;
@@ -80,7 +80,7 @@ export class Mat4 {
   static fromRotationY(out: Mat4, radians: number): Mat4 {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
-    const r = out.values;
+    const r = out.raw;
     r[0] = cosine;
     r[1] = 0;
     r[2] = -sine;
@@ -103,7 +103,7 @@ export class Mat4 {
   static fromRotationZ(out: Mat4, radians: number): Mat4 {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
-    const r = out.values;
+    const r = out.raw;
     r[0] = cosine;
     r[1] = sine;
     r[2] = 0;
@@ -125,9 +125,9 @@ export class Mat4 {
 
   // aliasing-safe multiply when out === lhs or out === rhs
   static multiply(out: Mat4, lhs: Readonly<Mat4>, rhs: Readonly<Mat4>): Mat4 {
-    const a = lhs.values;
-    const b = rhs.values;
-    const o = out.values;
+    const a = lhs.raw;
+    const b = rhs.raw;
+    const o = out.raw;
 
     // cache all left-hand-side values upfront
     const a00 = a[0]!;

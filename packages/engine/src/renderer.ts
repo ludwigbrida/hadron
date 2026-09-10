@@ -144,7 +144,7 @@ export class Renderer {
   }
 
   setViewProjection(viewProjection: Readonly<Mat4>): void {
-    this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, viewProjection.values);
+    this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, viewProjection.raw);
   }
 
   setLightDirection(x: number, y: number, z: number): void {
