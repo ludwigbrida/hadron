@@ -1,3 +1,4 @@
+import type { Color } from "./color.ts";
 import { Mat4 } from "./math/mat4.ts";
 
 export interface MeshData {
@@ -95,7 +96,7 @@ export class Mesh {
     this.device.queue.writeBuffer(this.transformBuffer, 0, transform);
   }
 
-  setColor(color: Float32Array): void {
+  setColor(color: Readonly<Color>): void {
     this.device.queue.writeBuffer(this.colorBuffer, 0, color);
   }
 
