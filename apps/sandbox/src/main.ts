@@ -1,13 +1,13 @@
-import { Color, Mat4, Renderer, Scene, Vec3 } from "@hadron/engine";
+import { Color, Engine, Mat4, Vec3 } from "@hadron/engine";
 import "./main.css";
 
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 
-const renderer = await Renderer.create(canvas);
+const engine = await Engine.create(canvas);
 
-renderer.setLightDirection(new Vec3(0.5, 0.8, 1).normalize());
+engine.setLightDirection(new Vec3(0.5, 0.8, 1).normalize());
 
-const cube = renderer.createGeometry({
+const cube = engine.createGeometry({
   positions: new Float32Array([
     // front
     -0.25, -0.25, 0.25, 0.25, -0.25, 0.25, 0.25, 0.25, 0.25, -0.25, 0.25, 0.25,
@@ -33,9 +33,9 @@ const cube = renderer.createGeometry({
   ]),
 });
 
-const firstMesh = renderer.createMesh(cube);
-const secondMesh = renderer.createMesh(cube);
-const scene = new Scene().add(firstMesh).add(secondMesh);
+const firstMesh = engine.createMesh(cube);
+const secondMesh = engine.createMesh(cube);
+const scene = engine.createScene().add(firstMesh).add(secondMesh);
 
 firstMesh.setColor(new Color(0.2, 0.7, 1));
 secondMesh.setColor(new Color(1, 0.3, 0.2));
@@ -59,7 +59,7 @@ function updateProjection(): void {
 new ResizeObserver(updateProjection).observe(canvas);
 updateProjection();
 
-function render(time: number): void {
+function update(time: number): void {
   firstTransform
     .setTranslation(firstPosition)
     .rotateY(time / 1_000)
@@ -75,10 +75,6 @@ function render(time: number): void {
     .rotateZ(-time / 1_500)
     .scale(secondScale);
   secondMesh.setTransform(secondTransform);
-
-  renderer.render(scene);
-
-  requestAnimationFrame(render);
 }
 
-requestAnimationFrame(render);
+engine.start(scene, update);
