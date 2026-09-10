@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "paths": {
+      "@hadron/engine": ["./packages/engine/src/index.ts"]
+    },
     "allowImportingTsExtensions": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
@@ -20,6 +23,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
+    "stripInternal": true,
     "target": "ES2025",
     "useDefineForClassFields": true,
     "verbatimModuleSyntax": true
