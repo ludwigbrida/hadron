@@ -7,7 +7,7 @@ export interface MeshData {
   indices: Uint16Array;
 }
 
-const identityTransform = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+const identityTransform = new Mat4();
 const defaultColor = new Color(1, 1, 1);
 
 export class Mesh {
