@@ -33,12 +33,20 @@ const cube = engine.createGeometry({
   ]),
 });
 
+const ground = engine.createGeometry({
+  positions: new Float32Array([-10, -1, -10, 10, -1, -10, 10, -1, 10, -10, -1, 10]),
+  normals: new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]),
+  indices: new Uint16Array([0, 2, 1, 0, 3, 2]),
+});
+
 const scene = engine.createScene();
 const firstMesh = scene.createMesh(cube);
 const secondMesh = scene.createMesh(cube);
+const groundMesh = scene.createMesh(ground);
 
 firstMesh.setColor(new Color(0.2, 0.7, 1));
 secondMesh.setColor(new Color(1, 0.3, 0.2));
+groundMesh.setColor(new Color(0.2, 0.25, 0.3));
 
 const cameraPosition = new Vec3(0, 0.5, 1);
 const cameraTarget = new Vec3(0, 0, -2);
