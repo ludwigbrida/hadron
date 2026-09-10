@@ -161,6 +161,11 @@ export class Renderer {
 
     this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, scene.camera.getViewProjection());
 
+    for (const mesh of scene) {
+      // TODO: handle with inverse-transpose normal matrix for non-uniform scales
+      this.device.queue.writeBuffer(mesh.transformBuffer, 0, mesh.transform);
+    }
+
     const commandEncoder = this.device.createCommandEncoder();
 
     const pass = commandEncoder.beginRenderPass({

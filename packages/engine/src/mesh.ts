@@ -2,25 +2,26 @@ import { Color } from "./color.ts";
 import type { Geometry } from "./geometry.ts";
 import { Mat4 } from "./math/mat4.ts";
 
-const identityTransform = new Mat4();
 const defaultColor = new Color(1, 1, 1);
 
 export class Mesh {
   private constructor(
     private readonly device: GPUDevice,
     readonly geometry: Geometry,
+    readonly transform: Mat4,
     readonly transformBuffer: GPUBuffer,
     readonly colorBuffer: GPUBuffer,
     readonly bindGroup: GPUBindGroup,
   ) {}
 
   static create(device: GPUDevice, bindGroupLayout: GPUBindGroupLayout, geometry: Geometry): Mesh {
+    const transform = new Mat4();
     const transformBuffer = device.createBuffer({
-      size: identityTransform.byteLength,
+      size: transform.byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    device.queue.writeBuffer(transformBuffer, 0, identityTransform);
+    device.queue.writeBuffer(transformBuffer, 0, transform);
 
     const colorBuffer = device.createBuffer({
       size: defaultColor.byteLength,
@@ -47,12 +48,7 @@ export class Mesh {
       ],
     });
 
-    return new Mesh(device, geometry, transformBuffer, colorBuffer, bindGroup);
-  }
-
-  setTransform(transform: Readonly<Mat4>): void {
-    // TODO: handle with inverse-transpose normal matrix for non-uniform scales
-    this.device.queue.writeBuffer(this.transformBuffer, 0, transform);
+    return new Mesh(device, geometry, transform, transformBuffer, colorBuffer, bindGroup);
   }
 
   setColor(color: Readonly<Color>): void {

@@ -1,4 +1,4 @@
-import { Color, Engine, Mat4, Vec3 } from "@hadron/engine";
+import { Color, Engine, Vec3 } from "@hadron/engine";
 import "./main.css";
 
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
@@ -40,8 +40,6 @@ const scene = engine.createScene().add(firstMesh).add(secondMesh);
 firstMesh.setColor(new Color(0.2, 0.7, 1));
 secondMesh.setColor(new Color(1, 0.3, 0.2));
 
-const firstTransform = new Mat4();
-const secondTransform = new Mat4();
 const cameraPosition = new Vec3(0, 0.5, 1);
 const cameraTarget = new Vec3(0, 0, -2);
 const cameraUp = new Vec3(0, 1, 0);
@@ -60,21 +58,18 @@ new ResizeObserver(updateProjection).observe(canvas);
 updateProjection();
 
 function update(time: number): void {
-  firstTransform
+  firstMesh.transform
     .setTranslation(firstPosition)
     .rotateY(time / 1_000)
     .rotateX(time / 1_500)
     .rotateZ(time / 2_000)
     .scale(firstScale);
-  firstMesh.setTransform(firstTransform);
-
-  secondTransform
+  secondMesh.transform
     .setTranslation(secondPosition)
     .rotateY(-time / 2_000)
     .rotateX(-time / 1_200)
     .rotateZ(-time / 1_500)
     .scale(secondScale);
-  secondMesh.setTransform(secondTransform);
 }
 
 engine.start(scene, update);
