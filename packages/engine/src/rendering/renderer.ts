@@ -1,4 +1,3 @@
-import type { Vec3 } from "../math/vec3.ts";
 import { Scene } from "../scene/scene.ts";
 import { Color } from "./color.ts";
 import { Geometry, type GeometryData } from "./geometry.ts";
@@ -7,8 +6,8 @@ import { Mesh } from "./mesh.ts";
 import meshShader from "./shaders/mesh.wgsl?raw";
 
 const identityViewProjection = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-const defaultLightDirection = new Float32Array([0.5, 0.8, 1, 0]);
-const defaultAmbientLight = new Color(0.1, 0.1, 0.1);
+const emptyLightDirection = new Float32Array(4);
+const emptyAmbientLight = new Color(0, 0, 0);
 
 export class Renderer {
   private depthTexture: GPUTexture | undefined;
@@ -110,18 +109,18 @@ export class Renderer {
     device.queue.writeBuffer(viewProjectionBuffer, 0, identityViewProjection);
 
     const lightDirectionBuffer = device.createBuffer({
-      size: defaultLightDirection.byteLength,
+      size: emptyLightDirection.byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    device.queue.writeBuffer(lightDirectionBuffer, 0, defaultLightDirection);
+    device.queue.writeBuffer(lightDirectionBuffer, 0, emptyLightDirection);
 
     const ambientLightBuffer = device.createBuffer({
-      size: defaultAmbientLight.byteLength,
+      size: emptyAmbientLight.byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    device.queue.writeBuffer(ambientLightBuffer, 0, defaultAmbientLight);
+    device.queue.writeBuffer(ambientLightBuffer, 0, emptyAmbientLight);
 
     const renderBindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
@@ -171,21 +170,15 @@ export class Renderer {
     return Mesh.create(this.device, this.pipeline.getBindGroupLayout(1), geometry, material);
   }
 
-  setLightDirection(direction: Readonly<Vec3>): void {
-    this.lightDirection[0] = direction[0];
-    this.lightDirection[1] = direction[1];
-    this.lightDirection[2] = direction[2];
-    this.device.queue.writeBuffer(this.lightDirectionBuffer, 0, this.lightDirection);
-  }
-
-  setAmbientLight(color: Readonly<Color>): void {
-    this.device.queue.writeBuffer(this.ambientLightBuffer, 0, color);
-  }
-
   render(scene: Scene): void {
     const depthTexture = this.resizeRenderTargets();
 
     this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, scene.camera.getViewProjection());
+    this.lightDirection[0] = scene.directionalLight.direction[0];
+    this.lightDirection[1] = scene.directionalLight.direction[1];
+    this.lightDirection[2] = scene.directionalLight.direction[2];
+    this.device.queue.writeBuffer(this.lightDirectionBuffer, 0, this.lightDirection);
+    this.device.queue.writeBuffer(this.ambientLightBuffer, 0, scene.ambientLight);
 
     for (const mesh of scene) {
       // TODO: handle with inverse-transpose normal matrix for non-uniform scales

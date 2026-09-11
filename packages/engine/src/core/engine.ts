@@ -1,6 +1,4 @@
 import { Input } from "../input/input.ts";
-import type { Vec3 } from "../math/vec3.ts";
-import type { Color } from "../rendering/color.ts";
 import type { Geometry, GeometryData } from "../rendering/geometry.ts";
 import type { Material } from "../rendering/material.ts";
 import type { Mesh } from "../rendering/mesh.ts";
@@ -56,14 +54,6 @@ export class Engine {
 
     this.meshes.add(mesh);
     return mesh;
-  }
-
-  setLightDirection(direction: Readonly<Vec3>): void {
-    this.renderer.setLightDirection(direction);
-  }
-
-  setAmbientLight(color: Readonly<Color>): void {
-    this.renderer.setAmbientLight(color);
   }
 
   start(scene: Scene, update: UpdateCallback): void {

@@ -1,12 +1,9 @@
-import { Color, Engine, type Frame, Vec3 } from "@hadron/engine";
+import { Color, Engine, type Frame } from "@hadron/engine";
 import "./main.css";
 
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 
 const engine = await Engine.create(canvas);
-
-engine.setLightDirection(new Vec3(0.5, 0.8, 1).normalize());
-engine.setAmbientLight(new Color(0.1, 0.1, 0.1));
 
 const cube = engine.createGeometry({
   positions: new Float32Array([
