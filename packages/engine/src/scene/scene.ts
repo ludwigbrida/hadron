@@ -15,6 +15,13 @@ export class Scene {
 
   private constructor(private readonly createMeshInstance: (geometry: Geometry) => Mesh) {}
 
+  createNode(): Node {
+    const node = new Node();
+
+    this.root.addChild(node);
+    return node;
+  }
+
   createMesh(geometry: Geometry): Mesh {
     const mesh = this.createMeshInstance(geometry);
 
