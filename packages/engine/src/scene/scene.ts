@@ -1,6 +1,6 @@
+import type { Geometry } from "../rendering/geometry.ts";
+import type { Mesh } from "../rendering/mesh.ts";
 import { Camera } from "./camera.ts";
-import type { Geometry } from "./geometry.ts";
-import type { Mesh } from "./mesh.ts";
 
 export class Scene {
   private readonly meshes = new Set<Mesh>();

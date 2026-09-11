@@ -1,9 +1,9 @@
-import type { Geometry, GeometryData } from "./geometry.ts";
-import { Input } from "./input.ts";
-import type { Vec3 } from "./math/vec3.ts";
-import type { Mesh } from "./mesh.ts";
-import { Renderer } from "./renderer.ts";
-import { Scene } from "./scene.ts";
+import { Input } from "../input/input.ts";
+import type { Vec3 } from "../math/vec3.ts";
+import type { Geometry, GeometryData } from "../rendering/geometry.ts";
+import type { Mesh } from "../rendering/mesh.ts";
+import { Renderer } from "../rendering/renderer.ts";
+import { Scene } from "../scene/scene.ts";
 
 export interface Frame {
   readonly elapsedTime: number;

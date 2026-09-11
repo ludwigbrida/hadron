@@ -1,5 +1,5 @@
-import { Mat4 } from "./math/mat4.ts";
-import type { Vec3 } from "./math/vec3.ts";
+import { Mat4 } from "../math/mat4.ts";
+import type { Vec3 } from "../math/vec3.ts";
 
 export class Camera {
   private fovY = Math.PI / 3;

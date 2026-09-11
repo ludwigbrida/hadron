@@ -1,6 +1,6 @@
+import { Mat4 } from "../math/mat4.ts";
 import { Color } from "./color.ts";
 import type { Geometry } from "./geometry.ts";
-import { Mat4 } from "./math/mat4.ts";
 
 const defaultColor = new Color(1, 1, 1);
 

@@ -1,7 +1,7 @@
+import type { Vec3 } from "../math/vec3.ts";
+import { Scene } from "../scene/scene.ts";
 import { Geometry, type GeometryData } from "./geometry.ts";
-import type { Vec3 } from "./math/vec3.ts";
 import { Mesh } from "./mesh.ts";
-import { Scene } from "./scene.ts";
 import meshShader from "./shaders/mesh.wgsl?raw";
 
 const identityViewProjection = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
