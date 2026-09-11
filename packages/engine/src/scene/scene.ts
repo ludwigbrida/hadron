@@ -28,8 +28,8 @@ export class Scene {
     return mesh;
   }
 
-  remove(mesh: Mesh): this {
-    mesh.parent?.removeChild(mesh);
+  remove(node: Node): this {
+    node.parent?.removeChild(node);
     return this;
   }
 
