@@ -293,6 +293,67 @@ export class Mat4 extends Float32Array {
     return this;
   }
 
+  // aliasing-safe when this is the input
+  setInverse(matrix: Readonly<Mat4>): this {
+    const m00 = matrix[0];
+    const m01 = matrix[1];
+    const m02 = matrix[2];
+    const m03 = matrix[3];
+    const m10 = matrix[4];
+    const m11 = matrix[5];
+    const m12 = matrix[6];
+    const m13 = matrix[7];
+    const m20 = matrix[8];
+    const m21 = matrix[9];
+    const m22 = matrix[10];
+    const m23 = matrix[11];
+    const m30 = matrix[12];
+    const m31 = matrix[13];
+    const m32 = matrix[14];
+    const m33 = matrix[15];
+
+    const c00 = m00 * m11 - m01 * m10;
+    const c01 = m00 * m12 - m02 * m10;
+    const c02 = m00 * m13 - m03 * m10;
+    const c03 = m01 * m12 - m02 * m11;
+    const c04 = m01 * m13 - m03 * m11;
+    const c05 = m02 * m13 - m03 * m12;
+    const c06 = m20 * m31 - m21 * m30;
+    const c07 = m20 * m32 - m22 * m30;
+    const c08 = m20 * m33 - m23 * m30;
+    const c09 = m21 * m32 - m22 * m31;
+    const c10 = m21 * m33 - m23 * m31;
+    const c11 = m22 * m33 - m23 * m32;
+
+    const determinant = c00 * c11 - c01 * c10 + c02 * c09 + c03 * c08 - c04 * c07 + c05 * c06;
+
+    if (determinant === 0) {
+      // TODO: handle this more gracefully
+      throw new Error("Matrix is not invertible.");
+    }
+
+    const inverseDeterminant = 1 / determinant;
+
+    this[0] = (m11 * c11 - m12 * c10 + m13 * c09) * inverseDeterminant;
+    this[1] = (m02 * c10 - m01 * c11 - m03 * c09) * inverseDeterminant;
+    this[2] = (m31 * c05 - m32 * c04 + m33 * c03) * inverseDeterminant;
+    this[3] = (m22 * c04 - m21 * c05 - m23 * c03) * inverseDeterminant;
+    this[4] = (m12 * c08 - m10 * c11 - m13 * c07) * inverseDeterminant;
+    this[5] = (m00 * c11 - m02 * c08 + m03 * c07) * inverseDeterminant;
+    this[6] = (m32 * c02 - m30 * c05 - m33 * c01) * inverseDeterminant;
+    this[7] = (m20 * c05 - m22 * c02 + m23 * c01) * inverseDeterminant;
+    this[8] = (m10 * c10 - m11 * c08 + m13 * c06) * inverseDeterminant;
+    this[9] = (m01 * c08 - m00 * c10 - m03 * c06) * inverseDeterminant;
+    this[10] = (m30 * c04 - m31 * c02 + m33 * c00) * inverseDeterminant;
+    this[11] = (m21 * c02 - m20 * c04 - m23 * c00) * inverseDeterminant;
+    this[12] = (m11 * c07 - m10 * c09 - m12 * c06) * inverseDeterminant;
+    this[13] = (m00 * c09 - m01 * c07 + m02 * c06) * inverseDeterminant;
+    this[14] = (m31 * c01 - m30 * c03 - m32 * c00) * inverseDeterminant;
+    this[15] = (m20 * c03 - m21 * c01 + m22 * c00) * inverseDeterminant;
+
+    return this;
+  }
+
   // aliasing-safe when this is either input
   setMultiply(left: Readonly<Mat4>, right: Readonly<Mat4>): this {
     // cache all left-hand-side values upfront
