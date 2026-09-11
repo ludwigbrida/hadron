@@ -5,6 +5,19 @@ const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 
 const engine = await Engine.create(canvas);
 
+const checkerboard = new ImageData(
+  new Uint8ClampedArray([255, 255, 255, 255, 30, 30, 30, 255, 30, 30, 30, 255, 255, 255, 255, 255]),
+  2,
+  2,
+);
+
+const checkerboardTexture = engine.createTexture(await createImageBitmap(checkerboard), {
+  addressModeU: "repeat",
+  addressModeV: "repeat",
+  minFilter: "nearest",
+  magFilter: "nearest",
+});
+
 const cube = engine.createGeometry({
   positions: new Float32Array([
     // front
@@ -38,14 +51,14 @@ const cube = engine.createGeometry({
 const ground = engine.createGeometry({
   positions: new Float32Array([-10, -1, -10, 10, -1, -10, 10, -1, 10, -10, -1, 10]),
   normals: new Float32Array([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0]),
-  texCoords: new Float32Array([0, 0, 1, 0, 1, 1, 0, 1]),
+  texCoords: new Float32Array([0, 0, 10, 0, 10, 10, 0, 10]),
   indices: new Uint16Array([0, 2, 1, 0, 3, 2]),
 });
 
 const scene = engine.createScene();
 const blueMaterial = engine.createMaterial(new Color(0.2, 0.7, 1));
 const redMaterial = engine.createMaterial(new Color(1, 0.3, 0.2));
-const groundMaterial = engine.createMaterial(new Color(0.2, 0.25, 0.3));
+const groundMaterial = engine.createMaterial(new Color(1, 1, 1), checkerboardTexture);
 const firstMesh = scene.createMesh(cube, blueMaterial);
 const secondMesh = scene.createMesh(cube, redMaterial);
 scene.createMesh(ground, groundMaterial);

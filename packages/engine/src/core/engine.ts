@@ -4,7 +4,7 @@ import type { Geometry, GeometryData } from "../rendering/geometry.ts";
 import type { Material } from "../rendering/material.ts";
 import type { Mesh } from "../rendering/mesh.ts";
 import { Renderer } from "../rendering/renderer.ts";
-import { Texture } from "../rendering/texture.ts";
+import { Texture, type TextureOptions } from "../rendering/texture.ts";
 import { Scene } from "../scene/scene.ts";
 
 export interface Frame {
@@ -52,8 +52,8 @@ export class Engine {
     return material;
   }
 
-  createTexture(image: ImageBitmap): Texture {
-    const texture = this.renderer.createTexture(image);
+  createTexture(image: ImageBitmap, options?: TextureOptions): Texture {
+    const texture = this.renderer.createTexture(image, options);
 
     this.textures.add(texture);
     return texture;

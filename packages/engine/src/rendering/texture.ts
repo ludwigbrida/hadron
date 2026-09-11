@@ -1,3 +1,10 @@
+export interface TextureOptions {
+  readonly addressModeU?: GPUAddressMode;
+  readonly addressModeV?: GPUAddressMode;
+  readonly magFilter?: GPUFilterMode;
+  readonly minFilter?: GPUFilterMode;
+}
+
 export class Texture {
   private constructor(
     private readonly texture: GPUTexture,
@@ -5,11 +12,14 @@ export class Texture {
     readonly sampler: GPUSampler,
   ) {}
 
-  static create(device: GPUDevice, image: ImageBitmap): Texture {
+  static create(device: GPUDevice, image: ImageBitmap, options?: TextureOptions): Texture {
     const texture = device.createTexture({
       size: [image.width, image.height],
       format: "rgba8unorm",
-      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+      usage:
+        GPUTextureUsage.TEXTURE_BINDING |
+        GPUTextureUsage.COPY_DST |
+        GPUTextureUsage.RENDER_ATTACHMENT,
     });
 
     device.queue.copyExternalImageToTexture({ source: image }, { texture }, [
@@ -17,7 +27,7 @@ export class Texture {
       image.height,
     ]);
 
-    return Texture.createWithSampler(device, texture);
+    return Texture.createWithSampler(device, texture, options);
   }
 
   static createSolidColor(device: GPUDevice, color: Uint8Array): Texture {
@@ -36,12 +46,18 @@ export class Texture {
     this.texture.destroy();
   }
 
-  private static createWithSampler(device: GPUDevice, texture: GPUTexture): Texture {
+  private static createWithSampler(
+    device: GPUDevice,
+    texture: GPUTexture,
+    options?: TextureOptions,
+  ): Texture {
     const view = texture.createView();
 
     const sampler = device.createSampler({
-      magFilter: "linear",
-      minFilter: "linear",
+      addressModeU: options?.addressModeU ?? "clamp-to-edge",
+      addressModeV: options?.addressModeV ?? "clamp-to-edge",
+      magFilter: options?.magFilter ?? "linear",
+      minFilter: options?.minFilter ?? "linear",
       mipmapFilter: "linear",
     });
 
