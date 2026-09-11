@@ -4,6 +4,7 @@ import { Geometry, type GeometryData } from "./geometry.ts";
 import { Material } from "./material.ts";
 import { Mesh } from "./mesh.ts";
 import meshShader from "./shaders/mesh.wgsl?raw";
+import { Texture } from "./texture.ts";
 
 const identityViewProjection = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 const emptyLightDirection = new Float32Array(4);
@@ -194,6 +195,10 @@ export class Renderer {
 
   createMesh(geometry: Geometry, material: Material): Mesh {
     return Mesh.create(this.device, this.pipeline.getBindGroupLayout(1), geometry, material);
+  }
+
+  createTexture(image: ImageBitmap): Texture {
+    return Texture.create(this.device, image);
   }
 
   render(scene: Scene): void {

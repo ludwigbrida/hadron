@@ -1,8 +1,10 @@
 import { Input } from "../input/input.ts";
+import type { Color } from "../rendering/color.ts";
 import type { Geometry, GeometryData } from "../rendering/geometry.ts";
 import type { Material } from "../rendering/material.ts";
 import type { Mesh } from "../rendering/mesh.ts";
 import { Renderer } from "../rendering/renderer.ts";
+import { Texture } from "../rendering/texture.ts";
 import { Scene } from "../scene/scene.ts";
 
 export interface Frame {
@@ -17,6 +19,7 @@ export class Engine {
   private readonly geometries = new Set<Geometry>();
   private readonly materials = new Set<Material>();
   private readonly meshes = new Set<Mesh>();
+  private readonly textures = new Set<Texture>();
   private frameRequest: number | undefined;
   private previousTime: number | undefined;
   private scene: Scene | undefined;
@@ -47,6 +50,13 @@ export class Engine {
 
     this.materials.add(material);
     return material;
+  }
+
+  createTexture(image: ImageBitmap): Texture {
+    const texture = this.renderer.createTexture(image);
+
+    this.textures.add(texture);
+    return texture;
   }
 
   private createMesh(geometry: Geometry, material: Material): Mesh {
@@ -86,12 +96,17 @@ export class Engine {
       material.dispose();
     }
 
+    for (const texture of this.textures) {
+      texture.dispose();
+    }
+
     for (const geometry of this.geometries) {
       geometry.dispose();
     }
 
     this.meshes.clear();
     this.materials.clear();
+    this.textures.clear();
     this.geometries.clear();
     this.renderer.dispose();
   }
