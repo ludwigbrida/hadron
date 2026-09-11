@@ -354,6 +354,45 @@ export class Mat4 extends Float32Array {
     return this;
   }
 
+  // aliasing-safe when this is the input
+  setTranspose(matrix: Readonly<Mat4>): this {
+    const m00 = matrix[0];
+    const m01 = matrix[1];
+    const m02 = matrix[2];
+    const m03 = matrix[3];
+    const m10 = matrix[4];
+    const m11 = matrix[5];
+    const m12 = matrix[6];
+    const m13 = matrix[7];
+    const m20 = matrix[8];
+    const m21 = matrix[9];
+    const m22 = matrix[10];
+    const m23 = matrix[11];
+    const m30 = matrix[12];
+    const m31 = matrix[13];
+    const m32 = matrix[14];
+    const m33 = matrix[15];
+
+    this[0] = m00;
+    this[1] = m10;
+    this[2] = m20;
+    this[3] = m30;
+    this[4] = m01;
+    this[5] = m11;
+    this[6] = m21;
+    this[7] = m31;
+    this[8] = m02;
+    this[9] = m12;
+    this[10] = m22;
+    this[11] = m32;
+    this[12] = m03;
+    this[13] = m13;
+    this[14] = m23;
+    this[15] = m33;
+
+    return this;
+  }
+
   // aliasing-safe when this is either input
   setMultiply(left: Readonly<Mat4>, right: Readonly<Mat4>): this {
     // cache all left-hand-side values upfront
