@@ -1,4 +1,5 @@
 import type { Geometry } from "../rendering/geometry.ts";
+import type { Material } from "../rendering/material.ts";
 import { Mesh } from "../rendering/mesh.ts";
 import { Camera } from "./camera.ts";
 import { Node } from "./node.ts";
@@ -8,11 +9,13 @@ export class Scene {
   readonly camera = new Camera();
 
   /** @internal */
-  static create(createMeshInstance: (geometry: Geometry) => Mesh): Scene {
+  static create(createMeshInstance: (geometry: Geometry, material: Material) => Mesh): Scene {
     return new Scene(createMeshInstance);
   }
 
-  private constructor(private readonly createMeshInstance: (geometry: Geometry) => Mesh) {
+  private constructor(
+    private readonly createMeshInstance: (geometry: Geometry, material: Material) => Mesh,
+  ) {
     this.root.addChild(this.camera);
   }
 
@@ -23,8 +26,8 @@ export class Scene {
     return node;
   }
 
-  createMesh(geometry: Geometry): Mesh {
-    const mesh = this.createMeshInstance(geometry);
+  createMesh(geometry: Geometry, material: Material): Mesh {
+    const mesh = this.createMeshInstance(geometry, material);
 
     this.root.addChild(mesh);
     return mesh;

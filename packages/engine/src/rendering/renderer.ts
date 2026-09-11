@@ -2,6 +2,7 @@ import type { Vec3 } from "../math/vec3.ts";
 import { Scene } from "../scene/scene.ts";
 import { Color } from "./color.ts";
 import { Geometry, type GeometryData } from "./geometry.ts";
+import { Material } from "./material.ts";
 import { Mesh } from "./mesh.ts";
 import meshShader from "./shaders/mesh.wgsl?raw";
 
@@ -162,8 +163,12 @@ export class Renderer {
     return Geometry.create(this.device, data);
   }
 
-  createMesh(geometry: Geometry): Mesh {
-    return Mesh.create(this.device, this.pipeline.getBindGroupLayout(1), geometry);
+  createMaterial(baseColor: Readonly<Color>): Material {
+    return Material.create(this.device, baseColor);
+  }
+
+  createMesh(geometry: Geometry, material: Material): Mesh {
+    return Mesh.create(this.device, this.pipeline.getBindGroupLayout(1), geometry, material);
   }
 
   setLightDirection(direction: Readonly<Vec3>): void {

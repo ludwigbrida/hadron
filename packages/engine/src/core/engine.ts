@@ -2,6 +2,7 @@ import { Input } from "../input/input.ts";
 import type { Vec3 } from "../math/vec3.ts";
 import type { Color } from "../rendering/color.ts";
 import type { Geometry, GeometryData } from "../rendering/geometry.ts";
+import type { Material } from "../rendering/material.ts";
 import type { Mesh } from "../rendering/mesh.ts";
 import { Renderer } from "../rendering/renderer.ts";
 import { Scene } from "../scene/scene.ts";
@@ -16,6 +17,7 @@ export type UpdateCallback = (frame: Frame) => void;
 export class Engine {
   readonly input = new Input();
   private readonly geometries = new Set<Geometry>();
+  private readonly materials = new Set<Material>();
   private readonly meshes = new Set<Mesh>();
   private frameRequest: number | undefined;
   private previousTime: number | undefined;
@@ -32,7 +34,7 @@ export class Engine {
   }
 
   createScene(): Scene {
-    return Scene.create((geometry) => this.createMesh(geometry));
+    return Scene.create((geometry, material) => this.createMesh(geometry, material));
   }
 
   createGeometry(data: GeometryData): Geometry {
@@ -42,8 +44,15 @@ export class Engine {
     return geometry;
   }
 
-  private createMesh(geometry: Geometry): Mesh {
-    const mesh = this.renderer.createMesh(geometry);
+  createMaterial(baseColor: Readonly<Color>): Material {
+    const material = this.renderer.createMaterial(baseColor);
+
+    this.materials.add(material);
+    return material;
+  }
+
+  private createMesh(geometry: Geometry, material: Material): Mesh {
+    const mesh = this.renderer.createMesh(geometry, material);
 
     this.meshes.add(mesh);
     return mesh;
@@ -83,11 +92,16 @@ export class Engine {
       mesh.dispose();
     }
 
+    for (const material of this.materials) {
+      material.dispose();
+    }
+
     for (const geometry of this.geometries) {
       geometry.dispose();
     }
 
     this.meshes.clear();
+    this.materials.clear();
     this.geometries.clear();
     this.renderer.dispose();
   }

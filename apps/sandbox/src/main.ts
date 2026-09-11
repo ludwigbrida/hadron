@@ -41,14 +41,14 @@ const ground = engine.createGeometry({
 });
 
 const scene = engine.createScene();
-const firstMesh = scene.createMesh(cube);
-const secondMesh = scene.createMesh(cube);
-const groundMesh = scene.createMesh(ground);
+const blueMaterial = engine.createMaterial(new Color(0.2, 0.7, 1));
+const redMaterial = engine.createMaterial(new Color(1, 0.3, 0.2));
+const groundMaterial = engine.createMaterial(new Color(0.2, 0.25, 0.3));
+const firstMesh = scene.createMesh(cube, blueMaterial);
+const secondMesh = scene.createMesh(cube, redMaterial);
+scene.createMesh(ground, groundMaterial);
 const cubeGroup = scene.createNode();
 
-firstMesh.setColor(new Color(0.2, 0.7, 1));
-secondMesh.setColor(new Color(1, 0.3, 0.2));
-groundMesh.setColor(new Color(0.2, 0.25, 0.3));
 firstMesh.transform.position.set(0.5, 0, -2);
 firstMesh.transform.scale.set(1, 1.5, 1);
 secondMesh.transform.position.set(-0.5, 0, -2);
