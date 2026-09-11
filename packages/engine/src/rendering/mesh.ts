@@ -1,4 +1,4 @@
-import { Mat4 } from "../math/mat4.ts";
+import { Transform } from "../scene/transform.ts";
 import { Color } from "./color.ts";
 import type { Geometry } from "./geometry.ts";
 
@@ -8,20 +8,20 @@ export class Mesh {
   private constructor(
     private readonly device: GPUDevice,
     readonly geometry: Geometry,
-    readonly transform: Mat4,
+    readonly transform: Transform,
     readonly transformBuffer: GPUBuffer,
     readonly colorBuffer: GPUBuffer,
     readonly bindGroup: GPUBindGroup,
   ) {}
 
   static create(device: GPUDevice, bindGroupLayout: GPUBindGroupLayout, geometry: Geometry): Mesh {
-    const transform = new Mat4();
+    const transform = new Transform();
     const transformBuffer = device.createBuffer({
-      size: transform.byteLength,
+      size: transform.getMatrix().byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    device.queue.writeBuffer(transformBuffer, 0, transform);
+    device.queue.writeBuffer(transformBuffer, 0, transform.getMatrix());
 
     const colorBuffer = device.createBuffer({
       size: defaultColor.byteLength,

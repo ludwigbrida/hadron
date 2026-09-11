@@ -47,16 +47,16 @@ const groundMesh = scene.createMesh(ground);
 firstMesh.setColor(new Color(0.2, 0.7, 1));
 secondMesh.setColor(new Color(1, 0.3, 0.2));
 groundMesh.setColor(new Color(0.2, 0.25, 0.3));
+firstMesh.transform.position.set(0.5, 0, -2);
+firstMesh.transform.scale.set(1, 1.5, 1);
+secondMesh.transform.position.set(-0.5, 0, -2);
+secondMesh.transform.scale.set(1.5, 1, 1);
 
 const cameraPosition = new Vec3(0, 0.5, 1);
 const cameraTarget = new Vec3(0, 0, -2);
 const cameraUp = new Vec3(0, 1, 0);
 let cameraYaw = -Math.PI / 2;
 let cameraPitch = Math.atan2(-0.5, 3);
-const firstPosition = new Vec3(0.5, 0, -2);
-const secondPosition = new Vec3(-0.5, 0, -2);
-const firstScale = new Vec3(1, 1.5, 1);
-const secondScale = new Vec3(1.5, 1, 1);
 
 scene.camera
   .setPerspective(Math.PI / 3, 0.1, 100)
@@ -99,18 +99,8 @@ function update({ elapsedTime, deltaTime }: Frame): void {
     scene.camera.setLookAt(cameraPosition, cameraTarget, cameraUp);
   }
 
-  firstMesh.transform
-    .setTranslation(firstPosition)
-    .rotateY(elapsedTime)
-    .rotateX(elapsedTime / 1.5)
-    .rotateZ(elapsedTime / 2)
-    .scale(firstScale);
-  secondMesh.transform
-    .setTranslation(secondPosition)
-    .rotateY(-elapsedTime / 2)
-    .rotateX(-elapsedTime / 1.2)
-    .rotateZ(-elapsedTime / 1.5)
-    .scale(secondScale);
+  firstMesh.transform.rotation.set(elapsedTime / 1.5, elapsedTime, elapsedTime / 2);
+  secondMesh.transform.rotation.set(-elapsedTime / 1.2, -elapsedTime / 2, -elapsedTime / 1.5);
 }
 
 engine.start(scene, update);
