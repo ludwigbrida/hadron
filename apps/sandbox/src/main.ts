@@ -43,6 +43,7 @@ const scene = engine.createScene();
 const firstMesh = scene.createMesh(cube);
 const secondMesh = scene.createMesh(cube);
 const groundMesh = scene.createMesh(ground);
+const cubeGroup = scene.createNode();
 
 firstMesh.setColor(new Color(0.2, 0.7, 1));
 secondMesh.setColor(new Color(1, 0.3, 0.2));
@@ -51,6 +52,7 @@ firstMesh.transform.position.set(0.5, 0, -2);
 firstMesh.transform.scale.set(1, 1.5, 1);
 secondMesh.transform.position.set(-0.5, 0, -2);
 secondMesh.transform.scale.set(1.5, 1, 1);
+cubeGroup.addChild(firstMesh).addChild(secondMesh);
 
 const cameraPosition = new Vec3(0, 0.5, 1);
 const cameraTarget = new Vec3(0, 0, -2);
@@ -101,6 +103,7 @@ function update({ elapsedTime, deltaTime }: Frame): void {
 
   firstMesh.transform.rotation.set(elapsedTime / 1.5, elapsedTime, elapsedTime / 2);
   secondMesh.transform.rotation.set(-elapsedTime / 1.2, -elapsedTime / 2, -elapsedTime / 1.5);
+  cubeGroup.transform.rotation.set(0, elapsedTime / 4, 0);
 }
 
 engine.start(scene, update);
