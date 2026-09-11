@@ -1,8 +1,10 @@
+import { Mat4 } from "../math/mat4.ts";
 import { Transform } from "./transform.ts";
 
 export class Node {
   readonly transform = new Transform();
   private readonly childNodes = new Set<Node>();
+  private readonly worldMatrix = new Mat4();
   private parentNode: Node | undefined;
 
   get parent(): Node | undefined {
@@ -31,6 +33,16 @@ export class Node {
     }
 
     return this;
+  }
+
+  getWorldMatrix(): Readonly<Mat4> {
+    const parent = this.parentNode;
+
+    if (!parent) {
+      return this.transform.getMatrix();
+    }
+
+    return this.worldMatrix.setMultiply(parent.getWorldMatrix(), this.transform.getMatrix());
   }
 
   [Symbol.iterator](): IterableIterator<Node> {

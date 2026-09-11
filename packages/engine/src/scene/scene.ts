@@ -18,12 +18,14 @@ export class Scene {
   createMesh(geometry: Geometry): Mesh {
     const mesh = this.createMeshInstance(geometry);
 
+    this.root.addChild(mesh);
     this.meshes.add(mesh);
     return mesh;
   }
 
   remove(mesh: Mesh): this {
     this.meshes.delete(mesh);
+    mesh.parent?.removeChild(mesh);
     return this;
   }
 

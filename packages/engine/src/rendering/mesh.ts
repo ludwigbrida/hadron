@@ -1,27 +1,29 @@
-import { Transform } from "../scene/transform.ts";
+import { Mat4 } from "../math/mat4.ts";
+import { Node } from "../scene/node.ts";
 import { Color } from "./color.ts";
 import type { Geometry } from "./geometry.ts";
 
 const defaultColor = new Color(1, 1, 1);
 
-export class Mesh {
+export class Mesh extends Node {
   private constructor(
     private readonly device: GPUDevice,
     readonly geometry: Geometry,
-    readonly transform: Transform,
     readonly transformBuffer: GPUBuffer,
     readonly colorBuffer: GPUBuffer,
     readonly bindGroup: GPUBindGroup,
-  ) {}
+  ) {
+    super();
+  }
 
   static create(device: GPUDevice, bindGroupLayout: GPUBindGroupLayout, geometry: Geometry): Mesh {
-    const transform = new Transform();
+    const transformMatrix = new Mat4();
     const transformBuffer = device.createBuffer({
-      size: transform.getMatrix().byteLength,
+      size: transformMatrix.byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
-    device.queue.writeBuffer(transformBuffer, 0, transform.getMatrix());
+    device.queue.writeBuffer(transformBuffer, 0, transformMatrix);
 
     const colorBuffer = device.createBuffer({
       size: defaultColor.byteLength,
@@ -48,7 +50,7 @@ export class Mesh {
       ],
     });
 
-    return new Mesh(device, geometry, transform, transformBuffer, colorBuffer, bindGroup);
+    return new Mesh(device, geometry, transformBuffer, colorBuffer, bindGroup);
   }
 
   setColor(color: Readonly<Color>): void {
