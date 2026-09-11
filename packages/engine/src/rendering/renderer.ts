@@ -82,6 +82,16 @@ export class Renderer {
               },
             ],
           },
+          {
+            arrayStride: 2 * Float32Array.BYTES_PER_ELEMENT,
+            attributes: [
+              {
+                format: "float32x2",
+                offset: 0,
+                shaderLocation: 2,
+              },
+            ],
+          },
         ],
       },
       fragment: {
@@ -235,6 +245,7 @@ export class Renderer {
       pass.setBindGroup(1, mesh.bindGroup);
       pass.setVertexBuffer(0, mesh.geometry.vertexBuffer);
       pass.setVertexBuffer(1, mesh.geometry.normalBuffer);
+      pass.setVertexBuffer(2, mesh.geometry.texCoordBuffer);
       pass.setIndexBuffer(mesh.geometry.indexBuffer, "uint16");
       pass.drawIndexed(mesh.geometry.indexCount);
     }
