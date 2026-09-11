@@ -8,6 +8,8 @@ export class Mesh extends Node {
     readonly geometry: Geometry,
     readonly material: Material,
     readonly transformBuffer: GPUBuffer,
+    readonly normalMatrix: Mat4,
+    readonly normalMatrixBuffer: GPUBuffer,
     readonly bindGroup: GPUBindGroup,
   ) {
     super();
@@ -27,6 +29,14 @@ export class Mesh extends Node {
 
     device.queue.writeBuffer(transformBuffer, 0, transformMatrix);
 
+    const normalMatrix = new Mat4();
+    const normalMatrixBuffer = device.createBuffer({
+      size: normalMatrix.byteLength,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    device.queue.writeBuffer(normalMatrixBuffer, 0, normalMatrix);
+
     const bindGroup = device.createBindGroup({
       layout: bindGroupLayout,
       entries: [
@@ -42,13 +52,27 @@ export class Mesh extends Node {
             buffer: material.baseColorBuffer,
           },
         },
+        {
+          binding: 2,
+          resource: {
+            buffer: normalMatrixBuffer,
+          },
+        },
       ],
     });
 
-    return new Mesh(geometry, material, transformBuffer, bindGroup);
+    return new Mesh(
+      geometry,
+      material,
+      transformBuffer,
+      normalMatrix,
+      normalMatrixBuffer,
+      bindGroup,
+    );
   }
 
   dispose(): void {
     this.transformBuffer.destroy();
+    this.normalMatrixBuffer.destroy();
   }
 }

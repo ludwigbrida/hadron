@@ -181,8 +181,11 @@ export class Renderer {
     this.device.queue.writeBuffer(this.ambientLightBuffer, 0, scene.ambientLight);
 
     for (const mesh of scene) {
-      // TODO: handle with inverse-transpose normal matrix for non-uniform scales
-      this.device.queue.writeBuffer(mesh.transformBuffer, 0, mesh.getWorldMatrix());
+      const worldMatrix = mesh.getWorldMatrix();
+
+      this.device.queue.writeBuffer(mesh.transformBuffer, 0, worldMatrix);
+      mesh.normalMatrix.setInverse(worldMatrix).setTranspose(mesh.normalMatrix);
+      this.device.queue.writeBuffer(mesh.normalMatrixBuffer, 0, mesh.normalMatrix);
     }
 
     const commandEncoder = this.device.createCommandEncoder();
