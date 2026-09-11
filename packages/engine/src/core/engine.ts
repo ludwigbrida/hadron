@@ -45,8 +45,8 @@ export class Engine {
     return geometry;
   }
 
-  createMaterial(baseColor: Readonly<Color>): Material {
-    const material = this.renderer.createMaterial(baseColor);
+  createMaterial(baseColor: Readonly<Color>, texture?: Texture): Material {
+    const material = this.renderer.createMaterial(baseColor, texture);
 
     this.materials.add(material);
     return material;

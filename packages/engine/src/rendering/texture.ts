@@ -17,6 +17,26 @@ export class Texture {
       image.height,
     ]);
 
+    return Texture.createWithSampler(device, texture);
+  }
+
+  static createSolidColor(device: GPUDevice, color: Uint8Array): Texture {
+    const texture = device.createTexture({
+      size: [1, 1],
+      format: "rgba8unorm",
+      usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+    });
+
+    device.queue.writeTexture({ texture }, color, { bytesPerRow: color.byteLength }, [1, 1]);
+
+    return Texture.createWithSampler(device, texture);
+  }
+
+  dispose(): void {
+    this.texture.destroy();
+  }
+
+  private static createWithSampler(device: GPUDevice, texture: GPUTexture): Texture {
     const view = texture.createView();
 
     const sampler = device.createSampler({
@@ -26,9 +46,5 @@ export class Texture {
     });
 
     return new Texture(texture, view, sampler);
-  }
-
-  dispose(): void {
-    this.texture.destroy();
   }
 }

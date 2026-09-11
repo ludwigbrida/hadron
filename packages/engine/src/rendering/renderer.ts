@@ -24,6 +24,7 @@ export class Renderer {
     private readonly lightDirectionBuffer: GPUBuffer,
     private readonly ambientLightBuffer: GPUBuffer,
     private readonly directionalLightColorBuffer: GPUBuffer,
+    private readonly defaultTexture: Texture,
     private readonly renderBindGroup: GPUBindGroup,
   ) {}
 
@@ -39,6 +40,7 @@ export class Renderer {
     }
 
     const device = await adapter.requestDevice();
+    const defaultTexture = Texture.createSolidColor(device, new Uint8Array([255, 255, 255, 255]));
 
     const context = canvas.getContext("webgpu");
 
@@ -181,6 +183,7 @@ export class Renderer {
       lightDirectionBuffer,
       ambientLightBuffer,
       directionalLightColorBuffer,
+      defaultTexture,
       renderBindGroup,
     );
   }
@@ -189,8 +192,13 @@ export class Renderer {
     return Geometry.create(this.device, data);
   }
 
-  createMaterial(baseColor: Readonly<Color>): Material {
-    return Material.create(this.device, this.pipeline.getBindGroupLayout(1), baseColor);
+  createMaterial(baseColor: Readonly<Color>, texture?: Texture): Material {
+    return Material.create(
+      this.device,
+      this.pipeline.getBindGroupLayout(1),
+      baseColor,
+      texture ?? this.defaultTexture,
+    );
   }
 
   createMesh(geometry: Geometry, material: Material): Mesh {
@@ -267,6 +275,7 @@ export class Renderer {
     this.lightDirectionBuffer.destroy();
     this.ambientLightBuffer.destroy();
     this.directionalLightColorBuffer.destroy();
+    this.defaultTexture.dispose();
     this.context.unconfigure();
     this.device.destroy();
   }

@@ -3,6 +3,8 @@
 @group(0) @binding(2) var<uniform> ambientLight: vec4f;
 @group(0) @binding(3) var<uniform> directionalLightColor: vec4f;
 @group(1) @binding(0) var<uniform> color: vec4f;
+@group(1) @binding(1) var materialSampler: sampler;
+@group(1) @binding(2) var materialTexture: texture_2d<f32>;
 @group(2) @binding(0) var<uniform> transform: mat4x4f;
 @group(2) @binding(1) var<uniform> normalMatrix: mat4x4f;
 
@@ -28,6 +30,10 @@ fn vertexMain(
 @fragment
 fn fragmentMain(@location(0) normal: vec3f, @location(1) texCoord: vec2f) -> @location(0) vec4f {
   let directionalLight = max(dot(normal, lightDirection), 0.0);
+  let baseColor = color * textureSample(materialTexture, materialSampler, texCoord);
   return
-    vec4f(color.rgb * (ambientLight.rgb + directionalLightColor.rgb * directionalLight), color.a);
+    vec4f(
+      baseColor.rgb * (ambientLight.rgb + directionalLightColor.rgb * directionalLight),
+      baseColor.a,
+    );
 }

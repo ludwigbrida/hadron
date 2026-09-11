@@ -1,4 +1,5 @@
 import type { Color } from "./color.ts";
+import type { Texture } from "./texture.ts";
 
 export class Material {
   private constructor(
@@ -11,6 +12,7 @@ export class Material {
     device: GPUDevice,
     bindGroupLayout: GPUBindGroupLayout,
     baseColor: Readonly<Color>,
+    texture: Texture,
   ): Material {
     const baseColorBuffer = device.createBuffer({
       size: baseColor.byteLength,
@@ -27,6 +29,14 @@ export class Material {
           resource: {
             buffer: baseColorBuffer,
           },
+        },
+        {
+          binding: 1,
+          resource: texture.sampler,
+        },
+        {
+          binding: 2,
+          resource: texture.view,
         },
       ],
     });
