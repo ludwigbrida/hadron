@@ -1,10 +1,12 @@
 import type { Geometry } from "../rendering/geometry.ts";
 import type { Mesh } from "../rendering/mesh.ts";
 import { Camera } from "./camera.ts";
+import { Node } from "./node.ts";
 
 export class Scene {
   private readonly meshes = new Set<Mesh>();
   readonly camera = new Camera();
+  readonly root = new Node();
 
   /** @internal */
   static create(createMeshInstance: (geometry: Geometry) => Mesh): Scene {
