@@ -1,6 +1,7 @@
 @group(0) @binding(0) var<uniform> viewProjection: mat4x4f;
 @group(0) @binding(1) var<uniform> lightDirection: vec3f;
 @group(0) @binding(2) var<uniform> ambientLight: vec4f;
+@group(0) @binding(3) var<uniform> directionalLightColor: vec4f;
 @group(1) @binding(0) var<uniform> transform: mat4x4f;
 @group(1) @binding(1) var<uniform> color: vec4f;
 @group(1) @binding(2) var<uniform> normalMatrix: mat4x4f;
@@ -21,5 +22,6 @@ fn vertexMain(@location(0) position: vec3f, @location(1) normal: vec3f) -> Verte
 @fragment
 fn fragmentMain(@location(0) normal: vec3f) -> @location(0) vec4f {
   let directionalLight = max(dot(normal, lightDirection), 0.0);
-  return vec4f(color.rgb * (ambientLight.rgb + vec3f(directionalLight)), color.a);
+  return
+    vec4f(color.rgb * (ambientLight.rgb + directionalLightColor.rgb * directionalLight), color.a);
 }

@@ -8,6 +8,7 @@ import meshShader from "./shaders/mesh.wgsl?raw";
 const identityViewProjection = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 const emptyLightDirection = new Float32Array(4);
 const emptyAmbientLight = new Color(0, 0, 0);
+const emptyDirectionalLightColor = new Color(0, 0, 0);
 
 export class Renderer {
   private depthTexture: GPUTexture | undefined;
@@ -21,6 +22,7 @@ export class Renderer {
     private readonly viewProjectionBuffer: GPUBuffer,
     private readonly lightDirectionBuffer: GPUBuffer,
     private readonly ambientLightBuffer: GPUBuffer,
+    private readonly directionalLightColorBuffer: GPUBuffer,
     private readonly renderBindGroup: GPUBindGroup,
   ) {}
 
@@ -122,6 +124,13 @@ export class Renderer {
 
     device.queue.writeBuffer(ambientLightBuffer, 0, emptyAmbientLight);
 
+    const directionalLightColorBuffer = device.createBuffer({
+      size: emptyDirectionalLightColor.byteLength,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    device.queue.writeBuffer(directionalLightColorBuffer, 0, emptyDirectionalLightColor);
+
     const renderBindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
@@ -143,6 +152,12 @@ export class Renderer {
             buffer: ambientLightBuffer,
           },
         },
+        {
+          binding: 3,
+          resource: {
+            buffer: directionalLightColorBuffer,
+          },
+        },
       ],
     });
 
@@ -154,6 +169,7 @@ export class Renderer {
       viewProjectionBuffer,
       lightDirectionBuffer,
       ambientLightBuffer,
+      directionalLightColorBuffer,
       renderBindGroup,
     );
   }
@@ -179,6 +195,11 @@ export class Renderer {
     this.lightDirection[2] = scene.directionalLight.direction[2];
     this.device.queue.writeBuffer(this.lightDirectionBuffer, 0, this.lightDirection);
     this.device.queue.writeBuffer(this.ambientLightBuffer, 0, scene.ambientLight);
+    this.device.queue.writeBuffer(
+      this.directionalLightColorBuffer,
+      0,
+      scene.directionalLight.color,
+    );
 
     for (const mesh of scene) {
       const worldMatrix = mesh.getWorldMatrix();
@@ -228,6 +249,7 @@ export class Renderer {
     this.viewProjectionBuffer.destroy();
     this.lightDirectionBuffer.destroy();
     this.ambientLightBuffer.destroy();
+    this.directionalLightColorBuffer.destroy();
     this.context.unconfigure();
     this.device.destroy();
   }
