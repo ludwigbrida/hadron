@@ -4,15 +4,17 @@ import { Camera } from "./camera.ts";
 import { Node } from "./node.ts";
 
 export class Scene {
-  readonly camera = new Camera();
   readonly root = new Node();
+  readonly camera = new Camera();
 
   /** @internal */
   static create(createMeshInstance: (geometry: Geometry) => Mesh): Scene {
     return new Scene(createMeshInstance);
   }
 
-  private constructor(private readonly createMeshInstance: (geometry: Geometry) => Mesh) {}
+  private constructor(private readonly createMeshInstance: (geometry: Geometry) => Mesh) {
+    this.root.addChild(this.camera);
+  }
 
   createNode(): Node {
     const node = new Node();

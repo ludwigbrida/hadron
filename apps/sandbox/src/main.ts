@@ -54,15 +54,13 @@ secondMesh.transform.position.set(-0.5, 0, -2);
 secondMesh.transform.scale.set(1.5, 1, 1);
 cubeGroup.addChild(firstMesh).addChild(secondMesh);
 
-const cameraPosition = new Vec3(0, 0.5, 1);
-const cameraTarget = new Vec3(0, 0, -2);
-const cameraUp = new Vec3(0, 1, 0);
+const cameraPosition = scene.camera.transform.position;
 let cameraYaw = -Math.PI / 2;
 let cameraPitch = Math.atan2(-0.5, 3);
 
-scene.camera
-  .setPerspective(Math.PI / 3, 0.1, 100)
-  .setLookAt(cameraPosition, cameraTarget, cameraUp);
+cameraPosition.set(0, 0.5, 1);
+scene.camera.transform.rotation.set(cameraPitch, -cameraYaw - Math.PI / 2, 0);
+scene.camera.setPerspective(Math.PI / 3, 0.1, 100);
 
 canvas.addEventListener("click", () => {
   void canvas.requestPointerLock();
@@ -91,14 +89,7 @@ function update({ elapsedTime, deltaTime }: Frame): void {
       cameraPosition[2] + (forwardZ * forward + rightZ * right) * distance,
     );
 
-    const horizontalLength = Math.cos(cameraPitch);
-
-    cameraTarget.set(
-      cameraPosition[0] + forwardX * horizontalLength,
-      cameraPosition[1] + Math.sin(cameraPitch),
-      cameraPosition[2] + forwardZ * horizontalLength,
-    );
-    scene.camera.setLookAt(cameraPosition, cameraTarget, cameraUp);
+    scene.camera.transform.rotation.set(cameraPitch, -cameraYaw - Math.PI / 2, 0);
   }
 
   firstMesh.transform.rotation.set(elapsedTime / 1.5, elapsedTime, elapsedTime / 2);

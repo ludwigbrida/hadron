@@ -1,7 +1,7 @@
 import { Mat4 } from "../math/mat4.ts";
-import type { Vec3 } from "../math/vec3.ts";
+import { Node } from "./node.ts";
 
-export class Camera {
+export class Camera extends Node {
   private fovY = Math.PI / 3;
   private near = 0.1;
   private far = 100;
@@ -27,13 +27,9 @@ export class Camera {
     this.updateProjection();
   }
 
-  setLookAt(eye: Readonly<Vec3>, target: Readonly<Vec3>, up: Readonly<Vec3>): this {
-    this.view.setLookAt(eye, target, up);
-    this.updateViewProjection();
-    return this;
-  }
-
   getViewProjection(): Readonly<Mat4> {
+    this.view.setInverse(this.getWorldMatrix());
+    this.updateViewProjection();
     return this.viewProjection;
   }
 
