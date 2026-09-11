@@ -1,10 +1,9 @@
 import type { Geometry } from "../rendering/geometry.ts";
-import type { Mesh } from "../rendering/mesh.ts";
+import { Mesh } from "../rendering/mesh.ts";
 import { Camera } from "./camera.ts";
 import { Node } from "./node.ts";
 
 export class Scene {
-  private readonly meshes = new Set<Mesh>();
   readonly camera = new Camera();
   readonly root = new Node();
 
@@ -26,17 +25,25 @@ export class Scene {
     const mesh = this.createMeshInstance(geometry);
 
     this.root.addChild(mesh);
-    this.meshes.add(mesh);
     return mesh;
   }
 
   remove(mesh: Mesh): this {
-    this.meshes.delete(mesh);
     mesh.parent?.removeChild(mesh);
     return this;
   }
 
-  [Symbol.iterator](): IterableIterator<Mesh> {
-    return this.meshes.values();
+  *[Symbol.iterator](): IterableIterator<Mesh> {
+    yield* this.getMeshes(this.root);
+  }
+
+  private *getMeshes(node: Node): IterableIterator<Mesh> {
+    for (const child of node) {
+      if (child instanceof Mesh) {
+        yield child;
+      }
+
+      yield* this.getMeshes(child);
+    }
   }
 }
