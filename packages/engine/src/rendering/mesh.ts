@@ -17,7 +17,7 @@ export class Mesh extends Node {
 
   static create(
     device: GPUDevice,
-    bindGroupLayout: GPUBindGroupLayout,
+    transformBindGroupLayout: GPUBindGroupLayout,
     geometry: Geometry,
     material: Material,
   ): Mesh {
@@ -38,7 +38,7 @@ export class Mesh extends Node {
     device.queue.writeBuffer(normalMatrixBuffer, 0, normalMatrix);
 
     const bindGroup = device.createBindGroup({
-      layout: bindGroupLayout,
+      layout: transformBindGroupLayout,
       entries: [
         {
           binding: 0,
@@ -48,12 +48,6 @@ export class Mesh extends Node {
         },
         {
           binding: 1,
-          resource: {
-            buffer: material.baseColorBuffer,
-          },
-        },
-        {
-          binding: 2,
           resource: {
             buffer: normalMatrixBuffer,
           },

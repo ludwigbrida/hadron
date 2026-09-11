@@ -190,11 +190,11 @@ export class Renderer {
   }
 
   createMaterial(baseColor: Readonly<Color>): Material {
-    return Material.create(this.device, baseColor);
+    return Material.create(this.device, this.pipeline.getBindGroupLayout(1), baseColor);
   }
 
   createMesh(geometry: Geometry, material: Material): Mesh {
-    return Mesh.create(this.device, this.pipeline.getBindGroupLayout(1), geometry, material);
+    return Mesh.create(this.device, this.pipeline.getBindGroupLayout(2), geometry, material);
   }
 
   createTexture(image: ImageBitmap): Texture {
@@ -247,7 +247,8 @@ export class Renderer {
     pass.setBindGroup(0, this.renderBindGroup);
 
     for (const mesh of scene) {
-      pass.setBindGroup(1, mesh.bindGroup);
+      pass.setBindGroup(1, mesh.material.bindGroup);
+      pass.setBindGroup(2, mesh.bindGroup);
       pass.setVertexBuffer(0, mesh.geometry.vertexBuffer);
       pass.setVertexBuffer(1, mesh.geometry.normalBuffer);
       pass.setVertexBuffer(2, mesh.geometry.texCoordBuffer);

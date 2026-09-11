@@ -4,9 +4,14 @@ export class Material {
   private constructor(
     private readonly device: GPUDevice,
     readonly baseColorBuffer: GPUBuffer,
+    readonly bindGroup: GPUBindGroup,
   ) {}
 
-  static create(device: GPUDevice, baseColor: Readonly<Color>): Material {
+  static create(
+    device: GPUDevice,
+    bindGroupLayout: GPUBindGroupLayout,
+    baseColor: Readonly<Color>,
+  ): Material {
     const baseColorBuffer = device.createBuffer({
       size: baseColor.byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -14,7 +19,19 @@ export class Material {
 
     device.queue.writeBuffer(baseColorBuffer, 0, baseColor);
 
-    return new Material(device, baseColorBuffer);
+    const bindGroup = device.createBindGroup({
+      layout: bindGroupLayout,
+      entries: [
+        {
+          binding: 0,
+          resource: {
+            buffer: baseColorBuffer,
+          },
+        },
+      ],
+    });
+
+    return new Material(device, baseColorBuffer, bindGroup);
   }
 
   setBaseColor(color: Readonly<Color>): void {

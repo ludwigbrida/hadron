@@ -2,9 +2,9 @@
 @group(0) @binding(1) var<uniform> lightDirection: vec3f;
 @group(0) @binding(2) var<uniform> ambientLight: vec4f;
 @group(0) @binding(3) var<uniform> directionalLightColor: vec4f;
-@group(1) @binding(0) var<uniform> transform: mat4x4f;
-@group(1) @binding(1) var<uniform> color: vec4f;
-@group(1) @binding(2) var<uniform> normalMatrix: mat4x4f;
+@group(1) @binding(0) var<uniform> color: vec4f;
+@group(2) @binding(0) var<uniform> transform: mat4x4f;
+@group(2) @binding(1) var<uniform> normalMatrix: mat4x4f;
 
 struct VertexOutput {
   @builtin(position) position: vec4f,
