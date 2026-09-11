@@ -29,16 +29,11 @@ export class Camera extends Node {
 
   getViewProjection(): Readonly<Mat4> {
     this.view.setInverse(this.getWorldMatrix());
-    this.updateViewProjection();
-    return this.viewProjection;
-  }
-
-  private updateViewProjection(): void {
     this.viewProjection.setMultiply(this.projection, this.view);
+    return this.viewProjection;
   }
 
   private updateProjection(): void {
     this.projection.setPerspective(this.fovY, this.aspect, this.near, this.far);
-    this.updateViewProjection();
   }
 }
