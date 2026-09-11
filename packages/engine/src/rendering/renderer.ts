@@ -1,11 +1,13 @@
 import type { Vec3 } from "../math/vec3.ts";
 import { Scene } from "../scene/scene.ts";
+import { Color } from "./color.ts";
 import { Geometry, type GeometryData } from "./geometry.ts";
 import { Mesh } from "./mesh.ts";
 import meshShader from "./shaders/mesh.wgsl?raw";
 
 const identityViewProjection = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 const defaultLightDirection = new Float32Array([0.5, 0.8, 1, 0]);
+const defaultAmbientLight = new Color(0.1, 0.1, 0.1);
 
 export class Renderer {
   private depthTexture: GPUTexture | undefined;
@@ -18,6 +20,7 @@ export class Renderer {
     private readonly pipeline: GPURenderPipeline,
     private readonly viewProjectionBuffer: GPUBuffer,
     private readonly lightDirectionBuffer: GPUBuffer,
+    private readonly ambientLightBuffer: GPUBuffer,
     private readonly renderBindGroup: GPUBindGroup,
   ) {}
 
@@ -112,6 +115,13 @@ export class Renderer {
 
     device.queue.writeBuffer(lightDirectionBuffer, 0, defaultLightDirection);
 
+    const ambientLightBuffer = device.createBuffer({
+      size: defaultAmbientLight.byteLength,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    device.queue.writeBuffer(ambientLightBuffer, 0, defaultAmbientLight);
+
     const renderBindGroup = device.createBindGroup({
       layout: pipeline.getBindGroupLayout(0),
       entries: [
@@ -127,6 +137,12 @@ export class Renderer {
             buffer: lightDirectionBuffer,
           },
         },
+        {
+          binding: 2,
+          resource: {
+            buffer: ambientLightBuffer,
+          },
+        },
       ],
     });
 
@@ -137,6 +153,7 @@ export class Renderer {
       pipeline,
       viewProjectionBuffer,
       lightDirectionBuffer,
+      ambientLightBuffer,
       renderBindGroup,
     );
   }
@@ -154,6 +171,10 @@ export class Renderer {
     this.lightDirection[1] = direction[1];
     this.lightDirection[2] = direction[2];
     this.device.queue.writeBuffer(this.lightDirectionBuffer, 0, this.lightDirection);
+  }
+
+  setAmbientLight(color: Readonly<Color>): void {
+    this.device.queue.writeBuffer(this.ambientLightBuffer, 0, color);
   }
 
   render(scene: Scene): void {
@@ -205,6 +226,7 @@ export class Renderer {
     this.depthTexture?.destroy();
     this.viewProjectionBuffer.destroy();
     this.lightDirectionBuffer.destroy();
+    this.ambientLightBuffer.destroy();
     this.context.unconfigure();
     this.device.destroy();
   }
