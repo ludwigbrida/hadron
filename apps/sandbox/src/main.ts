@@ -1,5 +1,5 @@
 import { Color, Engine, type Frame } from "@hadron/engine";
-import { loadTexture } from "./assets/load-texture.ts";
+import { loadCubeTexture, loadTexture } from "./assets/load-texture.ts";
 import "./main.css";
 
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
@@ -9,6 +9,14 @@ const engine = await Engine.create(canvas);
 const groundTexture = await loadTexture(engine, "/assets/stone.png", {
   addressModeU: "repeat",
   addressModeV: "repeat",
+});
+const skyTexture = await loadCubeTexture(engine, {
+  positiveX: "/assets/sky/positive-x.png",
+  negativeX: "/assets/sky/negative-x.png",
+  positiveY: "/assets/sky/positive-y.png",
+  negativeY: "/assets/sky/negative-y.png",
+  positiveZ: "/assets/sky/positive-z.png",
+  negativeZ: "/assets/sky/negative-z.png",
 });
 
 const cube = engine.createGeometry({
@@ -49,6 +57,7 @@ const ground = engine.createGeometry({
 });
 
 const scene = engine.createScene();
+scene.setSky(skyTexture);
 const blueMaterial = engine.createMaterial(new Color(0.2, 0.7, 1));
 const redMaterial = engine.createMaterial(new Color(1, 0.3, 0.2));
 const groundMaterial = engine.createMaterial(new Color(1, 1, 1), { texture: groundTexture });

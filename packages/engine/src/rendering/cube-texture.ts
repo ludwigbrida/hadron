@@ -16,6 +16,11 @@ export interface CubeTextureFaceUrls {
   readonly negativeZ: string;
 }
 
+export interface CubeTextureOptions {
+  readonly magFilter?: GPUFilterMode;
+  readonly minFilter?: GPUFilterMode;
+}
+
 export class CubeTexture {
   private constructor(
     private readonly texture: GPUTexture,
@@ -23,7 +28,11 @@ export class CubeTexture {
     readonly sampler: GPUSampler,
   ) {}
 
-  static create(device: GPUDevice, faces: CubeTextureFaces): CubeTexture {
+  static create(
+    device: GPUDevice,
+    faces: CubeTextureFaces,
+    options?: CubeTextureOptions,
+  ): CubeTexture {
     const images = [
       faces.positiveX,
       faces.negativeX,
@@ -64,8 +73,8 @@ export class CubeTexture {
         addressModeU: "clamp-to-edge",
         addressModeV: "clamp-to-edge",
         addressModeW: "clamp-to-edge",
-        magFilter: "linear",
-        minFilter: "linear",
+        magFilter: options?.magFilter ?? "linear",
+        minFilter: options?.minFilter ?? "linear",
         mipmapFilter: "linear",
       }),
     );

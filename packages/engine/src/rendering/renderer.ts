@@ -1,7 +1,7 @@
 import { Mat4 } from "../math/mat4.ts";
 import { Scene } from "../scene/scene.ts";
 import { Color } from "./color.ts";
-import { CubeTexture, type CubeTextureFaces } from "./cube-texture.ts";
+import { CubeTexture, type CubeTextureFaces, type CubeTextureOptions } from "./cube-texture.ts";
 import { Geometry, type GeometryData } from "./geometry.ts";
 import { Material, type MaterialOptions } from "./material.ts";
 import { Mesh } from "./mesh.ts";
@@ -145,6 +145,11 @@ export class Renderer {
       primitive: {
         topology: "triangle-list",
       },
+      depthStencil: {
+        format: "depth24plus",
+        depthWriteEnabled: false,
+        depthCompare: "always",
+      },
     });
 
     const viewProjectionBuffer = device.createBuffer({
@@ -250,8 +255,8 @@ export class Renderer {
     return Texture.create(this.device, image, options);
   }
 
-  createCubeTexture(faces: CubeTextureFaces): CubeTexture {
-    return CubeTexture.create(this.device, faces);
+  createCubeTexture(faces: CubeTextureFaces, options?: CubeTextureOptions): CubeTexture {
+    return CubeTexture.create(this.device, faces, options);
   }
 
   render(scene: Scene): void {

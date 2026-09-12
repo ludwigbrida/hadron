@@ -1,4 +1,10 @@
-import type { Engine, Texture, TextureOptions } from "@hadron/engine";
+import type {
+  CubeTexture,
+  CubeTextureFaceUrls,
+  Engine,
+  Texture,
+  TextureOptions,
+} from "@hadron/engine";
 
 function createDefaultTextureImage(): Promise<ImageBitmap> {
   const size = 128;
@@ -49,5 +55,33 @@ export async function loadTexture(
       minFilter: "nearest",
       magFilter: "nearest",
     });
+  }
+}
+
+export async function loadCubeTexture(
+  engine: Engine,
+  urls: CubeTextureFaceUrls,
+): Promise<CubeTexture> {
+  try {
+    return await engine.loadCubeTexture(urls);
+  } catch (error) {
+    console.warn("Could not load cubemap texture. Using the default texture.", error);
+
+    const image = await createDefaultTextureImage();
+
+    return engine.createCubeTexture(
+      {
+        positiveX: image,
+        negativeX: image,
+        positiveY: image,
+        negativeY: image,
+        positiveZ: image,
+        negativeZ: image,
+      },
+      {
+        minFilter: "nearest",
+        magFilter: "nearest",
+      },
+    );
   }
 }

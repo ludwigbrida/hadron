@@ -4,6 +4,7 @@ import {
   CubeTexture,
   type CubeTextureFaces,
   type CubeTextureFaceUrls,
+  type CubeTextureOptions,
 } from "../rendering/cube-texture.ts";
 import type { Geometry, GeometryData } from "../rendering/geometry.ts";
 import type { Material, MaterialOptions } from "../rendering/material.ts";
@@ -65,8 +66,8 @@ export class Engine {
     return texture;
   }
 
-  createCubeTexture(faces: CubeTextureFaces): CubeTexture {
-    const texture = this.renderer.createCubeTexture(faces);
+  createCubeTexture(faces: CubeTextureFaces, options?: CubeTextureOptions): CubeTexture {
+    const texture = this.renderer.createCubeTexture(faces, options);
 
     this.cubeTextures.add(texture);
     return texture;
@@ -76,7 +77,10 @@ export class Engine {
     return this.createTexture(await this.loadImage(url), options);
   }
 
-  async loadCubeTexture(urls: CubeTextureFaceUrls): Promise<CubeTexture> {
+  async loadCubeTexture(
+    urls: CubeTextureFaceUrls,
+    options?: CubeTextureOptions,
+  ): Promise<CubeTexture> {
     const [positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ] = await Promise.all([
       this.loadImage(urls.positiveX),
       this.loadImage(urls.negativeX),
@@ -86,14 +90,17 @@ export class Engine {
       this.loadImage(urls.negativeZ),
     ]);
 
-    return this.createCubeTexture({
-      positiveX,
-      negativeX,
-      positiveY,
-      negativeY,
-      positiveZ,
-      negativeZ,
-    });
+    return this.createCubeTexture(
+      {
+        positiveX,
+        negativeX,
+        positiveY,
+        negativeY,
+        positiveZ,
+        negativeZ,
+      },
+      options,
+    );
   }
 
   private createMesh(geometry: Geometry, material: Material): Mesh {

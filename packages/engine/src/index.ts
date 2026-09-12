@@ -6,6 +6,7 @@ export type {
   CubeTexture,
   CubeTextureFaceUrls,
   CubeTextureFaces,
+  CubeTextureOptions,
 } from "./rendering/cube-texture.ts";
 export type { MaterialOptions } from "./rendering/material.ts";
 export type { Texture, TextureOptions } from "./rendering/texture.ts";
