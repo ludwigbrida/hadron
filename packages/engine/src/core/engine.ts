@@ -1,7 +1,7 @@
 import { Input } from "../input/input.ts";
 import type { Color } from "../rendering/color.ts";
 import type { Geometry, GeometryData } from "../rendering/geometry.ts";
-import type { Material } from "../rendering/material.ts";
+import type { Material, MaterialOptions } from "../rendering/material.ts";
 import type { Mesh } from "../rendering/mesh.ts";
 import { Renderer } from "../rendering/renderer.ts";
 import { Texture, type TextureOptions } from "../rendering/texture.ts";
@@ -45,8 +45,8 @@ export class Engine {
     return geometry;
   }
 
-  createMaterial(baseColor: Readonly<Color>, texture?: Texture): Material {
-    const material = this.renderer.createMaterial(baseColor, texture);
+  createMaterial(baseColor: Readonly<Color>, options?: MaterialOptions): Material {
+    const material = this.renderer.createMaterial(baseColor, options);
 
     this.materials.add(material);
     return material;

@@ -1,7 +1,7 @@
 import { Scene } from "../scene/scene.ts";
 import { Color } from "./color.ts";
 import { Geometry, type GeometryData } from "./geometry.ts";
-import { Material } from "./material.ts";
+import { Material, type MaterialOptions } from "./material.ts";
 import { Mesh } from "./mesh.ts";
 import meshShader from "./shaders/mesh.wgsl?raw";
 import { Texture, type TextureOptions } from "./texture.ts";
@@ -192,12 +192,13 @@ export class Renderer {
     return Geometry.create(this.device, data);
   }
 
-  createMaterial(baseColor: Readonly<Color>, texture?: Texture): Material {
+  createMaterial(baseColor: Readonly<Color>, options?: MaterialOptions): Material {
     return Material.create(
       this.device,
       this.pipeline.getBindGroupLayout(1),
       baseColor,
-      texture ?? this.defaultTexture,
+      options?.texture ?? this.defaultTexture,
+      options?.unlit ?? false,
     );
   }
 
