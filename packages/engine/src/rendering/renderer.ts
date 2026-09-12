@@ -1,5 +1,6 @@
 import { Scene } from "../scene/scene.ts";
 import { Color } from "./color.ts";
+import { CubeTexture, type CubeTextureFaces } from "./cube-texture.ts";
 import { Geometry, type GeometryData } from "./geometry.ts";
 import { Material, type MaterialOptions } from "./material.ts";
 import { Mesh } from "./mesh.ts";
@@ -208,6 +209,10 @@ export class Renderer {
 
   createTexture(image: ImageBitmap, options?: TextureOptions): Texture {
     return Texture.create(this.device, image, options);
+  }
+
+  createCubeTexture(faces: CubeTextureFaces): CubeTexture {
+    return CubeTexture.create(this.device, faces);
   }
 
   render(scene: Scene): void {

@@ -1,5 +1,6 @@
 import { Input } from "../input/input.ts";
 import type { Color } from "../rendering/color.ts";
+import { CubeTexture, type CubeTextureFaces } from "../rendering/cube-texture.ts";
 import type { Geometry, GeometryData } from "../rendering/geometry.ts";
 import type { Material, MaterialOptions } from "../rendering/material.ts";
 import type { Mesh } from "../rendering/mesh.ts";
@@ -19,6 +20,7 @@ export class Engine {
   private readonly geometries = new Set<Geometry>();
   private readonly materials = new Set<Material>();
   private readonly meshes = new Set<Mesh>();
+  private readonly cubeTextures = new Set<CubeTexture>();
   private readonly textures = new Set<Texture>();
   private frameRequest: number | undefined;
   private previousTime: number | undefined;
@@ -56,6 +58,13 @@ export class Engine {
     const texture = this.renderer.createTexture(image, options);
 
     this.textures.add(texture);
+    return texture;
+  }
+
+  createCubeTexture(faces: CubeTextureFaces): CubeTexture {
+    const texture = this.renderer.createCubeTexture(faces);
+
+    this.cubeTextures.add(texture);
     return texture;
   }
 
@@ -110,6 +119,10 @@ export class Engine {
       texture.dispose();
     }
 
+    for (const texture of this.cubeTextures) {
+      texture.dispose();
+    }
+
     for (const geometry of this.geometries) {
       geometry.dispose();
     }
@@ -117,6 +130,7 @@ export class Engine {
     this.meshes.clear();
     this.materials.clear();
     this.textures.clear();
+    this.cubeTextures.clear();
     this.geometries.clear();
     this.renderer.dispose();
   }
