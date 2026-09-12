@@ -2,8 +2,8 @@ import type { Color } from "./color.ts";
 import type { Texture } from "./texture.ts";
 
 export interface MaterialOptions {
-  readonly texture?: Texture;
-  readonly unlit?: boolean;
+  readonly baseColorTexture?: Texture;
+  readonly shadingModel?: "lit" | "unlit";
 }
 
 export class Material {
@@ -17,13 +17,13 @@ export class Material {
     device: GPUDevice,
     bindGroupLayout: GPUBindGroupLayout,
     baseColor: Readonly<Color>,
-    texture: Texture,
-    unlit: boolean,
+    baseColorTexture: Texture,
+    shadingModel: "lit" | "unlit",
   ): Material {
     const uniformData = new Float32Array(8);
 
     uniformData.set(baseColor);
-    uniformData[4] = unlit ? 1 : 0;
+    uniformData[4] = shadingModel === "unlit" ? 1 : 0;
 
     const uniformBuffer = device.createBuffer({
       size: uniformData.byteLength,
@@ -43,11 +43,11 @@ export class Material {
         },
         {
           binding: 1,
-          resource: texture.sampler,
+          resource: baseColorTexture.sampler,
         },
         {
           binding: 2,
-          resource: texture.view,
+          resource: baseColorTexture.view,
         },
       ],
     });

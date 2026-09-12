@@ -17,7 +17,6 @@ export class Renderer {
     private readonly device: GPUDevice,
     private readonly meshPipeline: MeshPipeline,
     private readonly skyPipeline: SkyPipeline,
-    private readonly defaultTexture: Texture,
   ) {}
 
   static async create(canvas: HTMLCanvasElement): Promise<Renderer> {
@@ -32,8 +31,6 @@ export class Renderer {
     }
 
     const device = await adapter.requestDevice();
-    const defaultTexture = Texture.createSolidColor(device, new Uint8Array([255, 255, 255, 255]));
-
     const context = canvas.getContext("webgpu");
 
     if (!context) {
@@ -51,7 +48,7 @@ export class Renderer {
 
     const skyPipeline = await SkyPipeline.create(device, format);
 
-    return new Renderer(canvas, context, device, meshPipeline, skyPipeline, defaultTexture);
+    return new Renderer(canvas, context, device, meshPipeline, skyPipeline);
   }
 
   createGeometry(data: GeometryData): Geometry {
@@ -59,11 +56,7 @@ export class Renderer {
   }
 
   createMaterial(baseColor: Readonly<Color>, options?: MaterialOptions): Material {
-    return this.meshPipeline.createMaterial(
-      baseColor,
-      options?.texture ?? this.defaultTexture,
-      options?.unlit ?? false,
-    );
+    return this.meshPipeline.createMaterial(baseColor, options);
   }
 
   createMesh(geometry: Geometry, material: Material): Mesh {
@@ -114,7 +107,6 @@ export class Renderer {
     this.depthTexture?.destroy();
     this.meshPipeline.dispose();
     this.skyPipeline.dispose();
-    this.defaultTexture.dispose();
     this.context.unconfigure();
     this.device.destroy();
   }

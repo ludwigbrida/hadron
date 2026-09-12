@@ -60,7 +60,9 @@ const scene = engine.createScene();
 scene.setSky(skyTexture);
 const blueMaterial = engine.createMaterial(new Color(0.2, 0.7, 1));
 const redMaterial = engine.createMaterial(new Color(1, 0.3, 0.2));
-const groundMaterial = engine.createMaterial(new Color(1, 1, 1), { texture: groundTexture });
+const groundMaterial = engine.createMaterial(new Color(1, 1, 1), {
+  baseColorTexture: groundTexture,
+});
 const firstMesh = scene.createMesh(cube, blueMaterial);
 const secondMesh = scene.createMesh(cube, redMaterial);
 scene.createMesh(ground, groundMaterial);

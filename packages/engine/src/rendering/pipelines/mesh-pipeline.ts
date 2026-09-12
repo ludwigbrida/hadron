@@ -2,10 +2,10 @@ import { Mat4 } from "../../math/mat4.ts";
 import type { Scene } from "../../scene/scene.ts";
 import type { Color } from "../color.ts";
 import type { Geometry } from "../geometry.ts";
-import { Material } from "../material.ts";
+import { Material, type MaterialOptions } from "../material.ts";
 import { Mesh } from "../mesh.ts";
 import meshShader from "../shaders/mesh.wgsl?raw";
-import type { Texture } from "../texture.ts";
+import { Texture } from "../texture.ts";
 
 export class MeshPipeline {
   private readonly lightDirection = new Float32Array(4);
@@ -18,6 +18,7 @@ export class MeshPipeline {
     private readonly ambientLightBuffer: GPUBuffer,
     private readonly directionalLightColorBuffer: GPUBuffer,
     private readonly renderBindGroup: GPUBindGroup,
+    private readonly defaultBaseColorTexture: Texture,
   ) {}
 
   static async create(device: GPUDevice, format: GPUTextureFormat): Promise<MeshPipeline> {
@@ -132,6 +133,11 @@ export class MeshPipeline {
       ],
     });
 
+    const defaultBaseColorTexture = Texture.createSolidColor(
+      device,
+      new Uint8Array([255, 255, 255, 255]),
+    );
+
     return new MeshPipeline(
       device,
       pipeline,
@@ -140,6 +146,7 @@ export class MeshPipeline {
       ambientLightBuffer,
       directionalLightColorBuffer,
       renderBindGroup,
+      defaultBaseColorTexture,
     );
   }
 
@@ -180,13 +187,13 @@ export class MeshPipeline {
     }
   }
 
-  createMaterial(baseColor: Readonly<Color>, texture: Texture, unlit: boolean): Material {
+  createMaterial(baseColor: Readonly<Color>, options?: MaterialOptions): Material {
     return Material.create(
       this.device,
       this.pipeline.getBindGroupLayout(1),
       baseColor,
-      texture,
-      unlit,
+      options?.baseColorTexture ?? this.defaultBaseColorTexture,
+      options?.shadingModel ?? "lit",
     );
   }
 
@@ -199,5 +206,6 @@ export class MeshPipeline {
     this.lightDirectionBuffer.destroy();
     this.ambientLightBuffer.destroy();
     this.directionalLightColorBuffer.destroy();
+    this.defaultBaseColorTexture.dispose();
   }
 }

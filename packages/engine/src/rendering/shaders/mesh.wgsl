@@ -1,6 +1,6 @@
 struct Material {
   color: vec4f,
-  unlit: f32,
+  shadingModel: f32,
 }
 
 @group(0) @binding(0) var<uniform> viewProjection: mat4x4f;
@@ -8,8 +8,8 @@ struct Material {
 @group(0) @binding(2) var<uniform> ambientLight: vec4f;
 @group(0) @binding(3) var<uniform> directionalLightColor: vec4f;
 @group(1) @binding(0) var<uniform> material: Material;
-@group(1) @binding(1) var materialSampler: sampler;
-@group(1) @binding(2) var materialTexture: texture_2d<f32>;
+@group(1) @binding(1) var baseColorSampler: sampler;
+@group(1) @binding(2) var baseColorTexture: texture_2d<f32>;
 @group(2) @binding(0) var<uniform> transform: mat4x4f;
 @group(2) @binding(1) var<uniform> normalMatrix: mat4x4f;
 
@@ -35,7 +35,7 @@ fn vertexMain(
 @fragment
 fn fragmentMain(@location(0) normal: vec3f, @location(1) texCoord: vec2f) -> @location(0) vec4f {
   let directionalLight = max(dot(normal, lightDirection), 0.0);
-  let baseColor = material.color * textureSample(materialTexture, materialSampler, texCoord);
+  let baseColor = material.color * textureSample(baseColorTexture, baseColorSampler, texCoord);
   let litColor = baseColor.rgb * (ambientLight.rgb + directionalLightColor.rgb * directionalLight);
-  return vec4f(select(litColor, baseColor.rgb, material.unlit > 0.5), baseColor.a);
+  return vec4f(select(litColor, baseColor.rgb, material.shadingModel > 0.5), baseColor.a);
 }
