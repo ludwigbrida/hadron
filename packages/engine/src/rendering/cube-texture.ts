@@ -7,6 +7,15 @@ export interface CubeTextureFaces {
   readonly negativeZ: ImageBitmap;
 }
 
+export interface CubeTextureFaceUrls {
+  readonly positiveX: string;
+  readonly negativeX: string;
+  readonly positiveY: string;
+  readonly negativeY: string;
+  readonly positiveZ: string;
+  readonly negativeZ: string;
+}
+
 export class CubeTexture {
   private constructor(
     private readonly texture: GPUTexture,

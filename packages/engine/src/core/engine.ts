@@ -1,6 +1,10 @@
 import { Input } from "../input/input.ts";
 import type { Color } from "../rendering/color.ts";
-import { CubeTexture, type CubeTextureFaces } from "../rendering/cube-texture.ts";
+import {
+  CubeTexture,
+  type CubeTextureFaces,
+  type CubeTextureFaceUrls,
+} from "../rendering/cube-texture.ts";
 import type { Geometry, GeometryData } from "../rendering/geometry.ts";
 import type { Material, MaterialOptions } from "../rendering/material.ts";
 import type { Mesh } from "../rendering/mesh.ts";
@@ -69,13 +73,27 @@ export class Engine {
   }
 
   async loadTexture(url: string, options?: TextureOptions): Promise<Texture> {
-    const response = await fetch(url);
+    return this.createTexture(await this.loadImage(url), options);
+  }
 
-    if (!response.ok) {
-      throw new Error(`Could not load texture: ${url}`);
-    }
+  async loadCubeTexture(urls: CubeTextureFaceUrls): Promise<CubeTexture> {
+    const [positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ] = await Promise.all([
+      this.loadImage(urls.positiveX),
+      this.loadImage(urls.negativeX),
+      this.loadImage(urls.positiveY),
+      this.loadImage(urls.negativeY),
+      this.loadImage(urls.positiveZ),
+      this.loadImage(urls.negativeZ),
+    ]);
 
-    return this.createTexture(await createImageBitmap(await response.blob()), options);
+    return this.createCubeTexture({
+      positiveX,
+      negativeX,
+      positiveY,
+      negativeY,
+      positiveZ,
+      negativeZ,
+    });
   }
 
   private createMesh(geometry: Geometry, material: Material): Mesh {
@@ -83,6 +101,16 @@ export class Engine {
 
     this.meshes.add(mesh);
     return mesh;
+  }
+
+  private async loadImage(url: string): Promise<ImageBitmap> {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`Could not load image: ${url}`);
+    }
+
+    return createImageBitmap(await response.blob());
   }
 
   start(scene: Scene, update: UpdateCallback): void {
