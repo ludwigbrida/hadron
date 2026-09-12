@@ -457,4 +457,6 @@ export class Mat4 extends Float32Array {
   multiply(right: Readonly<Mat4>): this {
     return this.setMultiply(this, right);
   }
+
+  static readonly byteLength = 16 * Float32Array.BYTES_PER_ELEMENT;
 }
