@@ -6,7 +6,7 @@ import { Geometry, type GeometryData } from "./geometry.ts";
 import { Material, type MaterialOptions } from "./material.ts";
 import { Mesh } from "./mesh.ts";
 import { createMeshPipeline } from "./pipelines/mesh-pipeline.ts";
-import skyShader from "./shaders/sky.wgsl?raw";
+import { createSkyPipeline } from "./pipelines/sky-pipeline.ts";
 import { Texture, type TextureOptions } from "./texture.ts";
 
 const identityViewProjection = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
@@ -24,7 +24,7 @@ export class Renderer {
     private readonly canvas: HTMLCanvasElement,
     private readonly context: GPUCanvasContext,
     private readonly device: GPUDevice,
-    private readonly pipeline: GPURenderPipeline,
+    private readonly meshPipeline: GPURenderPipeline,
     private readonly skyPipeline: GPURenderPipeline,
     private readonly viewProjectionBuffer: GPUBuffer,
     private readonly inverseViewProjectionBuffer: GPUBuffer,
@@ -62,36 +62,9 @@ export class Renderer {
       format,
     });
 
-    const pipeline = await createMeshPipeline(device, format);
+    const meshPipeline = await createMeshPipeline(device, format);
 
-    const skyShaderModule = device.createShaderModule({
-      code: skyShader,
-    });
-
-    const skyPipeline = await device.createRenderPipelineAsync({
-      layout: "auto",
-      vertex: {
-        module: skyShaderModule,
-        entryPoint: "vertexMain",
-      },
-      fragment: {
-        module: skyShaderModule,
-        entryPoint: "fragmentMain",
-        targets: [
-          {
-            format,
-          },
-        ],
-      },
-      primitive: {
-        topology: "triangle-list",
-      },
-      depthStencil: {
-        format: "depth24plus",
-        depthWriteEnabled: false,
-        depthCompare: "always",
-      },
-    });
+    const skyPipeline = await createSkyPipeline(device, format);
 
     const viewProjectionBuffer = device.createBuffer({
       size: identityViewProjection.byteLength,
@@ -129,7 +102,7 @@ export class Renderer {
     device.queue.writeBuffer(directionalLightColorBuffer, 0, emptyDirectionalLightColor);
 
     const renderBindGroup = device.createBindGroup({
-      layout: pipeline.getBindGroupLayout(0),
+      layout: meshPipeline.getBindGroupLayout(0),
       entries: [
         {
           binding: 0,
@@ -162,7 +135,7 @@ export class Renderer {
       canvas,
       context,
       device,
-      pipeline,
+      meshPipeline,
       skyPipeline,
       viewProjectionBuffer,
       inverseViewProjectionBuffer,
@@ -181,7 +154,7 @@ export class Renderer {
   createMaterial(baseColor: Readonly<Color>, options?: MaterialOptions): Material {
     return Material.create(
       this.device,
-      this.pipeline.getBindGroupLayout(1),
+      this.meshPipeline.getBindGroupLayout(1),
       baseColor,
       options?.texture ?? this.defaultTexture,
       options?.unlit ?? false,
@@ -189,7 +162,7 @@ export class Renderer {
   }
 
   createMesh(geometry: Geometry, material: Material): Mesh {
-    return Mesh.create(this.device, this.pipeline.getBindGroupLayout(2), geometry, material);
+    return Mesh.create(this.device, this.meshPipeline.getBindGroupLayout(2), geometry, material);
   }
 
   createTexture(image: ImageBitmap, options?: TextureOptions): Texture {
@@ -253,7 +226,7 @@ export class Renderer {
       pass.draw(3);
     }
 
-    pass.setPipeline(this.pipeline);
+    pass.setPipeline(this.meshPipeline);
     pass.setBindGroup(0, this.renderBindGroup);
 
     for (const mesh of scene) {
