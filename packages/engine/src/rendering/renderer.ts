@@ -5,7 +5,7 @@ import { CubeTexture, type CubeTextureFaces, type CubeTextureOptions } from "./c
 import { Geometry, type GeometryData } from "./geometry.ts";
 import { Material, type MaterialOptions } from "./material.ts";
 import { Mesh } from "./mesh.ts";
-import meshShader from "./shaders/mesh.wgsl?raw";
+import { createMeshPipeline } from "./pipelines/mesh-pipeline.ts";
 import skyShader from "./shaders/sky.wgsl?raw";
 import { Texture, type TextureOptions } from "./texture.ts";
 
@@ -62,66 +62,7 @@ export class Renderer {
       format,
     });
 
-    const shaderModule = device.createShaderModule({
-      code: meshShader,
-    });
-
-    const pipeline = await device.createRenderPipelineAsync({
-      layout: "auto",
-      vertex: {
-        module: shaderModule,
-        entryPoint: "vertexMain",
-        buffers: [
-          {
-            arrayStride: 3 * Float32Array.BYTES_PER_ELEMENT,
-            attributes: [
-              {
-                format: "float32x3",
-                offset: 0,
-                shaderLocation: 0,
-              },
-            ],
-          },
-          {
-            arrayStride: 3 * Float32Array.BYTES_PER_ELEMENT,
-            attributes: [
-              {
-                format: "float32x3",
-                offset: 0,
-                shaderLocation: 1,
-              },
-            ],
-          },
-          {
-            arrayStride: 2 * Float32Array.BYTES_PER_ELEMENT,
-            attributes: [
-              {
-                format: "float32x2",
-                offset: 0,
-                shaderLocation: 2,
-              },
-            ],
-          },
-        ],
-      },
-      fragment: {
-        module: shaderModule,
-        entryPoint: "fragmentMain",
-        targets: [
-          {
-            format,
-          },
-        ],
-      },
-      primitive: {
-        topology: "triangle-list",
-      },
-      depthStencil: {
-        format: "depth24plus",
-        depthWriteEnabled: true,
-        depthCompare: "less",
-      },
-    });
+    const pipeline = await createMeshPipeline(device, format);
 
     const skyShaderModule = device.createShaderModule({
       code: skyShader,
