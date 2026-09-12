@@ -1,3 +1,4 @@
+import { Mat4 } from "../math/mat4.ts";
 import { Scene } from "../scene/scene.ts";
 import { Color } from "./color.ts";
 import { CubeTexture, type CubeTextureFaces } from "./cube-texture.ts";
@@ -5,6 +6,7 @@ import { Geometry, type GeometryData } from "./geometry.ts";
 import { Material, type MaterialOptions } from "./material.ts";
 import { Mesh } from "./mesh.ts";
 import meshShader from "./shaders/mesh.wgsl?raw";
+import skyShader from "./shaders/sky.wgsl?raw";
 import { Texture, type TextureOptions } from "./texture.ts";
 
 const identityViewProjection = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
@@ -15,13 +17,17 @@ const emptyDirectionalLightColor = new Color(0, 0, 0);
 export class Renderer {
   private depthTexture: GPUTexture | undefined;
   private readonly lightDirection = new Float32Array(4);
+  private readonly inverseViewProjection = new Mat4();
+  private readonly skyBindGroups = new WeakMap<CubeTexture, GPUBindGroup>();
 
   private constructor(
     private readonly canvas: HTMLCanvasElement,
     private readonly context: GPUCanvasContext,
     private readonly device: GPUDevice,
     private readonly pipeline: GPURenderPipeline,
+    private readonly skyPipeline: GPURenderPipeline,
     private readonly viewProjectionBuffer: GPUBuffer,
+    private readonly inverseViewProjectionBuffer: GPUBuffer,
     private readonly lightDirectionBuffer: GPUBuffer,
     private readonly ambientLightBuffer: GPUBuffer,
     private readonly directionalLightColorBuffer: GPUBuffer,
@@ -117,12 +123,43 @@ export class Renderer {
       },
     });
 
+    const skyShaderModule = device.createShaderModule({
+      code: skyShader,
+    });
+
+    const skyPipeline = await device.createRenderPipelineAsync({
+      layout: "auto",
+      vertex: {
+        module: skyShaderModule,
+        entryPoint: "vertexMain",
+      },
+      fragment: {
+        module: skyShaderModule,
+        entryPoint: "fragmentMain",
+        targets: [
+          {
+            format,
+          },
+        ],
+      },
+      primitive: {
+        topology: "triangle-list",
+      },
+    });
+
     const viewProjectionBuffer = device.createBuffer({
       size: identityViewProjection.byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
     device.queue.writeBuffer(viewProjectionBuffer, 0, identityViewProjection);
+
+    const inverseViewProjectionBuffer = device.createBuffer({
+      size: identityViewProjection.byteLength,
+      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+    });
+
+    device.queue.writeBuffer(inverseViewProjectionBuffer, 0, identityViewProjection);
 
     const lightDirectionBuffer = device.createBuffer({
       size: emptyLightDirection.byteLength,
@@ -180,7 +217,9 @@ export class Renderer {
       context,
       device,
       pipeline,
+      skyPipeline,
       viewProjectionBuffer,
+      inverseViewProjectionBuffer,
       lightDirectionBuffer,
       ambientLightBuffer,
       directionalLightColorBuffer,
@@ -217,8 +256,11 @@ export class Renderer {
 
   render(scene: Scene): void {
     const depthTexture = this.resizeRenderTargets();
+    const viewProjection = scene.camera.getViewProjection();
 
-    this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, scene.camera.getViewProjection());
+    this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, viewProjection);
+    this.inverseViewProjection.setInverse(viewProjection);
+    this.device.queue.writeBuffer(this.inverseViewProjectionBuffer, 0, this.inverseViewProjection);
     this.lightDirection[0] = scene.directionalLight.direction[0];
     this.lightDirection[1] = scene.directionalLight.direction[1];
     this.lightDirection[2] = scene.directionalLight.direction[2];
@@ -257,6 +299,14 @@ export class Renderer {
       },
     });
 
+    const sky = scene.getSky();
+
+    if (sky) {
+      pass.setPipeline(this.skyPipeline);
+      pass.setBindGroup(0, this.getSkyBindGroup(sky));
+      pass.draw(3);
+    }
+
     pass.setPipeline(this.pipeline);
     pass.setBindGroup(0, this.renderBindGroup);
 
@@ -278,12 +328,42 @@ export class Renderer {
   dispose(): void {
     this.depthTexture?.destroy();
     this.viewProjectionBuffer.destroy();
+    this.inverseViewProjectionBuffer.destroy();
     this.lightDirectionBuffer.destroy();
     this.ambientLightBuffer.destroy();
     this.directionalLightColorBuffer.destroy();
     this.defaultTexture.dispose();
     this.context.unconfigure();
     this.device.destroy();
+  }
+
+  private getSkyBindGroup(texture: CubeTexture): GPUBindGroup {
+    let bindGroup = this.skyBindGroups.get(texture);
+
+    if (!bindGroup) {
+      bindGroup = this.device.createBindGroup({
+        layout: this.skyPipeline.getBindGroupLayout(0),
+        entries: [
+          {
+            binding: 0,
+            resource: {
+              buffer: this.inverseViewProjectionBuffer,
+            },
+          },
+          {
+            binding: 1,
+            resource: texture.sampler,
+          },
+          {
+            binding: 2,
+            resource: texture.view,
+          },
+        ],
+      });
+      this.skyBindGroups.set(texture, bindGroup);
+    }
+
+    return bindGroup;
   }
 
   private resizeRenderTargets(): GPUTexture {

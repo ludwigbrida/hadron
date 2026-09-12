@@ -1,4 +1,5 @@
 import { Color } from "../rendering/color.ts";
+import type { CubeTexture } from "../rendering/cube-texture.ts";
 import type { Geometry } from "../rendering/geometry.ts";
 import type { Material } from "../rendering/material.ts";
 import { Mesh } from "../rendering/mesh.ts";
@@ -11,6 +12,7 @@ export class Scene {
   readonly camera = new Camera();
   readonly directionalLight = new DirectionalLight();
   readonly ambientLight = new Color(0.1, 0.1, 0.1);
+  private sky: CubeTexture | undefined;
 
   /** @internal */
   static create(createMeshInstance: (geometry: Geometry, material: Material) => Mesh): Scene {
@@ -35,6 +37,16 @@ export class Scene {
 
     this.root.addChild(mesh);
     return mesh;
+  }
+
+  setSky(texture: CubeTexture): this {
+    this.sky = texture;
+    return this;
+  }
+
+  /** @internal */
+  getSky(): CubeTexture | undefined {
+    return this.sky;
   }
 
   remove(node: Node): this {
