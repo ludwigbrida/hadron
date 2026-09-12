@@ -59,6 +59,16 @@ export class Engine {
     return texture;
   }
 
+  async loadTexture(url: string, options?: TextureOptions): Promise<Texture> {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`Could not load texture: ${url}`);
+    }
+
+    return this.createTexture(await createImageBitmap(await response.blob()), options);
+  }
+
   private createMesh(geometry: Geometry, material: Material): Mesh {
     const mesh = this.renderer.createMesh(geometry, material);
 

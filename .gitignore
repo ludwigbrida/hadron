@@ -8,6 +8,7 @@
 .DS_Store
 .idea
 .vscode
+apps/sandbox/public/assets
 dist
 dist-ssr
 lerna-debug.log*
