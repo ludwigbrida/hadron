@@ -159,7 +159,7 @@ export class MeshPipeline {
     this.directionalLightColor.fill(0);
 
     if (directionalLight) {
-      this.lightDirection.set(directionalLight.direction);
+      this.lightDirection.set(directionalLight.getDirection());
       this.directionalLightColor.set(directionalLight.color);
     }
 

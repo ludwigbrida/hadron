@@ -57,7 +57,7 @@ const ground = engine.createGeometry({
 });
 
 const scene = engine.createScene();
-scene.createDirectionalLight();
+const directionalLight = scene.createDirectionalLight();
 scene.setSky(skyTexture);
 const blueMaterial = engine.createMaterial(new Color(0.2, 0.7, 1));
 const redMaterial = engine.createMaterial(new Color(1, 0.3, 0.2));
@@ -74,6 +74,8 @@ firstMesh.transform.scale.set(1, 1.5, 1);
 secondMesh.transform.position.set(-0.5, 0, -2);
 secondMesh.transform.scale.set(1.5, 1, 1);
 cubeGroup.addChild(firstMesh).addChild(secondMesh);
+
+directionalLight.transform.rotation.set(-0.62, 0.46, 0);
 
 const cameraPosition = scene.camera.transform.position;
 let cameraYaw = -Math.PI / 2;
