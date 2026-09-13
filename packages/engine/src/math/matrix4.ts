@@ -1,7 +1,7 @@
 import type { Vector3 } from "./vector3.ts";
 
 // column-major order
-export class Mat4 extends Float32Array {
+export class Matrix4 extends Float32Array {
   declare [0]: number;
   declare [1]: number;
   declare [2]: number;
@@ -294,7 +294,7 @@ export class Mat4 extends Float32Array {
   }
 
   // aliasing-safe when this is the input
-  setInverse(matrix: Readonly<Mat4>): this {
+  setInverse(matrix: Readonly<Matrix4>): this {
     const m00 = matrix[0];
     const m01 = matrix[1];
     const m02 = matrix[2];
@@ -355,7 +355,7 @@ export class Mat4 extends Float32Array {
   }
 
   // aliasing-safe when this is the input
-  setTranspose(matrix: Readonly<Mat4>): this {
+  setTranspose(matrix: Readonly<Matrix4>): this {
     const m00 = matrix[0];
     const m01 = matrix[1];
     const m02 = matrix[2];
@@ -394,7 +394,7 @@ export class Mat4 extends Float32Array {
   }
 
   // aliasing-safe when this is either input
-  setMultiply(left: Readonly<Mat4>, right: Readonly<Mat4>): this {
+  setMultiply(left: Readonly<Matrix4>, right: Readonly<Matrix4>): this {
     // cache all left-hand-side values upfront
     const a00 = left[0];
     const a01 = left[1];
@@ -454,7 +454,7 @@ export class Mat4 extends Float32Array {
     return this;
   }
 
-  multiply(right: Readonly<Mat4>): this {
+  multiply(right: Readonly<Matrix4>): this {
     return this.setMultiply(this, right);
   }
 

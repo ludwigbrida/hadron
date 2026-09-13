@@ -1,9 +1,9 @@
-import { Mat4 } from "../../math/mat4.ts";
+import { Matrix4 } from "../../math/matrix4.ts";
 import type { CubeTexture } from "../cube-texture.ts";
 import skyShader from "../shaders/sky.wgsl?raw";
 
 export class SkyPipeline {
-  private readonly inverseViewProjection = new Mat4();
+  private readonly inverseViewProjection = new Matrix4();
   private texture: CubeTexture | undefined;
   private bindGroup: GPUBindGroup | undefined;
 
@@ -44,7 +44,7 @@ export class SkyPipeline {
     });
 
     const inverseViewProjectionBuffer = device.createBuffer({
-      size: Mat4.byteLength,
+      size: Matrix4.byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
@@ -54,7 +54,7 @@ export class SkyPipeline {
   render(
     pass: GPURenderPassEncoder,
     texture: CubeTexture | undefined,
-    viewProjection: Readonly<Mat4>,
+    viewProjection: Readonly<Matrix4>,
   ): void {
     if (!texture) {
       return;

@@ -1,4 +1,4 @@
-import { Mat4 } from "../math/mat4.ts";
+import { Matrix4 } from "../math/matrix4.ts";
 import { Vector3 } from "../math/vector3.ts";
 
 export class Transform {
@@ -6,9 +6,9 @@ export class Transform {
   readonly rotation = new Vector3(0, 0, 0);
   readonly scale = new Vector3(1, 1, 1);
 
-  private readonly matrix = new Mat4();
+  private readonly matrix = new Matrix4();
 
-  getMatrix(): Readonly<Mat4> {
+  getMatrix(): Readonly<Matrix4> {
     return this.matrix
       .setTranslation(this.position)
       .rotateY(this.rotation[1])

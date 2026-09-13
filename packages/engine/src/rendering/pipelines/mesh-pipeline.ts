@@ -1,4 +1,4 @@
-import { Mat4 } from "../../math/mat4.ts";
+import { Matrix4 } from "../../math/matrix4.ts";
 import type { Scene } from "../../scene/scene.ts";
 import type { Color } from "../color.ts";
 import type { Geometry } from "../geometry.ts";
@@ -85,7 +85,7 @@ export class MeshPipeline {
     });
 
     const viewProjectionBuffer = device.createBuffer({
-      size: Mat4.byteLength,
+      size: Matrix4.byteLength,
       usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
     });
 
@@ -151,7 +151,7 @@ export class MeshPipeline {
     );
   }
 
-  render(pass: GPURenderPassEncoder, scene: Scene, viewProjection: Readonly<Mat4>): void {
+  render(pass: GPURenderPassEncoder, scene: Scene, viewProjection: Readonly<Matrix4>): void {
     this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, viewProjection);
     const directionalLight = scene.getDirectionalLight();
 

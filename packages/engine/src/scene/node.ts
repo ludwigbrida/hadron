@@ -1,10 +1,10 @@
-import { Mat4 } from "../math/mat4.ts";
+import { Matrix4 } from "../math/matrix4.ts";
 import { Transform } from "./transform.ts";
 
 export class Node {
   readonly transform = new Transform();
   private readonly childNodes = new Set<Node>();
-  private readonly worldMatrix = new Mat4();
+  private readonly worldMatrix = new Matrix4();
   private parentNode: Node | undefined;
 
   get parent(): Node | undefined {
@@ -35,7 +35,7 @@ export class Node {
     return this;
   }
 
-  getWorldMatrix(): Readonly<Mat4> {
+  getWorldMatrix(): Readonly<Matrix4> {
     const parent = this.parentNode;
 
     if (!parent) {

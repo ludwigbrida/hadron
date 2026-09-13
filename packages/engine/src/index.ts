@@ -1,5 +1,5 @@
 export { Engine, type Frame, type UpdateCallback } from "./core/engine.ts";
-export { Mat4 } from "./math/mat4.ts";
+export { Matrix4 } from "./math/matrix4.ts";
 export { Vector3 } from "./math/vector3.ts";
 export { Color } from "./rendering/color.ts";
 export type {
