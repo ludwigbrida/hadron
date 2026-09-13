@@ -1,4 +1,4 @@
-export class Vec3 extends Float32Array {
+export class Vector3 extends Float32Array {
   declare [0]: number;
   declare [1]: number;
   declare [2]: number;

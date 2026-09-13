@@ -1,4 +1,4 @@
-import type { Vec3 } from "./vec3.ts";
+import type { Vector3 } from "./vector3.ts";
 
 // column-major order
 export class Mat4 extends Float32Array {
@@ -23,7 +23,7 @@ export class Mat4 extends Float32Array {
     super([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
   }
 
-  setTranslation(translation: Readonly<Vec3>): this {
+  setTranslation(translation: Readonly<Vector3>): this {
     this[0] = 1;
     this[1] = 0;
     this[2] = 0;
@@ -70,7 +70,7 @@ export class Mat4 extends Float32Array {
     return this;
   }
 
-  setLookAt(eye: Readonly<Vec3>, target: Readonly<Vec3>, up: Readonly<Vec3>): this {
+  setLookAt(eye: Readonly<Vector3>, target: Readonly<Vector3>, up: Readonly<Vector3>): this {
     let z0 = eye[0] - target[0];
     let z1 = eye[1] - target[1];
     let z2 = eye[2] - target[2];
@@ -223,7 +223,7 @@ export class Mat4 extends Float32Array {
     return this;
   }
 
-  scale(scale: Readonly<Vec3>): this {
+  scale(scale: Readonly<Vector3>): this {
     const x = scale[0];
     const y = scale[1];
     const z = scale[2];
