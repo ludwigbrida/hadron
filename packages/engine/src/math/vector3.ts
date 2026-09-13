@@ -1,3 +1,6 @@
+/**
+ * Represents a three-dimensional vector.
+ */
 export class Vector3 extends Float32Array {
   declare [0]: number;
   declare [1]: number;
@@ -7,6 +10,11 @@ export class Vector3 extends Float32Array {
     super([x, y, z]);
   }
 
+  /**
+   * Sets the vector's components.
+   *
+   * @returns This vector.
+   */
   setXyz(x: number, y: number, z: number): this {
     this[0] = x;
     this[1] = y;
@@ -15,6 +23,13 @@ export class Vector3 extends Float32Array {
     return this;
   }
 
+  /**
+   * Normalizes this vector in place.
+   *
+   * A zero-length vector is left unchanged.
+   *
+   * @returns This vector.
+   */
   normalize(): this {
     const length = Math.hypot(this[0], this[1], this[2]);
 
