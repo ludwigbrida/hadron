@@ -10,7 +10,6 @@ import { Node } from "./node.ts";
 export class Scene {
   readonly root = new Node();
   readonly camera = new Camera();
-  readonly directionalLight = new DirectionalLight();
   readonly ambientLight = new Color(0.1, 0.1, 0.1);
   private sky: CubeTexture | undefined;
 
@@ -39,6 +38,13 @@ export class Scene {
     return mesh;
   }
 
+  createDirectionalLight(): DirectionalLight {
+    const light = new DirectionalLight();
+
+    this.root.addChild(light);
+    return light;
+  }
+
   setSky(texture: CubeTexture): this {
     this.sky = texture;
     return this;
@@ -47,6 +53,11 @@ export class Scene {
   /** @internal */
   getSky(): CubeTexture | undefined {
     return this.sky;
+  }
+
+  /** @internal */
+  getDirectionalLight(): DirectionalLight | undefined {
+    return this.getFirstDirectionalLight(this.root);
   }
 
   remove(node: Node): this {
@@ -66,5 +77,21 @@ export class Scene {
 
       yield* this.getMeshes(child);
     }
+  }
+
+  private getFirstDirectionalLight(node: Node): DirectionalLight | undefined {
+    for (const child of node) {
+      if (child instanceof DirectionalLight) {
+        return child;
+      }
+
+      const light = this.getFirstDirectionalLight(child);
+
+      if (light) {
+        return light;
+      }
+    }
+
+    return undefined;
   }
 }

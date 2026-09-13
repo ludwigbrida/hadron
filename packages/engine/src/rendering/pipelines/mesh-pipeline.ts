@@ -9,6 +9,7 @@ import { Texture } from "../texture.ts";
 
 export class MeshPipeline {
   private readonly lightDirection = new Float32Array(4);
+  private readonly directionalLightColor = new Float32Array(4);
 
   private constructor(
     private readonly device: GPUDevice,
@@ -152,16 +153,19 @@ export class MeshPipeline {
 
   render(pass: GPURenderPassEncoder, scene: Scene, viewProjection: Readonly<Mat4>): void {
     this.device.queue.writeBuffer(this.viewProjectionBuffer, 0, viewProjection);
-    this.lightDirection[0] = scene.directionalLight.direction[0];
-    this.lightDirection[1] = scene.directionalLight.direction[1];
-    this.lightDirection[2] = scene.directionalLight.direction[2];
+    const directionalLight = scene.getDirectionalLight();
+
+    this.lightDirection.fill(0);
+    this.directionalLightColor.fill(0);
+
+    if (directionalLight) {
+      this.lightDirection.set(directionalLight.direction);
+      this.directionalLightColor.set(directionalLight.color);
+    }
+
     this.device.queue.writeBuffer(this.lightDirectionBuffer, 0, this.lightDirection);
     this.device.queue.writeBuffer(this.ambientLightBuffer, 0, scene.ambientLight);
-    this.device.queue.writeBuffer(
-      this.directionalLightColorBuffer,
-      0,
-      scene.directionalLight.color,
-    );
+    this.device.queue.writeBuffer(this.directionalLightColorBuffer, 0, this.directionalLightColor);
 
     for (const mesh of scene) {
       const worldMatrix = mesh.getWorldMatrix();
