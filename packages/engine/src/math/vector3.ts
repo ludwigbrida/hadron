@@ -7,7 +7,7 @@ export class Vector3 extends Float32Array {
     super([x, y, z]);
   }
 
-  set(x: number, y: number, z: number): this {
+  setXyz(x: number, y: number, z: number): this {
     this[0] = x;
     this[1] = y;
     this[2] = z;

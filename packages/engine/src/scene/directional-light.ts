@@ -9,6 +9,6 @@ export class DirectionalLight extends Node {
   getDirection(): Readonly<Vector3> {
     const worldMatrix = this.getWorldMatrix();
 
-    return this.direction.set(worldMatrix[8], worldMatrix[9], worldMatrix[10]).normalize();
+    return this.direction.setXyz(worldMatrix[8], worldMatrix[9], worldMatrix[10]).normalize();
   }
 }

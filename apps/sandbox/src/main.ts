@@ -69,20 +69,20 @@ const secondMesh = scene.createMesh(cube, redMaterial);
 scene.createMesh(ground, groundMaterial);
 const cubeGroup = scene.createNode();
 
-firstMesh.transform.position.set(0.5, 0, -2);
-firstMesh.transform.scale.set(1, 1.5, 1);
-secondMesh.transform.position.set(-0.5, 0, -2);
-secondMesh.transform.scale.set(1.5, 1, 1);
+firstMesh.transform.position.setXyz(0.5, 0, -2);
+firstMesh.transform.scale.setXyz(1, 1.5, 1);
+secondMesh.transform.position.setXyz(-0.5, 0, -2);
+secondMesh.transform.scale.setXyz(1.5, 1, 1);
 cubeGroup.addChild(firstMesh).addChild(secondMesh);
 
-directionalLight.transform.rotation.set(-0.62, 0.46, 0);
+directionalLight.transform.rotation.setXyz(-0.62, 0.46, 0);
 
 const cameraPosition = scene.camera.transform.position;
 let cameraYaw = -Math.PI / 2;
 let cameraPitch = Math.atan2(-0.5, 3);
 
-cameraPosition.set(0, 0.5, 1);
-scene.camera.transform.rotation.set(cameraPitch, -cameraYaw - Math.PI / 2, 0);
+cameraPosition.setXyz(0, 0.5, 1);
+scene.camera.transform.rotation.setXyz(cameraPitch, -cameraYaw - Math.PI / 2, 0);
 scene.camera.setPerspective(Math.PI / 3, 0.1, 100);
 
 canvas.addEventListener("click", () => {
@@ -106,18 +106,18 @@ function update({ elapsedTime, deltaTime }: Frame): void {
     const inputLength = Math.hypot(forward, right);
     const distance = inputLength === 0 ? 0 : (deltaTime * 2) / inputLength;
 
-    cameraPosition.set(
+    cameraPosition.setXyz(
       cameraPosition[0] + (forwardX * forward + rightX * right) * distance,
       cameraPosition[1],
       cameraPosition[2] + (forwardZ * forward + rightZ * right) * distance,
     );
 
-    scene.camera.transform.rotation.set(cameraPitch, -cameraYaw - Math.PI / 2, 0);
+    scene.camera.transform.rotation.setXyz(cameraPitch, -cameraYaw - Math.PI / 2, 0);
   }
 
-  firstMesh.transform.rotation.set(elapsedTime / 1.5, elapsedTime, elapsedTime / 2);
-  secondMesh.transform.rotation.set(-elapsedTime / 1.2, -elapsedTime / 2, -elapsedTime / 1.5);
-  cubeGroup.transform.rotation.set(0, elapsedTime / 4, 0);
+  firstMesh.transform.rotation.setXyz(elapsedTime / 1.5, elapsedTime, elapsedTime / 2);
+  secondMesh.transform.rotation.setXyz(-elapsedTime / 1.2, -elapsedTime / 2, -elapsedTime / 1.5);
+  cubeGroup.transform.rotation.setXyz(0, elapsedTime / 4, 0);
 }
 
 engine.start(scene, update);
