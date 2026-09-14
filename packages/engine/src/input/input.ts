@@ -1,3 +1,5 @@
+import { ActionMap } from "./action-map.ts";
+
 export class Input {
   private readonly pressedKeys = new Set<string>();
   private readonly justPressedKeys = new Set<string>();
@@ -67,6 +69,10 @@ export class Input {
 
   wasMouseButtonReleased(button: number): boolean {
     return this.justReleasedMouseButtons.has(button);
+  }
+
+  createActionMap<Action extends string>(): ActionMap<Action> {
+    return new ActionMap(this);
   }
 
   dispose(): void {

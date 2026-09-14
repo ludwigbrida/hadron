@@ -1,4 +1,5 @@
 export { Engine, type Frame, type UpdateCallback } from "./core/engine.ts";
+export { ActionMap, type KeyActionBinding } from "./input/action-map.ts";
 export { Matrix4 } from "./math/matrix4.ts";
 export { Vector3 } from "./math/vector3.ts";
 export { Color } from "./rendering/color.ts";
