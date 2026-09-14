@@ -1,4 +1,4 @@
-import { ActionMap } from "./action-map.ts";
+import { ActionMap, type ActionEnum, type ActionValue } from "./action-map.ts";
 
 export class Input {
   private readonly pressedKeys = new Set<string>();
@@ -71,8 +71,8 @@ export class Input {
     return this.justReleasedMouseButtons.has(button);
   }
 
-  createActionMap<Action extends string>(): ActionMap<Action> {
-    return new ActionMap(this);
+  createActionMap<const Actions extends ActionEnum>(): ActionMap<ActionValue<Actions>> {
+    return new ActionMap<ActionValue<Actions>>(this);
   }
 
   dispose(): void {
@@ -104,11 +104,7 @@ export class Input {
   }
 
   private readonly handleKeyDown = (event: KeyboardEvent): void => {
-    if (!this.isActive()) {
-      return;
-    }
-
-    if (this.pressedKeys.has(event.code)) {
+    if (!this.isActive() || this.pressedKeys.has(event.code)) {
       return;
     }
 

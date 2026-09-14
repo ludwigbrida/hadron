@@ -1,32 +1,27 @@
+import type { InputControl } from "./input-control.ts";
 import type { Input } from "./input.ts";
 
-export interface KeyActionBinding {
-  readonly code: string;
-}
+export type ActionEnum = Record<string, string | number>;
 
-export interface MouseButtonActionBinding {
-  readonly button: number;
-}
+export type ActionValue<Actions extends ActionEnum> = Actions[Extract<keyof Actions, string>];
 
-export type ActionBinding = KeyActionBinding | MouseButtonActionBinding;
-
-export class ActionMap<Action extends string> {
-  private readonly actionBindings = new Map<Action, readonly ActionBinding[]>();
+export class ActionMap<Action extends string | number> {
+  private readonly actionBindings = new Map<Action, readonly InputControl[]>();
 
   constructor(private readonly input: Input) {}
 
-  bindAction(action: Action, bindings: readonly ActionBinding[]): void {
-    this.actionBindings.set(action, bindings);
+  bindAction(action: Action, controls: readonly InputControl[]): void {
+    this.actionBindings.set(action, controls);
   }
 
   isActionDown(action: Action): boolean {
     return (
       this.actionBindings
         .get(action)
-        ?.some((binding) =>
-          "code" in binding
-            ? this.input.isKeyDown(binding.code)
-            : this.input.isMouseButtonDown(binding.button),
+        ?.some((control) =>
+          typeof control === "string"
+            ? this.input.isKeyDown(control)
+            : this.input.isMouseButtonDown(control),
         ) ?? false
     );
   }

@@ -1,4 +1,4 @@
-import { Color, Engine, type Frame } from "@hadron/engine";
+import { Color, Engine, KeyboardKey, type Frame } from "@hadron/engine";
 import { loadCubeTexture, loadTexture } from "./assets/load-texture.ts";
 import "./main.css";
 
@@ -101,8 +101,10 @@ function update({ elapsedTime, deltaTime }: Frame): void {
     const forwardZ = Math.sin(cameraYaw);
     const rightX = -forwardZ;
     const rightZ = forwardX;
-    const forward = Number(engine.input.isKeyDown("KeyW")) - Number(engine.input.isKeyDown("KeyS"));
-    const right = Number(engine.input.isKeyDown("KeyD")) - Number(engine.input.isKeyDown("KeyA"));
+    const forward =
+      Number(engine.input.isKeyDown(KeyboardKey.W)) - Number(engine.input.isKeyDown(KeyboardKey.S));
+    const right =
+      Number(engine.input.isKeyDown(KeyboardKey.D)) - Number(engine.input.isKeyDown(KeyboardKey.A));
     const inputLength = Math.hypot(forward, right);
     const distance = inputLength === 0 ? 0 : (deltaTime * 2) / inputLength;
 
