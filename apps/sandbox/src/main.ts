@@ -6,6 +6,21 @@ const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 
 const engine = await Engine.create(canvas);
 
+enum PlayerAction {
+  MoveForward,
+  MoveRight,
+}
+
+const playerInput = engine.input.createActionMap<typeof PlayerAction>();
+playerInput.bindAxis(PlayerAction.MoveForward, {
+  negative: KeyboardKey.S,
+  positive: KeyboardKey.W,
+});
+playerInput.bindAxis(PlayerAction.MoveRight, {
+  negative: KeyboardKey.A,
+  positive: KeyboardKey.D,
+});
+
 const groundTexture = await loadTexture(engine, "/assets/stone.png", {
   addressModeU: "repeat",
   addressModeV: "repeat",
@@ -101,10 +116,8 @@ function update({ elapsedTime, deltaTime }: Frame): void {
     const forwardZ = Math.sin(cameraYaw);
     const rightX = -forwardZ;
     const rightZ = forwardX;
-    const forward =
-      Number(engine.input.isKeyDown(KeyboardKey.W)) - Number(engine.input.isKeyDown(KeyboardKey.S));
-    const right =
-      Number(engine.input.isKeyDown(KeyboardKey.D)) - Number(engine.input.isKeyDown(KeyboardKey.A));
+    const forward = playerInput.getAxis(PlayerAction.MoveForward);
+    const right = playerInput.getAxis(PlayerAction.MoveRight);
     const inputLength = Math.hypot(forward, right);
     const distance = inputLength === 0 ? 0 : (deltaTime * 2) / inputLength;
 
