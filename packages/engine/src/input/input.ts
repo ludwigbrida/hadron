@@ -8,6 +8,8 @@ export class Input {
   private readonly addedTabIndex: boolean;
   private pointerDeltaX = 0;
   private pointerDeltaY = 0;
+  private scrollDeltaX = 0;
+  private scrollDeltaY = 0;
 
   constructor(private readonly canvas: HTMLCanvasElement) {
     this.addedTabIndex = !canvas.hasAttribute("tabindex");
@@ -24,6 +26,7 @@ export class Input {
     document.addEventListener("pointerdown", this.handlePointerDown);
     document.addEventListener("pointerup", this.handlePointerUp);
     document.addEventListener("mousemove", this.handleMouseMove);
+    document.addEventListener("wheel", this.handleWheel);
   }
 
   getPointerDeltaX(): number {
@@ -32,6 +35,14 @@ export class Input {
 
   getPointerDeltaY(): number {
     return this.pointerDeltaY;
+  }
+
+  getScrollDeltaX(): number {
+    return this.scrollDeltaX;
+  }
+
+  getScrollDeltaY(): number {
+    return this.scrollDeltaY;
   }
 
   isKeyDown(code: string): boolean {
@@ -67,6 +78,7 @@ export class Input {
     document.removeEventListener("pointerdown", this.handlePointerDown);
     document.removeEventListener("pointerup", this.handlePointerUp);
     document.removeEventListener("mousemove", this.handleMouseMove);
+    document.removeEventListener("wheel", this.handleWheel);
 
     if (this.addedTabIndex) {
       this.canvas.removeAttribute("tabindex");
@@ -81,6 +93,8 @@ export class Input {
     this.justReleasedMouseButtons.clear();
     this.pointerDeltaX = 0;
     this.pointerDeltaY = 0;
+    this.scrollDeltaX = 0;
+    this.scrollDeltaY = 0;
   }
 
   private readonly handleKeyDown = (event: KeyboardEvent): void => {
@@ -145,6 +159,18 @@ export class Input {
 
     this.pointerDeltaX += event.movementX;
     this.pointerDeltaY += event.movementY;
+  };
+
+  private readonly handleWheel = (event: WheelEvent): void => {
+    if (
+      !this.isActive() ||
+      (document.pointerLockElement !== this.canvas && event.target !== this.canvas)
+    ) {
+      return;
+    }
+
+    this.scrollDeltaX += event.deltaX;
+    this.scrollDeltaY += event.deltaY;
   };
 
   private isActive(): boolean {
