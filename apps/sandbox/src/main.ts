@@ -84,12 +84,15 @@ const groundMaterial = engine.createMaterial(new Color(1, 1, 1), {
 const firstMesh = scene.createMesh(cube, blueMaterial);
 const secondMesh = scene.createMesh(cube, redMaterial);
 scene.createMesh(ground, groundMaterial);
+const platform = scene.createMesh(cube, groundMaterial);
 const cubeGroup = scene.createNode();
 
 firstMesh.transform.position.setXyz(0.5, 0, -2);
 firstMesh.transform.scale.setXyz(1, 1.5, 1);
 secondMesh.transform.position.setXyz(-0.5, 0, -2);
 secondMesh.transform.scale.setXyz(1.5, 1, 1);
+platform.transform.position.setXyz(0, -0.75, -4);
+platform.transform.scale.setXyz(8, 1, 8);
 cubeGroup.addChild(firstMesh).addChild(secondMesh);
 
 directionalLight.transform.rotation.setXyz(-0.62, 0.46, 0);
