@@ -21,7 +21,7 @@ export interface Frame {
 export type UpdateCallback = (frame: Frame) => void;
 
 export class Engine {
-  readonly input = new Input();
+  readonly input: Input;
   private readonly geometries = new Set<Geometry>();
   private readonly materials = new Set<Material>();
   private readonly meshes = new Set<Mesh>();
@@ -35,7 +35,9 @@ export class Engine {
   private constructor(
     private readonly canvas: HTMLCanvasElement,
     private readonly renderer: Renderer,
-  ) {}
+  ) {
+    this.input = new Input(canvas);
+  }
 
   static async create(canvas: HTMLCanvasElement): Promise<Engine> {
     return new Engine(canvas, await Renderer.create(canvas));

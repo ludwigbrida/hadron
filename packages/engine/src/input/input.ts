@@ -1,12 +1,21 @@
 export class Input {
   private readonly pressedKeys = new Set<string>();
+  private readonly addedTabIndex: boolean;
   private pointerDeltaX = 0;
   private pointerDeltaY = 0;
 
-  constructor() {
+  constructor(private readonly canvas: HTMLCanvasElement) {
+    this.addedTabIndex = !canvas.hasAttribute("tabindex");
+
+    if (this.addedTabIndex) {
+      canvas.tabIndex = 0;
+    }
+
     window.addEventListener("keydown", this.handleKeyDown);
     window.addEventListener("keyup", this.handleKeyUp);
-    window.addEventListener("blur", this.clearKeys);
+    window.addEventListener("blur", this.clearInput);
+    canvas.addEventListener("blur", this.clearInput);
+    canvas.addEventListener("pointerdown", this.focusCanvas);
     document.addEventListener("mousemove", this.handleMouseMove);
   }
 
@@ -25,8 +34,14 @@ export class Input {
   dispose(): void {
     window.removeEventListener("keydown", this.handleKeyDown);
     window.removeEventListener("keyup", this.handleKeyUp);
-    window.removeEventListener("blur", this.clearKeys);
+    window.removeEventListener("blur", this.clearInput);
+    this.canvas.removeEventListener("blur", this.clearInput);
+    this.canvas.removeEventListener("pointerdown", this.focusCanvas);
     document.removeEventListener("mousemove", this.handleMouseMove);
+
+    if (this.addedTabIndex) {
+      this.canvas.removeAttribute("tabindex");
+    }
   }
 
   /** @internal */
@@ -36,6 +51,10 @@ export class Input {
   }
 
   private readonly handleKeyDown = (event: KeyboardEvent): void => {
+    if (!this.isActive()) {
+      return;
+    }
+
     this.pressedKeys.add(event.code);
   };
 
@@ -43,12 +62,28 @@ export class Input {
     this.pressedKeys.delete(event.code);
   };
 
-  private readonly clearKeys = (): void => {
+  private readonly clearInput = (): void => {
     this.pressedKeys.clear();
+    this.resetPointerDelta();
+  };
+
+  private readonly focusCanvas = (): void => {
+    this.canvas.focus();
   };
 
   private readonly handleMouseMove = (event: MouseEvent): void => {
+    if (
+      !this.isActive() ||
+      (document.pointerLockElement !== this.canvas && event.target !== this.canvas)
+    ) {
+      return;
+    }
+
     this.pointerDeltaX += event.movementX;
     this.pointerDeltaY += event.movementY;
   };
+
+  private isActive(): boolean {
+    return document.activeElement === this.canvas || document.pointerLockElement === this.canvas;
+  }
 }
