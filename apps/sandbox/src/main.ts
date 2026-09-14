@@ -9,6 +9,7 @@ const engine = await Engine.create(canvas);
 enum PlayerAction {
   MoveForward,
   MoveRight,
+  Jump,
 }
 
 const playerInput = engine.input.createActionMap<typeof PlayerAction>();
@@ -20,6 +21,7 @@ playerInput.bindAxis(PlayerAction.MoveRight, {
   negative: KeyboardKey.A,
   positive: KeyboardKey.D,
 });
+playerInput.bindAction(PlayerAction.Jump, [KeyboardKey.Space]);
 
 const groundTexture = await loadTexture(engine, "/assets/stone.png", {
   addressModeU: "repeat",
@@ -93,10 +95,16 @@ cubeGroup.addChild(firstMesh).addChild(secondMesh);
 directionalLight.transform.rotation.setXyz(-0.62, 0.46, 0);
 
 const cameraPosition = scene.camera.transform.position;
+const groundHeight = -1;
+const playerEyeHeight = 1.5;
+const gravity = -12;
+const jumpSpeed = 5;
 let cameraYaw = -Math.PI / 2;
 let cameraPitch = Math.atan2(-0.5, 3);
+let verticalVelocity = 0;
+let isGrounded = true;
 
-cameraPosition.setXyz(0, 0.5, 1);
+cameraPosition.setXyz(0, groundHeight + playerEyeHeight, 1);
 scene.camera.transform.rotation.setXyz(cameraPitch, -cameraYaw - Math.PI / 2, 0);
 scene.camera.setPerspective(Math.PI / 3, 0.1, 100);
 
@@ -121,9 +129,23 @@ function update({ elapsedTime, deltaTime }: Frame): void {
     const inputLength = Math.hypot(forward, right);
     const distance = inputLength === 0 ? 0 : (deltaTime * 2) / inputLength;
 
+    if (isGrounded && playerInput.wasActionPressed(PlayerAction.Jump)) {
+      verticalVelocity = jumpSpeed;
+      isGrounded = false;
+    }
+
+    verticalVelocity += gravity * deltaTime;
+    const height = cameraPosition[1] + verticalVelocity * deltaTime;
+    const groundPosition = groundHeight + playerEyeHeight;
+
+    if (height <= groundPosition) {
+      verticalVelocity = 0;
+      isGrounded = true;
+    }
+
     cameraPosition.setXyz(
       cameraPosition[0] + (forwardX * forward + rightX * right) * distance,
-      cameraPosition[1],
+      Math.max(height, groundPosition),
       cameraPosition[2] + (forwardZ * forward + rightZ * right) * distance,
     );
 

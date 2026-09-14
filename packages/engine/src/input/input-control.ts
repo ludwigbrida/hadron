@@ -3,6 +3,7 @@ export enum KeyboardKey {
   A = "KeyA",
   S = "KeyS",
   D = "KeyD",
+  Space = "Space",
 }
 
 export enum MouseButton {
