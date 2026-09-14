@@ -1,5 +1,7 @@
 export class Input {
   private readonly pressedKeys = new Set<string>();
+  private readonly justPressedKeys = new Set<string>();
+  private readonly justReleasedKeys = new Set<string>();
   private readonly addedTabIndex: boolean;
   private pointerDeltaX = 0;
   private pointerDeltaY = 0;
@@ -31,6 +33,14 @@ export class Input {
     return this.pressedKeys.has(code);
   }
 
+  wasKeyPressed(code: string): boolean {
+    return this.justPressedKeys.has(code);
+  }
+
+  wasKeyReleased(code: string): boolean {
+    return this.justReleasedKeys.has(code);
+  }
+
   dispose(): void {
     window.removeEventListener("keydown", this.handleKeyDown);
     window.removeEventListener("keyup", this.handleKeyUp);
@@ -45,7 +55,9 @@ export class Input {
   }
 
   /** @internal */
-  resetPointerDelta(): void {
+  resetTransientState(): void {
+    this.justPressedKeys.clear();
+    this.justReleasedKeys.clear();
     this.pointerDeltaX = 0;
     this.pointerDeltaY = 0;
   }
@@ -55,16 +67,25 @@ export class Input {
       return;
     }
 
+    if (this.pressedKeys.has(event.code)) {
+      return;
+    }
+
     this.pressedKeys.add(event.code);
+    this.justPressedKeys.add(event.code);
   };
 
   private readonly handleKeyUp = (event: KeyboardEvent): void => {
-    this.pressedKeys.delete(event.code);
+    if (!this.pressedKeys.delete(event.code)) {
+      return;
+    }
+
+    this.justReleasedKeys.add(event.code);
   };
 
   private readonly clearInput = (): void => {
     this.pressedKeys.clear();
-    this.resetPointerDelta();
+    this.resetTransientState();
   };
 
   private readonly focusCanvas = (): void => {

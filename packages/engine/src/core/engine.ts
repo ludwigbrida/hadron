@@ -187,7 +187,7 @@ export class Engine {
 
     this.previousTime = elapsedTime;
     update({ elapsedTime, deltaTime });
-    this.input.resetPointerDelta();
+    this.input.resetTransientState();
 
     if (this.scene !== scene) {
       return;
