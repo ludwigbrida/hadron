@@ -1,4 +1,5 @@
 import { Body } from "./body.ts";
+import { BoxCollider } from "./box-collider.ts";
 
 export class World {
   private readonly bodies = new Set<Body>();
@@ -15,5 +16,15 @@ export class World {
 
   *[Symbol.iterator](): IterableIterator<Body> {
     yield* this.bodies;
+  }
+
+  *getBoxColliders(): IterableIterator<BoxCollider> {
+    for (const body of this.bodies) {
+      for (const child of body) {
+        if (child instanceof BoxCollider) {
+          yield child;
+        }
+      }
+    }
   }
 }
