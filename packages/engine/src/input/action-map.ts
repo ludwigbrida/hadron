@@ -15,14 +15,52 @@ export class ActionMap<Action extends string | number> {
   }
 
   isActionDown(action: Action): boolean {
+    return this.actionBindings.get(action)?.some(this.isControlDown) ?? false;
+  }
+
+  wasActionPressed(action: Action): boolean {
+    const controls = this.actionBindings.get(action);
+
+    if (controls === undefined) {
+      return false;
+    }
+
     return (
-      this.actionBindings
-        .get(action)
-        ?.some((control) =>
-          typeof control === "string"
-            ? this.input.isKeyDown(control)
-            : this.input.isMouseButtonDown(control),
-        ) ?? false
+      controls.some((control) => this.isControlDown(control) && this.wasControlPressed(control)) &&
+      !controls.some((control) => this.isControlDown(control) && !this.wasControlPressed(control))
     );
   }
+
+  wasActionReleased(action: Action): boolean {
+    const controls = this.actionBindings.get(action);
+
+    if (controls === undefined) {
+      return false;
+    }
+
+    return (
+      !controls.some(this.isControlDown) &&
+      controls.some(
+        (control) => this.wasControlReleased(control) && !this.wasControlPressed(control),
+      )
+    );
+  }
+
+  private readonly isControlDown = (control: InputControl): boolean => {
+    return typeof control === "string"
+      ? this.input.isKeyDown(control)
+      : this.input.isMouseButtonDown(control);
+  };
+
+  private readonly wasControlPressed = (control: InputControl): boolean => {
+    return typeof control === "string"
+      ? this.input.wasKeyPressed(control)
+      : this.input.wasMouseButtonPressed(control);
+  };
+
+  private readonly wasControlReleased = (control: InputControl): boolean => {
+    return typeof control === "string"
+      ? this.input.wasKeyReleased(control)
+      : this.input.wasMouseButtonReleased(control);
+  };
 }
