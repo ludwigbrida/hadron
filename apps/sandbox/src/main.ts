@@ -101,11 +101,11 @@ scene.camera.transform.rotation.setXyz(cameraPitch, -cameraYaw - Math.PI / 2, 0)
 scene.camera.setPerspective(Math.PI / 3, 0.1, 100);
 
 canvas.addEventListener("click", () => {
-  void canvas.requestPointerLock();
+  void engine.input.requestPointerLock();
 });
 
 function update({ elapsedTime, deltaTime }: Frame): void {
-  if (document.pointerLockElement === canvas) {
+  if (engine.input.isPointerLocked()) {
     cameraYaw += engine.input.getPointerDeltaX() * 0.002;
     cameraPitch = Math.max(
       -Math.PI / 2 + 0.01,

@@ -47,6 +47,14 @@ export class Input {
     return this.scrollDeltaY;
   }
 
+  isPointerLocked(): boolean {
+    return document.pointerLockElement === this.canvas;
+  }
+
+  requestPointerLock(): Promise<void> {
+    return this.canvas.requestPointerLock();
+  }
+
   isKeyDown(code: string): boolean {
     return this.pressedKeys.has(code);
   }
@@ -176,6 +184,6 @@ export class Input {
   };
 
   private isActive(): boolean {
-    return document.activeElement === this.canvas || document.pointerLockElement === this.canvas;
+    return document.activeElement === this.canvas || this.isPointerLocked();
   }
 }
