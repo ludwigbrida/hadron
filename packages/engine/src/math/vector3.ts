@@ -11,6 +11,15 @@ export class Vector3 extends Float32Array {
   }
 
   /**
+   * Creates a copy of this vector.
+   *
+   * @returns A new vector with the same components.
+   */
+  clone(): Vector3 {
+    return new Vector3(this[0], this[1], this[2]);
+  }
+
+  /**
    * Sets the vector's components.
    *
    * @returns This vector.
