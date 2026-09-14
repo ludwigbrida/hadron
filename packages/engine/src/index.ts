@@ -1,5 +1,5 @@
 export { Engine, type Frame, type UpdateCallback } from "./core/engine.ts";
-export { ActionMap } from "./input/action-map.ts";
+export { ActionMap, type AxisBinding } from "./input/action-map.ts";
 export { KeyboardKey, MouseButton, type InputControl } from "./input/input-control.ts";
 export { Matrix4 } from "./math/matrix4.ts";
 export { Vector3 } from "./math/vector3.ts";
