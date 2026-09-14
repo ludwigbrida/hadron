@@ -1,6 +1,10 @@
 import type { Vector3 } from "./vector3.ts";
 
-// column-major order
+/**
+ * Represents a 4x4 matrix.
+ *
+ * Elements are stored in column-major order.
+ */
 export class Matrix4 extends Float32Array {
   declare [0]: number;
   declare [1]: number;
@@ -23,6 +27,13 @@ export class Matrix4 extends Float32Array {
     super([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
   }
 
+  /**
+   * Sets this matrix to a translation transform.
+   *
+   * @param translation The translation to apply.
+   *
+   * @returns This matrix.
+   */
   setTranslation(translation: Readonly<Vector3>): this {
     this[0] = 1;
     this[1] = 0;
@@ -44,8 +55,16 @@ export class Matrix4 extends Float32Array {
     return this;
   }
 
-  // right-handed with WebGPU's 0-to-1 clip-space depth range
-  // fovY in radians
+  /**
+   * Sets this matrix to a right-handed perspective projection with 0-to-1 depth range.
+   *
+   * @param fovY The vertical field of view in radians.
+   * @param aspect The viewport width divided by its height.
+   * @param near The distance to the near clipping plane.
+   * @param far The distance to the far clipping plane.
+   *
+   * @returns This matrix.
+   */
   setPerspective(fovY: number, aspect: number, near: number, far: number): this {
     const focalLength = 1 / Math.tan(fovY / 2);
     const inverseDepthRange = 1 / (near - far);
@@ -70,6 +89,15 @@ export class Matrix4 extends Float32Array {
     return this;
   }
 
+  /**
+   * Sets this matrix to a view transform that looks from an eye position toward a target.
+   *
+   * @param eye The view position.
+   * @param target The point to look toward.
+   * @param up The direction to use as up.
+   *
+   * @returns This matrix.
+   */
   setLookAt(eye: Readonly<Vector3>, target: Readonly<Vector3>, up: Readonly<Vector3>): this {
     let z0 = eye[0] - target[0];
     let z1 = eye[1] - target[1];
@@ -125,6 +153,13 @@ export class Matrix4 extends Float32Array {
     return this;
   }
 
+  /**
+   * Sets this matrix to a rotation around the x-axis.
+   *
+   * @param radians The rotation angle in radians.
+   *
+   * @returns This matrix.
+   */
   setRotationX(radians: number): this {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
@@ -149,6 +184,13 @@ export class Matrix4 extends Float32Array {
     return this;
   }
 
+  /**
+   * Applies a rotation around this matrix's local x-axis.
+   *
+   * @param radians The rotation angle in radians.
+   *
+   * @returns This matrix.
+   */
   rotateX(radians: number): this {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
@@ -174,6 +216,13 @@ export class Matrix4 extends Float32Array {
     return this;
   }
 
+  /**
+   * Sets this matrix to a rotation around the y-axis.
+   *
+   * @param radians The rotation angle in radians.
+   *
+   * @returns This matrix.
+   */
   setRotationY(radians: number): this {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
@@ -198,6 +247,13 @@ export class Matrix4 extends Float32Array {
     return this;
   }
 
+  /**
+   * Applies a rotation around this matrix's local y-axis.
+   *
+   * @param radians The rotation angle in radians.
+   *
+   * @returns This matrix.
+   */
   rotateY(radians: number): this {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
@@ -223,6 +279,13 @@ export class Matrix4 extends Float32Array {
     return this;
   }
 
+  /**
+   * Applies non-uniform scaling along this matrix's local axes.
+   *
+   * @param scale The scale factors for the local axes.
+   *
+   * @returns This matrix.
+   */
   scale(scale: Readonly<Vector3>): this {
     const x = scale[0];
     const y = scale[1];
@@ -244,6 +307,13 @@ export class Matrix4 extends Float32Array {
     return this;
   }
 
+  /**
+   * Sets this matrix to a rotation around the z-axis.
+   *
+   * @param radians The rotation angle in radians.
+   *
+   * @returns This matrix.
+   */
   setRotationZ(radians: number): this {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
@@ -268,6 +338,13 @@ export class Matrix4 extends Float32Array {
     return this;
   }
 
+  /**
+   * Applies a rotation around this matrix's local z-axis.
+   *
+   * @param radians The rotation angle in radians.
+   *
+   * @returns This matrix.
+   */
   rotateZ(radians: number): this {
     const cosine = Math.cos(radians);
     const sine = Math.sin(radians);
@@ -293,7 +370,15 @@ export class Matrix4 extends Float32Array {
     return this;
   }
 
-  // aliasing-safe when this is the input
+  /**
+   * Sets this matrix to the inverse of another matrix.
+   *
+   * The input may be this matrix. Throws if the input is not invertible.
+   *
+   * @param matrix The matrix to invert.
+   *
+   * @returns This matrix.
+   */
   setInverse(matrix: Readonly<Matrix4>): this {
     const m00 = matrix[0];
     const m01 = matrix[1];
@@ -354,7 +439,15 @@ export class Matrix4 extends Float32Array {
     return this;
   }
 
-  // aliasing-safe when this is the input
+  /**
+   * Sets this matrix to the transpose of another matrix.
+   *
+   * The input may be this matrix.
+   *
+   * @param matrix The matrix to transpose.
+   *
+   * @returns This matrix.
+   */
   setTranspose(matrix: Readonly<Matrix4>): this {
     const m00 = matrix[0];
     const m01 = matrix[1];
@@ -393,7 +486,16 @@ export class Matrix4 extends Float32Array {
     return this;
   }
 
-  // aliasing-safe when this is either input
+  /**
+   * Sets this matrix to the product of two matrices.
+   *
+   * The input matrices may be this matrix.
+   *
+   * @param left The left-hand matrix.
+   * @param right The right-hand matrix.
+   *
+   * @returns This matrix.
+   */
   setMultiply(left: Readonly<Matrix4>, right: Readonly<Matrix4>): this {
     // cache all left-hand-side values upfront
     const a00 = left[0];
@@ -454,9 +556,19 @@ export class Matrix4 extends Float32Array {
     return this;
   }
 
+  /**
+   * Post-multiplies this matrix by another matrix.
+   *
+   * @param right The matrix to multiply by.
+   *
+   * @returns This matrix.
+   */
   multiply(right: Readonly<Matrix4>): this {
     return this.setMultiply(this, right);
   }
 
+  /**
+   * The size of a matrix in bytes.
+   */
   static readonly byteLength = 16 * Float32Array.BYTES_PER_ELEMENT;
 }
