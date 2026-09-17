@@ -1,3 +1,4 @@
+import { Body } from "../physics/body.ts";
 import { StaticBody } from "../physics/static-body.ts";
 import { World } from "../physics/world.ts";
 import { Color } from "../rendering/color.ts";
@@ -73,6 +74,10 @@ export class Scene {
   }
 
   remove(node: Node): this {
+    if (node instanceof Body) {
+      this.world.removeBody(node);
+    }
+
     node.parent?.removeChild(node);
     return this;
   }
