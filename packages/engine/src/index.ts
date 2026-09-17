@@ -7,6 +7,7 @@ export { Body } from "./physics/body.ts";
 export { BoxCollider, type BoxColliderOptions } from "./physics/box-collider.ts";
 export { Collider } from "./physics/collider.ts";
 export type { RaycastHit } from "./physics/raycast-hit.ts";
+export { SphereCollider, type SphereColliderOptions } from "./physics/sphere-collider.ts";
 export { StaticBody } from "./physics/static-body.ts";
 export { World } from "./physics/world.ts";
 export { Color } from "./rendering/color.ts";
