@@ -1,3 +1,5 @@
+import { StaticBody } from "../physics/static-body.ts";
+import { World } from "../physics/world.ts";
 import { Color } from "../rendering/color.ts";
 import type { CubeTexture } from "../rendering/cube-texture.ts";
 import type { Geometry } from "../rendering/geometry.ts";
@@ -12,6 +14,8 @@ export class Scene {
   readonly camera = new Camera();
   readonly ambientLight = new Color(0.1, 0.1, 0.1);
   private sky: CubeTexture | undefined;
+
+  readonly world = new World();
 
   /** @internal */
   static create(createMeshInstance: (geometry: Geometry, material: Material) => Mesh): Scene {
@@ -43,6 +47,14 @@ export class Scene {
 
     this.root.addChild(light);
     return light;
+  }
+
+  createStaticBody(): StaticBody {
+    const body = new StaticBody();
+
+    this.root.addChild(body);
+    this.world.addBody(body);
+    return body;
   }
 
   setSky(texture: CubeTexture): this {
