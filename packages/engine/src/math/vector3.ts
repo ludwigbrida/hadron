@@ -31,6 +31,10 @@ export class Vector3 extends Float32Array {
     return this[0] * vector[0] + this[1] * vector[1] + this[2] * vector[2];
   }
 
+  public lengthSquared(): number {
+    return this.dot(this);
+  }
+
   /**
    * Sets the vector's components.
    *
