@@ -56,12 +56,22 @@ export class World {
   }
 
   private collidersOverlap(first: Collider, second: Collider): boolean {
+    // box vs. box
     if (first instanceof BoxCollider && second instanceof BoxCollider) {
       return true;
     }
 
+    // sphere vs. sphere
     if (first instanceof SphereCollider && second instanceof SphereCollider) {
       return this.spheresOverlap(first, second);
+    }
+
+    // box vs. sphere
+    if (first instanceof BoxCollider && second instanceof SphereCollider) {
+      return this.boxAndSphereOverlap(first, second);
+    }
+    if (first instanceof SphereCollider && second instanceof BoxCollider) {
+      return this.boxAndSphereOverlap(second, first);
     }
 
     return false;
@@ -72,6 +82,21 @@ export class World {
     const radius = first.radius + second.radius;
 
     return offset.lengthSquared() <= radius * radius;
+  }
+
+  private boxAndSphereOverlap(box: BoxCollider, sphere: SphereCollider): boolean {
+    const bounds = box.getWorldBounds();
+    const center = sphere.getWorldPosition();
+
+    const closestPoint = new Vector3(
+      Math.max(bounds.minimum[0], Math.min(center[0], bounds.maximum[0])),
+      Math.max(bounds.minimum[1], Math.min(center[1], bounds.maximum[1])),
+      Math.max(bounds.minimum[2], Math.min(center[2], bounds.maximum[2])),
+    );
+
+    const distanceSquared = center.clone().subtract(closestPoint).lengthSquared();
+
+    return distanceSquared <= sphere.radius * sphere.radius;
   }
 
   private hasOverlappingBounds(first: Collider, second: Collider): boolean {
