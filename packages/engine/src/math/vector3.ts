@@ -27,6 +27,14 @@ export class Vector3 extends Float32Array {
     return this;
   }
 
+  public addScaled(vector: Readonly<Vector3>, scalar: number): this {
+    this[0] += vector[0] * scalar;
+    this[1] += vector[1] * scalar;
+    this[2] += vector[2] * scalar;
+
+    return this;
+  }
+
   public dot(vector: Readonly<Vector3>): number {
     return this[0] * vector[0] + this[1] * vector[1] + this[2] * vector[2];
   }
