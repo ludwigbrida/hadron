@@ -1,5 +1,6 @@
-import { type RaycastHit, Vector3 } from "@hadron/engine";
+import { Vector3 } from "../math/vector3.ts";
 import { Collider } from "./collider.ts";
+import type { RaycastHit } from "./raycast-hit.ts";
 
 export interface SphereColliderOptions {
   readonly radius: number;
