@@ -3,6 +3,7 @@ import { Body } from "./body.ts";
 import { BoxCollider } from "./box-collider.ts";
 import { Collider } from "./collider.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
+import { SphereCollider } from "./sphere-collider.ts";
 
 export class World {
   private readonly bodies = new Set<Body>();
@@ -55,7 +56,22 @@ export class World {
   }
 
   private collidersOverlap(first: Collider, second: Collider): boolean {
-    return first instanceof BoxCollider && second instanceof BoxCollider;
+    if (first instanceof BoxCollider && second instanceof BoxCollider) {
+      return true;
+    }
+
+    if (first instanceof SphereCollider && second instanceof SphereCollider) {
+      return this.spheresOverlap(first, second);
+    }
+
+    return false;
+  }
+
+  private spheresOverlap(first: SphereCollider, second: SphereCollider): boolean {
+    const offset = first.getWorldPosition().subtract(second.getWorldPosition());
+    const radius = first.radius + second.radius;
+
+    return offset.lengthSquared() <= radius * radius;
   }
 
   private hasOverlappingBounds(first: Collider, second: Collider): boolean {
