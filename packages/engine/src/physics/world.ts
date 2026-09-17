@@ -35,7 +35,15 @@ export class World {
         distance <= maxDistance &&
         (nearestHit === undefined || distance < nearestHit.distance)
       ) {
-        nearestHit = { collider, distance };
+        nearestHit = {
+          collider,
+          distance,
+          point: new Vector3(
+            origin[0] + direction[0] * distance,
+            origin[1] + direction[1] * distance,
+            origin[2] + direction[2] * distance,
+          ),
+        };
       }
     }
 
