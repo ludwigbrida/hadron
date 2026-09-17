@@ -1,5 +1,5 @@
 import { Vector3 } from "../math/vector3.ts";
-import { Collider } from "./collider.ts";
+import { type Aabb, Collider } from "./collider.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
 
 export interface BoxColliderOptions {
@@ -36,6 +36,15 @@ export class BoxCollider extends Collider {
         origin[2] + direction[2] * hit.distance,
       ),
       normal: hit.normal,
+    };
+  }
+
+  public override getWorldBounds(): Aabb {
+    const center = this.getWorldPosition();
+
+    return {
+      minimum: center.clone().addScaled(this.halfExtents, -1),
+      maximum: center.addScaled(this.halfExtents, 1),
     };
   }
 
