@@ -19,12 +19,16 @@ export class Vector3 extends Float32Array {
     return new Vector3(this[0], this[1], this[2]);
   }
 
-  subtract(vector: Readonly<Vector3>): this {
+  public subtract(vector: Readonly<Vector3>): this {
     this[0] -= vector[0];
     this[1] -= vector[1];
     this[2] -= vector[2];
 
     return this;
+  }
+
+  public dot(vector: Readonly<Vector3>): number {
+    return this[0] * vector[0] + this[1] * vector[1] + this[2] * vector[2];
   }
 
   /**
