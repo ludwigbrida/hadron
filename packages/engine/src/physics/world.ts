@@ -3,6 +3,13 @@ import { Body } from "./body.ts";
 import { BoxCollider } from "./box-collider.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
 
+const axes = [0, 1, 2] as const;
+
+interface BoxRaycastHit {
+  readonly distance: number;
+  readonly normal: Vector3;
+}
+
 export class World {
   private readonly bodies = new Set<Body>();
 
@@ -28,21 +35,23 @@ export class World {
 
     // TODO: make this generic over all colliders
     for (const collider of this.getBoxColliders()) {
-      const distance = this.getRayBoxDistance(origin, direction, collider);
+      const hit = this.getRayBoxHit(origin, direction, collider);
 
       if (
-        distance !== undefined &&
-        distance <= maxDistance &&
-        (nearestHit === undefined || distance < nearestHit.distance)
+        hit !== undefined &&
+        hit.distance <= maxDistance &&
+        (nearestHit === undefined || hit.distance < nearestHit.distance)
       ) {
         nearestHit = {
           collider,
-          distance,
+          distance: hit.distance,
           point: new Vector3(
-            origin[0] + direction[0] * distance,
-            origin[1] + direction[1] * distance,
-            origin[2] + direction[2] * distance,
+            // TODO: replace with actual vector operations
+            origin[0] + direction[0] * hit.distance,
+            origin[1] + direction[1] * hit.distance,
+            origin[2] + direction[2] * hit.distance,
           ),
+          normal: hit.normal,
         };
       }
     }
@@ -51,25 +60,28 @@ export class World {
   }
 
   /**
-   * Get the distance between
+   * Returns the first boundary hit between a normalized ray and a translated, axis-aligned box.
+   *
+   * Rays that originate inside the box report the exit face.
    *
    * @privateRemarks
    * Implementation of the slab-intersection algorithm.
-   * Does only support axis-aligned bounding boxes for now (translation, but not rotation or scale).
    */
-  private getRayBoxDistance(
+  private getRayBoxHit(
     origin: Readonly<Vector3>,
     direction: Readonly<Vector3>,
     collider: BoxCollider,
-  ): number | undefined {
+  ): BoxRaycastHit | undefined {
     const center = collider.getWorldPosition();
     const halfExtents = collider.halfExtents;
 
     let entryDistance = -Infinity;
     let exitDistance = Infinity;
+    const entryNormal = new Vector3(0, 0, 0);
+    const exitNormal = new Vector3(0, 0, 0);
 
     // axes serve as indices for vector dimensions
-    for (const axis of [0, 1, 2] as const) {
+    for (const axis of axes) {
       const minimum = center[axis] - halfExtents[axis];
       const maximum = center[axis] + halfExtents[axis];
       const axisOrigin = origin[axis];
@@ -85,9 +97,22 @@ export class World {
 
       const firstDistance = (minimum - axisOrigin) / axisDirection;
       const secondDistance = (maximum - axisOrigin) / axisDirection;
+      const nearDistance = Math.min(firstDistance, secondDistance);
+      const farDistance = Math.max(firstDistance, secondDistance);
+      const nearNormal = firstDistance < secondDistance ? -1 : 1;
+      const farNormal = -nearNormal;
 
-      entryDistance = Math.max(entryDistance, Math.min(firstDistance, secondDistance));
-      exitDistance = Math.min(exitDistance, Math.max(firstDistance, secondDistance));
+      if (nearDistance > entryDistance) {
+        entryDistance = nearDistance;
+        entryNormal.setXyz(0, 0, 0);
+        entryNormal[axis] = nearNormal;
+      }
+
+      if (farDistance < exitDistance) {
+        exitDistance = farDistance;
+        exitNormal.setXyz(0, 0, 0);
+        exitNormal[axis] = farNormal;
+      }
 
       if (entryDistance > exitDistance) {
         return undefined;
@@ -98,7 +123,9 @@ export class World {
       return undefined;
     }
 
-    return Math.max(entryDistance, 0);
+    return entryDistance >= 0
+      ? { distance: entryDistance, normal: entryNormal }
+      : { distance: exitDistance, normal: exitNormal };
   }
 
   *[Symbol.iterator](): IterableIterator<Body> {

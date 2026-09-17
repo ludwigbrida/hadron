@@ -5,4 +5,5 @@ export interface RaycastHit {
   readonly collider: Collider;
   readonly distance: number;
   readonly point: Vector3;
+  readonly normal: Vector3;
 }
