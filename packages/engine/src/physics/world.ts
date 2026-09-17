@@ -1,5 +1,6 @@
 import { Vector3 } from "../math/vector3.ts";
 import { Body } from "./body.ts";
+import { BoxCollider } from "./box-collider.ts";
 import { Collider } from "./collider.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
 
@@ -39,6 +40,36 @@ export class World {
     }
 
     return nearestHit;
+  }
+
+  public *overlaps(collider: Collider): IterableIterator<Collider> {
+    for (const other of this.getColliders()) {
+      if (other === collider || !this.hasOverlappingBounds(collider, other)) {
+        continue;
+      }
+
+      if (this.collidersOverlap(collider, other)) {
+        yield other;
+      }
+    }
+  }
+
+  private collidersOverlap(first: Collider, second: Collider): boolean {
+    return first instanceof BoxCollider && second instanceof BoxCollider;
+  }
+
+  private hasOverlappingBounds(first: Collider, second: Collider): boolean {
+    const firstBounds = first.getWorldBounds();
+    const secondBounds = second.getWorldBounds();
+
+    return (
+      firstBounds.minimum[0] <= secondBounds.maximum[0] &&
+      firstBounds.maximum[0] >= secondBounds.minimum[0] &&
+      firstBounds.minimum[1] <= secondBounds.maximum[1] &&
+      firstBounds.maximum[1] >= secondBounds.minimum[1] &&
+      firstBounds.minimum[2] <= secondBounds.maximum[2] &&
+      firstBounds.maximum[2] >= secondBounds.minimum[2]
+    );
   }
 
   *[Symbol.iterator](): IterableIterator<Body> {
