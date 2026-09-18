@@ -56,6 +56,21 @@ export class Vector3 extends Float32Array {
   }
 
   /**
+   * Replaces each component with the smaller component from this vector and another.
+   *
+   * @param vector The vector to compare against.
+   *
+   * @returns This vector after applying the minimum value comparison.
+   */
+  public min(vector: Readonly<Vector3>): this {
+    this[0] = Math.min(this[0], vector[0]);
+    this[1] = Math.min(this[1], vector[1]);
+    this[2] = Math.min(this[2], vector[2]);
+
+    return this;
+  }
+
+  /**
    * Sets the vector's components.
    *
    * @returns This vector.
