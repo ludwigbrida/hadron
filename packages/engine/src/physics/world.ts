@@ -1,10 +1,10 @@
 import { Vector3 } from "../math/vector3.ts";
-import { Body } from "./body.ts";
-import { Collider } from "./collider.ts";
-import type { Collision } from "./collision.ts";
-import { KinematicBody } from "./kinematic-body.ts";
-import type { RaycastHit } from "./raycast-hit.ts";
-import { StaticBody } from "./static-body.ts";
+import { Body } from "./body/body.ts";
+import { KinematicBody } from "./body/kinematic-body.ts";
+import { StaticBody } from "./body/static-body.ts";
+import { Collider } from "./collider/collider.ts";
+import type { Collision } from "./collision/collision.ts";
+import type { RaycastHit } from "./query/raycast-hit.ts";
 
 export class World {
   private readonly bodies = new Set<Body>();

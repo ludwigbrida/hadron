@@ -1,5 +1,5 @@
-import type { Vector3 } from "../math/vector3.ts";
-import type { Collider } from "./collider.ts";
+import type { Vector3 } from "../../math/vector3.ts";
+import type { Collider } from "../collider/collider.ts";
 
 export interface RaycastHit {
   readonly collider: Collider;

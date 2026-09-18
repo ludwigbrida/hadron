@@ -1,6 +1,6 @@
-import { Body } from "../physics/body.ts";
-import { KinematicBody } from "../physics/kinematic-body.ts";
-import { StaticBody } from "../physics/static-body.ts";
+import { Body } from "../physics/body/body.ts";
+import { KinematicBody } from "../physics/body/kinematic-body.ts";
+import { StaticBody } from "../physics/body/static-body.ts";
 import { World } from "../physics/world.ts";
 import { Color } from "../rendering/color.ts";
 import type { CubeTexture } from "../rendering/cube-texture.ts";

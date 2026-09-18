@@ -1,6 +1,6 @@
-import { Vector3 } from "../../math/vector3.ts";
+import { Vector3 } from "../../../math/vector3.ts";
+import type { SphereCollider } from "../../collider/sphere-collider.ts";
 import type { Collision } from "../collision.ts";
-import type { SphereCollider } from "../sphere-collider.ts";
 
 export function sphereSphereCollision(
   query: SphereCollider,

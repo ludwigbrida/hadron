@@ -1,7 +1,7 @@
-import { Node } from "../scene/node.ts";
-import { BoxCollider, type BoxColliderOptions } from "./box-collider.ts";
-import { CapsuleCollider, type CapsuleColliderOptions } from "./capsule-collider.ts";
-import { SphereCollider, type SphereColliderOptions } from "./sphere-collider.ts";
+import { Node } from "../../scene/node.ts";
+import { BoxCollider, type BoxColliderOptions } from "../collider/box-collider.ts";
+import { CapsuleCollider, type CapsuleColliderOptions } from "../collider/capsule-collider.ts";
+import { SphereCollider, type SphereColliderOptions } from "../collider/sphere-collider.ts";
 
 export abstract class Body extends Node {
   createBoxCollider(options: Readonly<BoxColliderOptions>): BoxCollider {

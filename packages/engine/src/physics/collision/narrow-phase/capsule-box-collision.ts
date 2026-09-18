@@ -1,6 +1,6 @@
-import { Vector3 } from "../../math/vector3.ts";
-import type { BoxCollider } from "../box-collider.ts";
-import type { CapsuleCollider } from "../capsule-collider.ts";
+import { Vector3 } from "../../../math/vector3.ts";
+import type { BoxCollider } from "../../collider/box-collider.ts";
+import type { CapsuleCollider } from "../../collider/capsule-collider.ts";
 import type { Collision } from "../collision.ts";
 
 /**

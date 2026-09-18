@@ -1,5 +1,5 @@
-import type { Vector3 } from "../math/vector3.ts";
-import type { Collider } from "./collider.ts";
+import type { Vector3 } from "../../math/vector3.ts";
+import type { Collider } from "../collider/collider.ts";
 
 /**
  * Describes an overlap between a queried collider and another collider.

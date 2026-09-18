@@ -1,10 +1,10 @@
-import type { Aabb } from "../math/aabb.ts";
-import { Vector3 } from "../math/vector3.ts";
-import { Node } from "../scene/node.ts";
+import type { Aabb } from "../../math/aabb.ts";
+import { Vector3 } from "../../math/vector3.ts";
+import { Node } from "../../scene/node.ts";
+import type { Collision } from "../collision/collision.ts";
+import type { RaycastHit } from "../query/raycast-hit.ts";
 import type { BoxCollider } from "./box-collider.ts";
 import type { CapsuleCollider } from "./capsule-collider.ts";
-import type { Collision } from "./collision.ts";
-import type { RaycastHit } from "./raycast-hit.ts";
 import type { SphereCollider } from "./sphere-collider.ts";
 
 export abstract class Collider extends Node {

@@ -1,4 +1,4 @@
-import type { Collider } from "../collider.ts";
+import type { Collider } from "../../collider/collider.ts";
 import type { Collision } from "../collision.ts";
 
 /**

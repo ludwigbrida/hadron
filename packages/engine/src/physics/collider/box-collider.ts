@@ -1,12 +1,12 @@
-import { Aabb } from "../math/aabb.ts";
-import { Vector3 } from "../math/vector3.ts";
+import { Aabb } from "../../math/aabb.ts";
+import { Vector3 } from "../../math/vector3.ts";
+import type { Collision } from "../collision/collision.ts";
+import { boxBoxCollision } from "../collision/narrow-phase/box-box-collision.ts";
+import { capsuleBoxCollision } from "../collision/narrow-phase/capsule-box-collision.ts";
+import { sphereBoxCollision } from "../collision/narrow-phase/sphere-box-collision.ts";
+import type { RaycastHit } from "../query/raycast-hit.ts";
 import type { CapsuleCollider } from "./capsule-collider.ts";
 import { Collider } from "./collider.ts";
-import type { Collision } from "./collision.ts";
-import { boxBoxCollision } from "./narrow-phase/box-box-collision.ts";
-import { capsuleBoxCollision } from "./narrow-phase/capsule-box-collision.ts";
-import { sphereBoxCollision } from "./narrow-phase/sphere-box-collision.ts";
-import type { RaycastHit } from "./raycast-hit.ts";
 import type { SphereCollider } from "./sphere-collider.ts";
 
 export interface BoxColliderOptions {

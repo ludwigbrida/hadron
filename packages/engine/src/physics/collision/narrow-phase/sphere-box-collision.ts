@@ -1,7 +1,7 @@
-import { Vector3 } from "../../math/vector3.ts";
-import type { BoxCollider } from "../box-collider.ts";
+import { Vector3 } from "../../../math/vector3.ts";
+import type { BoxCollider } from "../../collider/box-collider.ts";
+import type { SphereCollider } from "../../collider/sphere-collider.ts";
 import type { Collision } from "../collision.ts";
-import type { SphereCollider } from "../sphere-collider.ts";
 
 /**
  * Computes the contact between a sphere and a translated, axis-aligned box.
