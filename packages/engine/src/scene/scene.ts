@@ -7,7 +7,7 @@ import type { CubeTexture } from "../rendering/cube-texture.ts";
 import { Mesh } from "../rendering/mesh.ts";
 import { Camera } from "./camera.ts";
 import { DirectionalLight } from "./directional-light.ts";
-import { Node } from "./node.ts";
+import { Node, type NodeTree } from "./node.ts";
 
 export class Scene {
   readonly root = new Node();
@@ -16,6 +16,18 @@ export class Scene {
   private sky: CubeTexture | undefined;
 
   readonly world = new World();
+  private readonly tree: NodeTree = {
+    onNodeAttached: (node) => {
+      if (node instanceof Body) {
+        this.world.addBody(node);
+      }
+    },
+    onNodeDetached: (node) => {
+      if (node instanceof Body) {
+        this.world.removeBody(node);
+      }
+    },
+  };
 
   /** @internal */
   static create(): Scene {
@@ -23,6 +35,7 @@ export class Scene {
   }
 
   private constructor() {
+    this.root.setTree(this.tree);
     this.root.addChild(this.camera);
   }
 
@@ -45,27 +58,21 @@ export class Scene {
   }
 
   /**
-   * Creates a detached static body and registers it with this scene's physics world.
+   * Creates a detached static body.
    *
-   * Attach it to the scene graph with {@link Node.addChild}.
+   * It is registered with this scene's physics world when attached beneath {@link root}.
    */
   createStaticBody(): StaticBody {
-    const body = new StaticBody();
-
-    this.world.addBody(body);
-    return body;
+    return new StaticBody();
   }
 
   /**
-   * Creates a detached kinematic body and registers it with this scene's physics world.
+   * Creates a detached kinematic body.
    *
-   * Attach it to the scene graph with {@link Node.addChild}.
+   * It is registered with this scene's physics world when attached beneath {@link root}.
    */
   createKinematicBody(): KinematicBody {
-    const body = new KinematicBody();
-
-    this.world.addBody(body);
-    return body;
+    return new KinematicBody();
   }
 
   setSky(texture: CubeTexture): this {
@@ -84,13 +91,11 @@ export class Scene {
   }
 
   /**
-   * Detaches a node subtree and unregisters all of its physics bodies.
+   * Detaches a node subtree from this scene.
    *
-   * A body can be nested beneath an ordinary node, so removing only the passed
-   * node would otherwise leave descendant colliders active in the physics world.
+   * The scene-tree lifecycle unregisters every body in the detached subtree.
    */
   remove(node: Node): this {
-    this.removeBodies(node);
     node.parent?.removeChild(node);
     return this;
   }
@@ -123,16 +128,5 @@ export class Scene {
     }
 
     return undefined;
-  }
-
-  private removeBodies(node: Node): void {
-    if (node instanceof Body) {
-      this.world.removeBody(node);
-    }
-
-    // Visit every descendant before detaching the root node from its parent.
-    for (const child of node) {
-      this.removeBodies(child);
-    }
   }
 }

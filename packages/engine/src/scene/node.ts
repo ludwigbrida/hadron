@@ -1,11 +1,18 @@
 import { Matrix4 } from "../math/matrix4.ts";
 import { Transform } from "./transform.ts";
 
+/** @internal */
+export interface NodeTree {
+  onNodeAttached(node: Node): void;
+  onNodeDetached(node: Node): void;
+}
+
 export class Node {
   readonly transform = new Transform();
   private readonly childNodes = new Set<Node>();
   private readonly worldMatrix = new Matrix4();
   private parentNode: Node | undefined;
+  private tree: NodeTree | undefined;
 
   get parent(): Node | undefined {
     return this.parentNode;
@@ -16,19 +23,22 @@ export class Node {
       throw new Error("A node cannot be its own ancestor.");
     }
 
-    // remove child from its previous parent
+    // Leaving the previous parent also deactivates the child's scene-tree subtree.
     child.parentNode?.removeChild(child);
 
-    // add child to this new parent node
+    // The child inherits this node's tree, which activates any bodies it contains.
     this.childNodes.add(child);
     child.parentNode = this;
+    child.setTree(this.tree);
 
     return this;
   }
 
   removeChild(child: Node): this {
     if (this.childNodes.delete(child)) {
-      // TODO: check if necessary due to duplication in addChild()
+      // Detach the subtree before clearing its parent so scene lifecycle observers
+      // can remove any bodies that are no longer part of the scene.
+      child.setTree(undefined);
       child.parentNode = undefined;
     }
 
@@ -47,6 +57,22 @@ export class Node {
 
   [Symbol.iterator](): IterableIterator<Node> {
     return this.childNodes.values();
+  }
+
+  /** @internal */
+  setTree(tree: NodeTree | undefined): void {
+    if (tree === this.tree) {
+      return;
+    }
+
+    this.tree?.onNodeDetached(this);
+    this.tree = tree;
+    this.tree?.onNodeAttached(this);
+
+    // Descendants share their ancestor's scene membership.
+    for (const child of this.childNodes) {
+      child.setTree(tree);
+    }
   }
 
   private isDescendantOf(node: Node): boolean {
