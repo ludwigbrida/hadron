@@ -16,18 +16,8 @@ import type { Collision } from "../collision.ts";
  * `undefined` when they do not overlap.
  */
 export function boxBoxCollision(query: BoxCollider, candidate: BoxCollider): Collision | undefined {
-  // Read the already-transformed axis-aligned bounds for both colliders.
-  const queryBounds = query.getWorldBounds();
-  const candidateBounds = candidate.getWorldBounds();
-
-  // The intersection begins at the larger lower bound on each axis.
-  const overlapMinimum = queryBounds.minimum.clone().max(candidateBounds.minimum);
-
-  // The intersection ends at the smaller upper bound on each axis.
-  const overlapMaximum = queryBounds.maximum.clone().min(candidateBounds.maximum);
-
-  // Their component-wise difference is the overlap along each axis.
-  const overlap = overlapMaximum.subtract(overlapMinimum);
+  // Read the transformed bounds and let Aabb compute their overlap per axis.
+  const overlap = query.getWorldBounds().getOverlap(candidate.getWorldBounds());
 
   // Resolve on the axis that requires the least movement.
   const axis = overlap.minAxis();
