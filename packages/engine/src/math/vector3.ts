@@ -133,4 +133,8 @@ export class Vector3 extends Float32Array {
 
     return this;
   }
+
+  public static get Zero(): Vector3 {
+    return new Vector3(0, 0, 0);
+  }
 }
