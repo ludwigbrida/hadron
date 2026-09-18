@@ -5,6 +5,7 @@ import { CapsuleCollider } from "./capsule-collider.ts";
 import { Collider } from "./collider.ts";
 import type { Collision } from "./collision.ts";
 import { KinematicBody } from "./kinematic-body.ts";
+import { boxBoxCollision } from "./narrow-phase/box-box-collision.ts";
 import type { CollisionDetails } from "./narrow-phase/collision-details.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
 import { SphereCollider } from "./sphere-collider.ts";
@@ -108,7 +109,7 @@ export class World {
 
   private getCollision(first: Collider, second: Collider): CollisionDetails | undefined {
     if (first instanceof BoxCollider && second instanceof BoxCollider) {
-      return this.boxesCollision(first, second);
+      return boxBoxCollision(first, second);
     }
 
     if (first instanceof SphereCollider && second instanceof SphereCollider) {
@@ -150,40 +151,6 @@ export class World {
     }
 
     return undefined;
-  }
-
-  private boxesCollision(first: BoxCollider, second: BoxCollider): CollisionDetails {
-    const firstBounds = first.getWorldBounds();
-    const secondBounds = second.getWorldBounds();
-    const overlaps = new Vector3(
-      Math.min(firstBounds.max[0], secondBounds.max[0]) -
-        Math.max(firstBounds.min[0], secondBounds.min[0]),
-      Math.min(firstBounds.max[1], secondBounds.max[1]) -
-        Math.max(firstBounds.min[1], secondBounds.min[1]),
-      Math.min(firstBounds.max[2], secondBounds.max[2]) -
-        Math.max(firstBounds.min[2], secondBounds.min[2]),
-    );
-    const firstCenter = first.getWorldPosition();
-    const secondCenter = second.getWorldPosition();
-
-    if (overlaps[0] <= overlaps[1] && overlaps[0] <= overlaps[2]) {
-      return {
-        normal: new Vector3(firstCenter[0] < secondCenter[0] ? -1 : 1, 0, 0),
-        penetration: overlaps[0],
-      };
-    }
-
-    if (overlaps[1] <= overlaps[2]) {
-      return {
-        normal: new Vector3(0, firstCenter[1] < secondCenter[1] ? -1 : 1, 0),
-        penetration: overlaps[1],
-      };
-    }
-
-    return {
-      normal: new Vector3(0, 0, firstCenter[2] < secondCenter[2] ? -1 : 1),
-      penetration: overlaps[2],
-    };
   }
 
   private spheresCollision(first: SphereCollider, second: SphereCollider): CollisionDetails {
