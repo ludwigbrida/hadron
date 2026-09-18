@@ -7,7 +7,6 @@ import type { Collision } from "./collision.ts";
 import { KinematicBody } from "./kinematic-body.ts";
 import { boxBoxCollision } from "./narrow-phase/box-box-collision.ts";
 import { capsuleBoxCollision } from "./narrow-phase/capsule-box-collision.ts";
-import type { CollisionDetails } from "./narrow-phase/collision-details.ts";
 import { sphereBoxCollision } from "./narrow-phase/sphere-box-collision.ts";
 import { sphereSphereCollision } from "./narrow-phase/sphere-sphere-collision.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
@@ -87,40 +86,36 @@ export class World {
     return resolvedCollisions;
   }
 
-  public *collisions(collider: Collider): IterableIterator<Collision> {
-    for (const other of this.getColliders()) {
+  public *collisions(query: Collider): IterableIterator<Collision> {
+    for (const candidate of this.getColliders()) {
       // Colliders on the same body form a compound shape, not a collision pair.
       if (
-        other === collider ||
-        (collider.parent !== undefined && other.parent === collider.parent) ||
-        !this.hasOverlappingBounds(collider, other)
+        candidate === query ||
+        (query.parent !== undefined && candidate.parent === query.parent) ||
+        !this.hasOverlappingBounds(query, candidate)
       ) {
         continue;
       }
 
-      const collision = this.getCollision(collider, other);
+      const collision = this.getCollision(query, candidate);
 
       if (collision !== undefined) {
-        yield {
-          collider: other,
-          normal: collision.normal,
-          penetration: collision.penetration,
-        };
+        yield collision;
       }
     }
   }
 
-  private getCollision(first: Collider, second: Collider): CollisionDetails | undefined {
-    if (first instanceof BoxCollider && second instanceof BoxCollider) {
-      return boxBoxCollision(first, second);
+  private getCollision(query: Collider, candidate: Collider): Collision | undefined {
+    if (query instanceof BoxCollider && candidate instanceof BoxCollider) {
+      return boxBoxCollision(query, candidate);
     }
 
-    if (first instanceof SphereCollider && second instanceof SphereCollider) {
-      return sphereSphereCollision(first, second);
+    if (query instanceof SphereCollider && candidate instanceof SphereCollider) {
+      return sphereSphereCollision(query, candidate);
     }
 
-    if (first instanceof BoxCollider && second instanceof SphereCollider) {
-      const collision = sphereBoxCollision(second, first);
+    if (query instanceof BoxCollider && candidate instanceof SphereCollider) {
+      const collision = sphereBoxCollision(candidate, query);
 
       if (collision === undefined) {
         return undefined;
@@ -128,21 +123,22 @@ export class World {
 
       // The narrow phase resolves the sphere, so reverse its normal to resolve the box.
       return {
+        collider: candidate,
         normal: collision.normal.clone().scale(-1),
         penetration: collision.penetration,
       };
     }
 
-    if (first instanceof SphereCollider && second instanceof BoxCollider) {
-      return sphereBoxCollision(first, second);
+    if (query instanceof SphereCollider && candidate instanceof BoxCollider) {
+      return sphereBoxCollision(query, candidate);
     }
 
-    if (first instanceof CapsuleCollider && second instanceof BoxCollider) {
-      return capsuleBoxCollision(first, second);
+    if (query instanceof CapsuleCollider && candidate instanceof BoxCollider) {
+      return capsuleBoxCollision(query, candidate);
     }
 
-    if (first instanceof BoxCollider && second instanceof CapsuleCollider) {
-      const collision = capsuleBoxCollision(second, first);
+    if (query instanceof BoxCollider && candidate instanceof CapsuleCollider) {
+      const collision = capsuleBoxCollision(candidate, query);
 
       if (collision === undefined) {
         return undefined;
@@ -150,6 +146,7 @@ export class World {
 
       // The narrow phase resolves the capsule, so reverse its normal to resolve the box.
       return {
+        collider: candidate,
         normal: collision.normal.clone().scale(-1),
         penetration: collision.penetration,
       };
@@ -158,8 +155,8 @@ export class World {
     return undefined;
   }
 
-  private hasOverlappingBounds(first: Collider, second: Collider): boolean {
-    return first.getWorldBounds().overlaps(second.getWorldBounds());
+  private hasOverlappingBounds(query: Collider, candidate: Collider): boolean {
+    return query.getWorldBounds().overlaps(candidate.getWorldBounds());
   }
 
   *[Symbol.iterator](): IterableIterator<Body> {
