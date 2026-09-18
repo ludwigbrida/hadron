@@ -1,4 +1,5 @@
 import { Body } from "../physics/body.ts";
+import { KinematicBody } from "../physics/kinematic-body.ts";
 import { StaticBody } from "../physics/static-body.ts";
 import { World } from "../physics/world.ts";
 import { Color } from "../rendering/color.ts";
@@ -52,6 +53,14 @@ export class Scene {
 
   createStaticBody(): StaticBody {
     const body = new StaticBody();
+
+    this.root.addChild(body);
+    this.world.addBody(body);
+    return body;
+  }
+
+  createKinematicBody(): KinematicBody {
+    const body = new KinematicBody();
 
     this.root.addChild(body);
     this.world.addBody(body);
