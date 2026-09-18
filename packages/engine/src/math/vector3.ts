@@ -86,6 +86,23 @@ export class Vector3 extends Float32Array {
   }
 
   /**
+   * Determines the index of the smallest component.
+   *
+   * Compares the values at indices 0, 1, and 2 and returns the index of the minimum value.
+   *
+   * @returns The index of the smallest axis value.
+   *
+   * @privateRemarks Ties prefer X, then Y, then Z. This makes callers deterministic.
+   */
+  public minAxis(): 0 | 1 | 2 {
+    if (this[0] <= this[1] && this[0] <= this[2]) {
+      return 0;
+    }
+
+    return this[1] <= this[2] ? 1 : 2;
+  }
+
+  /**
    * Sets the vector's components.
    *
    * @returns This vector.
