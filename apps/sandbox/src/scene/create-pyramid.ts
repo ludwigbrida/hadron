@@ -1,4 +1,4 @@
-import { Vector3, type Geometry, type Material, type Scene } from "@hadron/engine";
+import { Vector3, type Engine, type Geometry, type Material, type Scene } from "@hadron/engine";
 import { createStaticBox } from "./create-static-box.ts";
 
 // Each step is lower than the player capsule radius, so its rounded base can step onto it.
@@ -18,9 +18,14 @@ const layers = [
 /**
  * Creates the stepped platform used to exercise capsule movement and collision resolution.
  */
-export function createPyramid(scene: Scene, cube: Geometry, material: Material): void {
+export function createPyramid(
+  engine: Engine,
+  scene: Scene,
+  cube: Geometry,
+  material: Material,
+): void {
   for (const layer of layers) {
-    createStaticBox(scene, cube, material, {
+    createStaticBox(engine, scene, cube, material, {
       halfExtents: layer.halfExtents,
       position: new Vector3(0, layer.y, -4),
     });

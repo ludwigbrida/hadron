@@ -4,8 +4,6 @@ import { StaticBody } from "../physics/body/static-body.ts";
 import { World } from "../physics/world.ts";
 import { Color } from "../rendering/color.ts";
 import type { CubeTexture } from "../rendering/cube-texture.ts";
-import type { Geometry } from "../rendering/geometry.ts";
-import type { Material } from "../rendering/material.ts";
 import { Mesh } from "../rendering/mesh.ts";
 import { Camera } from "./camera.ts";
 import { DirectionalLight } from "./directional-light.ts";
@@ -20,13 +18,11 @@ export class Scene {
   readonly world = new World();
 
   /** @internal */
-  static create(createMeshInstance: (geometry: Geometry, material: Material) => Mesh): Scene {
-    return new Scene(createMeshInstance);
+  static create(): Scene {
+    return new Scene();
   }
 
-  private constructor(
-    private readonly createMeshInstance: (geometry: Geometry, material: Material) => Mesh,
-  ) {
+  private constructor() {
     this.root.addChild(this.camera);
   }
 
@@ -35,13 +31,6 @@ export class Scene {
 
     this.root.addChild(node);
     return node;
-  }
-
-  createMesh(geometry: Geometry, material: Material): Mesh {
-    const mesh = this.createMeshInstance(geometry, material);
-
-    this.root.addChild(mesh);
-    return mesh;
   }
 
   createDirectionalLight(): DirectionalLight {

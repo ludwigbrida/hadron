@@ -44,7 +44,7 @@ export class Engine {
   }
 
   createScene(): Scene {
-    return Scene.create((geometry, material) => this.createMesh(geometry, material));
+    return Scene.create();
   }
 
   createGeometry(data: GeometryData): Geometry {
@@ -105,7 +105,12 @@ export class Engine {
     );
   }
 
-  private createMesh(geometry: Geometry, material: Material): Mesh {
+  /**
+   * Creates a detached mesh.
+   *
+   * Attach it to a scene node with {@link Node.addChild} before rendering it.
+   */
+  createMesh(geometry: Geometry, material: Material): Mesh {
     const mesh = this.renderer.createMesh(geometry, material);
 
     this.meshes.add(mesh);

@@ -1,4 +1,5 @@
 import {
+  type Engine,
   type Geometry,
   type Material,
   type Scene,
@@ -20,13 +21,14 @@ export interface StaticBoxOptions {
  * to the dimensions used by the collider.
  */
 export function createStaticBox(
+  engine: Engine,
   scene: Scene,
   cube: Geometry,
   material: Material,
   options: StaticBoxOptions,
 ): StaticBody {
   const body = scene.createStaticBody();
-  const mesh = scene.createMesh(cube, material);
+  const mesh = engine.createMesh(cube, material);
 
   body.transform.position.setXyz(options.position[0], options.position[1], options.position[2]);
   mesh.transform.scale.setXyz(
