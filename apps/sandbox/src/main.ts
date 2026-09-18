@@ -3,6 +3,7 @@ import { loadCubeTexture, loadTexture } from "./assets/load-texture.ts";
 import "./main.css";
 import { PlayerController } from "./player/player-controller.ts";
 import { createCubeGeometry } from "./scene/create-cube-geometry.ts";
+import { createPyramid } from "./scene/create-pyramid.ts";
 
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 
@@ -54,33 +55,7 @@ secondMesh.transform.scale.setXyz(1.5, 1, 1);
 groundBody.transform.position.setXyz(0, -1.25, 0);
 groundBody.createBoxCollider({ halfExtents: new Vector3(10, 0.25, 10) });
 
-// each step is lower than the player capsule radius, so its rounded base can step onto it
-const pyramidLayers = [
-  { halfExtents: new Vector3(4, 0.05, 4), y: -0.95 },
-  { halfExtents: new Vector3(3.7, 0.05, 3.7), y: -0.85 },
-  { halfExtents: new Vector3(3.4, 0.05, 3.4), y: -0.75 },
-  { halfExtents: new Vector3(3.1, 0.05, 3.1), y: -0.65 },
-  { halfExtents: new Vector3(2.8, 0.05, 2.8), y: -0.55 },
-  { halfExtents: new Vector3(2.5, 0.05, 2.5), y: -0.45 },
-  { halfExtents: new Vector3(2.2, 0.05, 2.2), y: -0.35 },
-  { halfExtents: new Vector3(1.9, 0.05, 1.9), y: -0.25 },
-  { halfExtents: new Vector3(1.6, 0.05, 1.6), y: -0.15 },
-  { halfExtents: new Vector3(1.3, 0.05, 1.3), y: -0.05 },
-];
-
-for (const layer of pyramidLayers) {
-  const body = scene.createStaticBody();
-  const mesh = scene.createMesh(cube, groundMaterial);
-
-  body.transform.position.setXyz(0, layer.y, -4);
-  mesh.transform.scale.setXyz(
-    layer.halfExtents[0] / 0.25,
-    layer.halfExtents[1] / 0.25,
-    layer.halfExtents[2] / 0.25,
-  );
-  body.addChild(mesh);
-  body.createBoxCollider({ halfExtents: layer.halfExtents });
-}
+createPyramid(scene, cube, groundMaterial);
 
 wallBody.transform.position.setXyz(0, 1, -9);
 wall.transform.scale.setXyz(16, 8, 1);
