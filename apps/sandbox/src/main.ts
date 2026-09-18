@@ -90,6 +90,7 @@ const cubeGroup = scene.createNode();
 const groundBody = scene.createStaticBody();
 const platformBody = scene.createStaticBody();
 const wallBody = scene.createStaticBody();
+const player = scene.createKinematicBody();
 
 firstMesh.transform.position.setXyz(0.5, 0, -2);
 firstMesh.transform.scale.setXyz(1, 1.5, 1);
@@ -105,11 +106,13 @@ wallBody.transform.position.setXyz(0, 1, -6);
 wall.transform.scale.setXyz(16, 8, 1);
 wallBody.addChild(wall);
 wallBody.createBoxCollider({ halfExtents: new Vector3(4, 2, 0.25) });
+player.createBoxCollider({ halfExtents: new Vector3(0.3, 1.5, 0.3) });
+player.addChild(scene.camera);
 cubeGroup.addChild(firstMesh).addChild(secondMesh);
 
 directionalLight.transform.rotation.setXyz(-0.62, 0.46, 0);
 
-const cameraPosition = scene.camera.transform.position;
+const playerPosition = player.transform.position;
 const groundHeight = -1;
 const playerEyeHeight = 1.5;
 const gravity = -12;
@@ -119,7 +122,7 @@ let cameraPitch = Math.atan2(-0.5, 3);
 let verticalVelocity = 0;
 let isGrounded = true;
 
-cameraPosition.setXyz(0, groundHeight + playerEyeHeight, 1);
+playerPosition.setXyz(0, groundHeight + playerEyeHeight, 1);
 scene.camera.transform.rotation.setXyz(cameraPitch, -cameraYaw - Math.PI / 2, 0);
 scene.camera.setPerspective(Math.PI / 3, 0.1, 100);
 
@@ -150,7 +153,7 @@ function update({ elapsedTime, deltaTime }: Frame): void {
     }
 
     verticalVelocity += gravity * deltaTime;
-    const height = cameraPosition[1] + verticalVelocity * deltaTime;
+    const height = playerPosition[1] + verticalVelocity * deltaTime;
     const groundPosition = groundHeight + playerEyeHeight;
 
     if (height <= groundPosition) {
@@ -158,10 +161,10 @@ function update({ elapsedTime, deltaTime }: Frame): void {
       isGrounded = true;
     }
 
-    cameraPosition.setXyz(
-      cameraPosition[0] + (forwardX * forward + rightX * right) * distance,
+    playerPosition.setXyz(
+      playerPosition[0] + (forwardX * forward + rightX * right) * distance,
       Math.max(height, groundPosition),
-      cameraPosition[2] + (forwardZ * forward + rightZ * right) * distance,
+      playerPosition[2] + (forwardZ * forward + rightZ * right) * distance,
     );
 
     scene.camera.transform.rotation.setXyz(cameraPitch, -cameraYaw - Math.PI / 2, 0);
