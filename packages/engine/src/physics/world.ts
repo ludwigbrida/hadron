@@ -3,10 +3,12 @@ import { Body } from "./body/body.ts";
 import { KinematicBody } from "./body/kinematic-body.ts";
 import { StaticBody } from "./body/static-body.ts";
 import { Collider } from "./collider/collider.ts";
+import { BruteForceBroadPhase } from "./collision/broad-phase/brute-force-broad-phase.ts";
 import type { Collision } from "./collision/collision.ts";
 import type { RaycastHit } from "./query/raycast-hit.ts";
 
 export class World {
+  private readonly broadPhase = new BruteForceBroadPhase();
   private readonly bodies = new Set<Body>();
 
   public addBody(body: Body): this {
@@ -80,26 +82,13 @@ export class World {
   }
 
   public *collisions(query: Collider): IterableIterator<Collision> {
-    for (const candidate of this.getColliders()) {
-      // Colliders on the same body form a compound shape, not a collision pair.
-      if (
-        candidate === query ||
-        (query.parent !== undefined && candidate.parent === query.parent) ||
-        !this.hasOverlappingBounds(query, candidate)
-      ) {
-        continue;
-      }
-
+    for (const candidate of this.broadPhase.getCandidates(query, this.getColliders())) {
       const collision = query.getCollision(candidate);
 
       if (collision !== undefined) {
         yield collision;
       }
     }
-  }
-
-  private hasOverlappingBounds(query: Collider, candidate: Collider): boolean {
-    return query.getWorldBounds().overlaps(candidate.getWorldBounds());
   }
 
   *[Symbol.iterator](): IterableIterator<Body> {
