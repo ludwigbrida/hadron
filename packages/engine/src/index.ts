@@ -1,6 +1,8 @@
 export { Engine, type Frame, type UpdateCallback } from "./core/engine.ts";
 export { ActionMap, type AxisBinding } from "./input/action-map.ts";
 export { KeyboardKey, MouseButton, type InputControl } from "./input/input-control.ts";
+export type { Input } from "./input/input.ts";
+export { Aabb } from "./math/aabb.ts";
 export { Matrix4 } from "./math/matrix4.ts";
 export { Vector3 } from "./math/vector3.ts";
 export { Body } from "./physics/body/body.ts";
@@ -23,5 +25,12 @@ export type {
   CubeTextureFaces,
   CubeTextureOptions,
 } from "./rendering/cube-texture.ts";
-export type { MaterialOptions } from "./rendering/material.ts";
+export type { Geometry, GeometryData } from "./rendering/geometry.ts";
+export type { Material, MaterialOptions } from "./rendering/material.ts";
+export type { Mesh } from "./rendering/mesh.ts";
 export type { Texture, TextureOptions } from "./rendering/texture.ts";
+export type { Camera } from "./scene/camera.ts";
+export type { DirectionalLight } from "./scene/directional-light.ts";
+export type { Node } from "./scene/node.ts";
+export type { Scene } from "./scene/scene.ts";
+export type { Transform } from "./scene/transform.ts";
