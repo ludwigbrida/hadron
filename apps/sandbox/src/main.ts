@@ -1,6 +1,7 @@
 import { Color, Engine, KeyboardKey, Vector3, type Frame } from "@hadron/engine";
 import { loadCubeTexture, loadTexture } from "./assets/load-texture.ts";
 import "./main.css";
+import { createCubeGeometry } from "./scene/create-cube-geometry.ts";
 
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 
@@ -36,35 +37,7 @@ const skyTexture = await loadCubeTexture(engine, {
   negativeZ: "/assets/sky/negative-z.png",
 });
 
-const cube = engine.createGeometry({
-  positions: new Float32Array([
-    // front
-    -0.25, -0.25, 0.25, 0.25, -0.25, 0.25, 0.25, 0.25, 0.25, -0.25, 0.25, 0.25,
-    // back
-    0.25, -0.25, -0.25, -0.25, -0.25, -0.25, -0.25, 0.25, -0.25, 0.25, 0.25, -0.25,
-    // left
-    -0.25, -0.25, -0.25, -0.25, -0.25, 0.25, -0.25, 0.25, 0.25, -0.25, 0.25, -0.25,
-    // right
-    0.25, -0.25, 0.25, 0.25, -0.25, -0.25, 0.25, 0.25, -0.25, 0.25, 0.25, 0.25,
-    // bottom
-    -0.25, -0.25, -0.25, 0.25, -0.25, -0.25, 0.25, -0.25, 0.25, -0.25, -0.25, 0.25,
-    // top
-    -0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, -0.25, -0.25, 0.25, -0.25,
-  ]),
-  normals: new Float32Array([
-    0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, -1, 0, 0, -1, 0, 0,
-    -1, 0, 0, -1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1, 0,
-    0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0,
-  ]),
-  texCoords: new Float32Array([
-    0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1,
-    0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1,
-  ]),
-  indices: new Uint16Array([
-    0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15, 16, 17, 18, 16,
-    18, 19, 20, 21, 22, 20, 22, 23,
-  ]),
-});
+const cube = createCubeGeometry(engine);
 
 const ground = engine.createGeometry({
   positions: new Float32Array([-10, -1, -10, 10, -1, -10, 10, -1, 10, -10, -1, 10]),
