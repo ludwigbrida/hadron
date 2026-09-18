@@ -39,6 +39,21 @@ export class Vector3 extends Float32Array {
     return this;
   }
 
+  /**
+   * Multiplies every component by a scalar.
+   *
+   * @param scalar The multiplier applied to each component.
+   *
+   * @returns This vector.
+   */
+  public scale(scalar: number): this {
+    this[0] *= scalar;
+    this[1] *= scalar;
+    this[2] *= scalar;
+
+    return this;
+  }
+
   public addScaled(vector: Readonly<Vector3>, scalar: number): this {
     this[0] += vector[0] * scalar;
     this[1] += vector[1] * scalar;
