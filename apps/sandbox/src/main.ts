@@ -1,4 +1,4 @@
-import { Color, Engine, KeyboardKey, type Frame } from "@hadron/engine";
+import { Color, Engine, KeyboardKey, Vector3, type Frame } from "@hadron/engine";
 import { loadCubeTexture, loadTexture } from "./assets/load-texture.ts";
 import "./main.css";
 
@@ -85,14 +85,26 @@ const firstMesh = scene.createMesh(cube, blueMaterial);
 const secondMesh = scene.createMesh(cube, redMaterial);
 scene.createMesh(ground, groundMaterial);
 const platform = scene.createMesh(cube, groundMaterial);
+const wall = scene.createMesh(cube, groundMaterial);
 const cubeGroup = scene.createNode();
+const groundBody = scene.createStaticBody();
+const platformBody = scene.createStaticBody();
+const wallBody = scene.createStaticBody();
 
 firstMesh.transform.position.setXyz(0.5, 0, -2);
 firstMesh.transform.scale.setXyz(1, 1.5, 1);
 secondMesh.transform.position.setXyz(-0.5, 0, -2);
 secondMesh.transform.scale.setXyz(1.5, 1, 1);
-platform.transform.position.setXyz(0, -0.75, -4);
+groundBody.transform.position.setXyz(0, -1.25, 0);
+groundBody.createBoxCollider({ halfExtents: new Vector3(10, 0.25, 10) });
+platformBody.transform.position.setXyz(0, -0.75, -4);
 platform.transform.scale.setXyz(8, 1, 8);
+platformBody.addChild(platform);
+platformBody.createBoxCollider({ halfExtents: new Vector3(2, 0.25, 2) });
+wallBody.transform.position.setXyz(0, 1, -6);
+wall.transform.scale.setXyz(16, 8, 1);
+wallBody.addChild(wall);
+wallBody.createBoxCollider({ halfExtents: new Vector3(4, 2, 0.25) });
 cubeGroup.addChild(firstMesh).addChild(secondMesh);
 
 directionalLight.transform.rotation.setXyz(-0.62, 0.46, 0);
