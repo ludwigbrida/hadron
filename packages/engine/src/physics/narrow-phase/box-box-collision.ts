@@ -3,19 +3,19 @@ import type { BoxCollider } from "../box-collider.ts";
 import type { Collision } from "../collision.ts";
 
 /**
- * Computes the contact between two axis-aligned box colliders.
- * TODO: widen to all transformations
+ * Computes the contact between two translated, axis-aligned box colliders.
+ * TODO: widen to all transformations, not only translated boxes
  *
- * This resolver relies on broad-phase bounds rejection to confirm that the
- * boxes overlap.
+ * The normal points away from {@link candidate} and toward {@link query}.
+ * Touching boxes report a zero-penetration contact.
  *
  * @param query The collider that will be moved during resolution.
  * @param candidate The collider being tested against.
  *
- * @returns The smallest translation that separates the two boxes.
- * The normal points away from {@link candidate} and toward {@link query}.
+ * @returns The smallest translation that separates {@link query} and {@link candidate} or
+ * `undefined` when they do not overlap.
  */
-export function boxBoxCollision(query: BoxCollider, candidate: BoxCollider): Collision {
+export function boxBoxCollision(query: BoxCollider, candidate: BoxCollider): Collision | undefined {
   // Read the already-transformed axis-aligned bounds for both colliders.
   const queryBounds = query.getWorldBounds();
   const candidateBounds = candidate.getWorldBounds();
@@ -31,6 +31,11 @@ export function boxBoxCollision(query: BoxCollider, candidate: BoxCollider): Col
 
   // Resolve on the axis that requires the least movement.
   const axis = overlap.minAxis();
+
+  // A negative minimum means the boxes are separated on at least one axis.
+  if (overlap[axis] < 0) {
+    return undefined;
+  }
 
   // Compare centers to choose the direction that moves `query` away from `candidate`.
   const queryCenter = query.getWorldPosition();
