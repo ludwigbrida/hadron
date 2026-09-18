@@ -1,6 +1,5 @@
 import { Vector3, type Geometry, type Material, type Scene } from "@hadron/engine";
-
-const cubeHalfExtent = 0.25;
+import { createStaticBox } from "./create-static-box.ts";
 
 // Each step is lower than the player capsule radius, so its rounded base can step onto it.
 const layers = [
@@ -21,16 +20,9 @@ const layers = [
  */
 export function createPyramid(scene: Scene, cube: Geometry, material: Material): void {
   for (const layer of layers) {
-    const body = scene.createStaticBody();
-    const mesh = scene.createMesh(cube, material);
-
-    body.transform.position.setXyz(0, layer.y, -4);
-    mesh.transform.scale.setXyz(
-      layer.halfExtents[0] / cubeHalfExtent,
-      layer.halfExtents[1] / cubeHalfExtent,
-      layer.halfExtents[2] / cubeHalfExtent,
-    );
-    body.addChild(mesh);
-    body.createBoxCollider({ halfExtents: layer.halfExtents });
+    createStaticBox(scene, cube, material, {
+      halfExtents: layer.halfExtents,
+      position: new Vector3(0, layer.y, -4),
+    });
   }
 }

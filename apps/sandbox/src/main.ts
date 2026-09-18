@@ -4,6 +4,7 @@ import "./main.css";
 import { PlayerController } from "./player/player-controller.ts";
 import { createCubeGeometry } from "./scene/create-cube-geometry.ts";
 import { createPyramid } from "./scene/create-pyramid.ts";
+import { createStaticBox } from "./scene/create-static-box.ts";
 
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 
@@ -42,10 +43,8 @@ const groundMaterial = engine.createMaterial(new Color(1, 1, 1), {
 const firstMesh = scene.createMesh(cube, blueMaterial);
 const secondMesh = scene.createMesh(cube, redMaterial);
 scene.createMesh(ground, groundMaterial);
-const wall = scene.createMesh(cube, groundMaterial);
 const cubeGroup = scene.createNode();
 const groundBody = scene.createStaticBody();
-const wallBody = scene.createStaticBody();
 const player = new PlayerController(scene, engine.input);
 
 firstMesh.transform.position.setXyz(0.5, 0, -2);
@@ -57,10 +56,10 @@ groundBody.createBoxCollider({ halfExtents: new Vector3(10, 0.25, 10) });
 
 createPyramid(scene, cube, groundMaterial);
 
-wallBody.transform.position.setXyz(0, 1, -9);
-wall.transform.scale.setXyz(16, 8, 1);
-wallBody.addChild(wall);
-wallBody.createBoxCollider({ halfExtents: new Vector3(4, 2, 0.25) });
+createStaticBox(scene, cube, groundMaterial, {
+  halfExtents: new Vector3(4, 2, 0.25),
+  position: new Vector3(0, 1, -9),
+});
 cubeGroup.addChild(firstMesh).addChild(secondMesh);
 
 directionalLight.transform.rotation.setXyz(-0.62, 0.46, 0);
