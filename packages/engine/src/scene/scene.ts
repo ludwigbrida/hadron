@@ -81,11 +81,14 @@ export class Scene {
     return this.getFirstDirectionalLight(this.root);
   }
 
+  /**
+   * Detaches a node subtree and unregisters all of its physics bodies.
+   *
+   * A body can be nested beneath an ordinary node, so removing only the passed
+   * node would otherwise leave descendant colliders active in the physics world.
+   */
   remove(node: Node): this {
-    if (node instanceof Body) {
-      this.world.removeBody(node);
-    }
-
+    this.removeBodies(node);
     node.parent?.removeChild(node);
     return this;
   }
@@ -118,5 +121,16 @@ export class Scene {
     }
 
     return undefined;
+  }
+
+  private removeBodies(node: Node): void {
+    if (node instanceof Body) {
+      this.world.removeBody(node);
+    }
+
+    // Visit every descendant before detaching the root node from its parent.
+    for (const child of node) {
+      this.removeBodies(child);
+    }
   }
 }
