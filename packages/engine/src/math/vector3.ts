@@ -101,6 +101,18 @@ export class Vector3 extends Float32Array {
   }
 
   /**
+   * Clamps each component between corresponding minimum and maximum values.
+   *
+   * @param min The inclusive lower bound for each component.
+   * @param max The inclusive upper bound for each component.
+   *
+   * @returns This vector.
+   */
+  public clamp(min: Readonly<Vector3>, max: Readonly<Vector3>): this {
+    return this.max(min).min(max);
+  }
+
+  /**
    * Determines the index of the smallest component.
    *
    * Compares the values at indices 0, 1, and 2 and returns the index of the minimum value.
