@@ -63,6 +63,7 @@ createStaticBox(engine, scene, cube, groundMaterial, {
 cubeGroup.addChild(firstMesh).addChild(secondMesh);
 scene.root.addChild(cubeGroup);
 scene.root.addChild(groundMesh);
+scene.root.addChild(groundBody);
 
 directionalLight.transform.rotation.setXyz(-0.62, 0.46, 0);
 

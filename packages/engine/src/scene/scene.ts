@@ -42,10 +42,14 @@ export class Scene {
     return light;
   }
 
+  /**
+   * Creates a detached static body and registers it with this scene's physics world.
+   *
+   * Attach it to the scene graph with {@link Node.addChild}.
+   */
   createStaticBody(): StaticBody {
     const body = new StaticBody();
 
-    this.root.addChild(body);
     this.world.addBody(body);
     return body;
   }

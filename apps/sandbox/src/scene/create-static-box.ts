@@ -38,6 +38,7 @@ export function createStaticBox(
   );
   body.addChild(mesh);
   body.createBoxCollider({ halfExtents: options.halfExtents });
+  scene.root.addChild(body);
 
   return body;
 }
