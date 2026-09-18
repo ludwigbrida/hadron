@@ -10,6 +10,18 @@ export class Vector3 extends Float32Array {
     super([x, y, z]);
   }
 
+  get x(): number {
+    return this[0];
+  }
+
+  get y(): number {
+    return this[1];
+  }
+
+  get z(): number {
+    return this[2];
+  }
+
   /**
    * Creates a copy of this vector.
    *
