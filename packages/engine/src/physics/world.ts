@@ -5,6 +5,7 @@ import { CapsuleCollider } from "./capsule-collider.ts";
 import { Collider } from "./collider.ts";
 import type { Collision } from "./collision.ts";
 import { KinematicBody } from "./kinematic-body.ts";
+import type { CollisionDetails } from "./narrow-phase.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
 import { SphereCollider } from "./sphere-collider.ts";
 import { StaticBody } from "./static-body.ts";
@@ -370,9 +371,4 @@ export class World {
       }
     }
   }
-}
-
-interface CollisionDetails {
-  readonly normal: Vector3;
-  readonly penetration: number;
 }
