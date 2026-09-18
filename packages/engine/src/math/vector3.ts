@@ -6,7 +6,7 @@ export class Vector3 extends Float32Array {
   declare [1]: number;
   declare [2]: number;
 
-  constructor(x: number, y: number, z: number) {
+  constructor(x = 0, y = 0, z = 0) {
     super([x, y, z]);
   }
 

@@ -3,7 +3,7 @@ import type { Vector3 } from "../../math/vector3.ts";
 /**
  * Describes the geometric result of a narrow-phase collision test.
  *
- * The normal points away from the second collider and toward the first collider.
+ * The normal points away from the candidate collider and toward the query collider.
  *
  * @privateRemarks
  * This type is kept internal because `World` converts it into the public `Collision`
