@@ -156,12 +156,12 @@ export class World {
     const firstBounds = first.getWorldBounds();
     const secondBounds = second.getWorldBounds();
     const overlaps = new Vector3(
-      Math.min(firstBounds.maximum[0], secondBounds.maximum[0]) -
-        Math.max(firstBounds.minimum[0], secondBounds.minimum[0]),
-      Math.min(firstBounds.maximum[1], secondBounds.maximum[1]) -
-        Math.max(firstBounds.minimum[1], secondBounds.minimum[1]),
-      Math.min(firstBounds.maximum[2], secondBounds.maximum[2]) -
-        Math.max(firstBounds.minimum[2], secondBounds.minimum[2]),
+      Math.min(firstBounds.max[0], secondBounds.max[0]) -
+        Math.max(firstBounds.min[0], secondBounds.min[0]),
+      Math.min(firstBounds.max[1], secondBounds.max[1]) -
+        Math.max(firstBounds.min[1], secondBounds.min[1]),
+      Math.min(firstBounds.max[2], secondBounds.max[2]) -
+        Math.max(firstBounds.min[2], secondBounds.min[2]),
     );
     const firstCenter = first.getWorldPosition();
     const secondCenter = second.getWorldPosition();
@@ -215,9 +215,9 @@ export class World {
     const center = sphere.getWorldPosition();
 
     const closestPoint = new Vector3(
-      Math.max(bounds.minimum[0], Math.min(center[0], bounds.maximum[0])),
-      Math.max(bounds.minimum[1], Math.min(center[1], bounds.maximum[1])),
-      Math.max(bounds.minimum[2], Math.min(center[2], bounds.maximum[2])),
+      Math.max(bounds.min[0], Math.min(center[0], bounds.max[0])),
+      Math.max(bounds.min[1], Math.min(center[1], bounds.max[1])),
+      Math.max(bounds.min[2], Math.min(center[2], bounds.max[2])),
     );
 
     const offset = center.clone().subtract(closestPoint);
@@ -237,31 +237,31 @@ export class World {
     }
 
     let normal = new Vector3(-1, 0, 0);
-    let faceDistance = center[0] - bounds.minimum[0];
+    let faceDistance = center[0] - bounds.min[0];
 
-    if (bounds.maximum[0] - center[0] < faceDistance) {
+    if (bounds.max[0] - center[0] < faceDistance) {
       normal = new Vector3(1, 0, 0);
-      faceDistance = bounds.maximum[0] - center[0];
+      faceDistance = bounds.max[0] - center[0];
     }
 
-    if (center[1] - bounds.minimum[1] < faceDistance) {
+    if (center[1] - bounds.min[1] < faceDistance) {
       normal = new Vector3(0, -1, 0);
-      faceDistance = center[1] - bounds.minimum[1];
+      faceDistance = center[1] - bounds.min[1];
     }
 
-    if (bounds.maximum[1] - center[1] < faceDistance) {
+    if (bounds.max[1] - center[1] < faceDistance) {
       normal = new Vector3(0, 1, 0);
-      faceDistance = bounds.maximum[1] - center[1];
+      faceDistance = bounds.max[1] - center[1];
     }
 
-    if (center[2] - bounds.minimum[2] < faceDistance) {
+    if (center[2] - bounds.min[2] < faceDistance) {
       normal = new Vector3(0, 0, -1);
-      faceDistance = center[2] - bounds.minimum[2];
+      faceDistance = center[2] - bounds.min[2];
     }
 
-    if (bounds.maximum[2] - center[2] < faceDistance) {
+    if (bounds.max[2] - center[2] < faceDistance) {
       normal = new Vector3(0, 0, 1);
-      faceDistance = bounds.maximum[2] - center[2];
+      faceDistance = bounds.max[2] - center[2];
     }
 
     return {
@@ -281,21 +281,21 @@ export class World {
     let capsuleY: number;
     let boxY: number;
 
-    if (segmentMaximumY < bounds.minimum[1]) {
+    if (segmentMaximumY < bounds.min[1]) {
       capsuleY = segmentMaximumY;
-      boxY = bounds.minimum[1];
-    } else if (segmentMinimumY > bounds.maximum[1]) {
+      boxY = bounds.min[1];
+    } else if (segmentMinimumY > bounds.max[1]) {
       capsuleY = segmentMinimumY;
-      boxY = bounds.maximum[1];
+      boxY = bounds.max[1];
     } else {
-      capsuleY = Math.max(segmentMinimumY, bounds.minimum[1]);
+      capsuleY = Math.max(segmentMinimumY, bounds.min[1]);
       boxY = capsuleY;
     }
 
     const closestPoint = new Vector3(
-      Math.max(bounds.minimum[0], Math.min(center[0], bounds.maximum[0])),
+      Math.max(bounds.min[0], Math.min(center[0], bounds.max[0])),
       boxY,
-      Math.max(bounds.minimum[2], Math.min(center[2], bounds.maximum[2])),
+      Math.max(bounds.min[2], Math.min(center[2], bounds.max[2])),
     );
     const offset = new Vector3(center[0], capsuleY, center[2]).subtract(closestPoint);
     const distanceSquared = offset.lengthSquared();
@@ -314,48 +314,38 @@ export class World {
     }
 
     let normal = new Vector3(-1, 0, 0);
-    let penetration = bounds.maximum[0] - center[0] + capsule.radius;
+    let penetration = bounds.max[0] - center[0] + capsule.radius;
 
-    if (center[0] - bounds.minimum[0] + capsule.radius < penetration) {
+    if (center[0] - bounds.min[0] + capsule.radius < penetration) {
       normal = new Vector3(1, 0, 0);
-      penetration = center[0] - bounds.minimum[0] + capsule.radius;
+      penetration = center[0] - bounds.min[0] + capsule.radius;
     }
 
-    if (center[1] + capsule.halfSegmentHeight + capsule.radius - bounds.minimum[1] < penetration) {
+    if (center[1] + capsule.halfSegmentHeight + capsule.radius - bounds.min[1] < penetration) {
       normal = new Vector3(0, -1, 0);
-      penetration = center[1] + capsule.halfSegmentHeight + capsule.radius - bounds.minimum[1];
+      penetration = center[1] + capsule.halfSegmentHeight + capsule.radius - bounds.min[1];
     }
 
-    if (bounds.maximum[1] - center[1] + capsule.halfSegmentHeight + capsule.radius < penetration) {
+    if (bounds.max[1] - center[1] + capsule.halfSegmentHeight + capsule.radius < penetration) {
       normal = new Vector3(0, 1, 0);
-      penetration = bounds.maximum[1] - center[1] + capsule.halfSegmentHeight + capsule.radius;
+      penetration = bounds.max[1] - center[1] + capsule.halfSegmentHeight + capsule.radius;
     }
 
-    if (bounds.maximum[2] - center[2] + capsule.radius < penetration) {
+    if (bounds.max[2] - center[2] + capsule.radius < penetration) {
       normal = new Vector3(0, 0, -1);
-      penetration = bounds.maximum[2] - center[2] + capsule.radius;
+      penetration = bounds.max[2] - center[2] + capsule.radius;
     }
 
-    if (center[2] - bounds.minimum[2] + capsule.radius < penetration) {
+    if (center[2] - bounds.min[2] + capsule.radius < penetration) {
       normal = new Vector3(0, 0, 1);
-      penetration = center[2] - bounds.minimum[2] + capsule.radius;
+      penetration = center[2] - bounds.min[2] + capsule.radius;
     }
 
     return { normal, penetration };
   }
 
   private hasOverlappingBounds(first: Collider, second: Collider): boolean {
-    const firstBounds = first.getWorldBounds();
-    const secondBounds = second.getWorldBounds();
-
-    return (
-      firstBounds.minimum[0] <= secondBounds.maximum[0] &&
-      firstBounds.maximum[0] >= secondBounds.minimum[0] &&
-      firstBounds.minimum[1] <= secondBounds.maximum[1] &&
-      firstBounds.maximum[1] >= secondBounds.minimum[1] &&
-      firstBounds.minimum[2] <= secondBounds.maximum[2] &&
-      firstBounds.maximum[2] >= secondBounds.minimum[2]
-    );
+    return first.getWorldBounds().overlaps(second.getWorldBounds());
   }
 
   *[Symbol.iterator](): IterableIterator<Body> {

@@ -1,3 +1,4 @@
+import type { Aabb } from "../math/aabb.ts";
 import { Vector3 } from "../math/vector3.ts";
 import { Node } from "../scene/node.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
@@ -14,9 +15,4 @@ export abstract class Collider extends Node {
     // TODO: realize transform reconstruction through matrix class
     return new Vector3(matrix[12], matrix[13], matrix[14]);
   }
-}
-
-export interface Aabb {
-  readonly minimum: Vector3;
-  readonly maximum: Vector3;
 }

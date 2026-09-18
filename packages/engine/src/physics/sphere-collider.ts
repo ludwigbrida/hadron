@@ -1,5 +1,6 @@
+import { Aabb } from "../math/aabb.ts";
 import { Vector3 } from "../math/vector3.ts";
-import { type Aabb, Collider } from "./collider.ts";
+import { Collider } from "./collider.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
 
 export interface SphereColliderOptions {
@@ -60,9 +61,6 @@ export class SphereCollider extends Collider {
     const center = this.getWorldPosition();
     const radius = new Vector3(this.radius, this.radius, this.radius);
 
-    return {
-      minimum: center.clone().subtract(radius),
-      maximum: center.addScaled(radius, 1),
-    };
+    return new Aabb(center.clone().subtract(radius), center.addScaled(radius, 1));
   }
 }
