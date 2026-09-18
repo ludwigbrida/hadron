@@ -1,16 +1,9 @@
 import { Vector3 } from "../math/vector3.ts";
 import { Body } from "./body.ts";
-import { BoxCollider } from "./box-collider.ts";
-import { CapsuleCollider } from "./capsule-collider.ts";
 import { Collider } from "./collider.ts";
 import type { Collision } from "./collision.ts";
 import { KinematicBody } from "./kinematic-body.ts";
-import { boxBoxCollision } from "./narrow-phase/box-box-collision.ts";
-import { capsuleBoxCollision } from "./narrow-phase/capsule-box-collision.ts";
-import { sphereBoxCollision } from "./narrow-phase/sphere-box-collision.ts";
-import { sphereSphereCollision } from "./narrow-phase/sphere-sphere-collision.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
-import { SphereCollider } from "./sphere-collider.ts";
 import { StaticBody } from "./static-body.ts";
 
 export class World {
@@ -97,62 +90,12 @@ export class World {
         continue;
       }
 
-      const collision = this.getCollision(query, candidate);
+      const collision = query.getCollision(candidate);
 
       if (collision !== undefined) {
         yield collision;
       }
     }
-  }
-
-  private getCollision(query: Collider, candidate: Collider): Collision | undefined {
-    if (query instanceof BoxCollider && candidate instanceof BoxCollider) {
-      return boxBoxCollision(query, candidate);
-    }
-
-    if (query instanceof SphereCollider && candidate instanceof SphereCollider) {
-      return sphereSphereCollision(query, candidate);
-    }
-
-    if (query instanceof BoxCollider && candidate instanceof SphereCollider) {
-      const collision = sphereBoxCollision(candidate, query);
-
-      if (collision === undefined) {
-        return undefined;
-      }
-
-      // The narrow phase resolves the sphere, so reverse its normal to resolve the box.
-      return {
-        collider: candidate,
-        normal: collision.normal.clone().scale(-1),
-        penetration: collision.penetration,
-      };
-    }
-
-    if (query instanceof SphereCollider && candidate instanceof BoxCollider) {
-      return sphereBoxCollision(query, candidate);
-    }
-
-    if (query instanceof CapsuleCollider && candidate instanceof BoxCollider) {
-      return capsuleBoxCollision(query, candidate);
-    }
-
-    if (query instanceof BoxCollider && candidate instanceof CapsuleCollider) {
-      const collision = capsuleBoxCollision(candidate, query);
-
-      if (collision === undefined) {
-        return undefined;
-      }
-
-      // The narrow phase resolves the capsule, so reverse its normal to resolve the box.
-      return {
-        collider: candidate,
-        normal: collision.normal.clone().scale(-1),
-        penetration: collision.penetration,
-      };
-    }
-
-    return undefined;
   }
 
   private hasOverlappingBounds(query: Collider, candidate: Collider): boolean {

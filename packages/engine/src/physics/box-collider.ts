@@ -1,7 +1,13 @@
 import { Aabb } from "../math/aabb.ts";
 import { Vector3 } from "../math/vector3.ts";
+import type { CapsuleCollider } from "./capsule-collider.ts";
 import { Collider } from "./collider.ts";
+import type { Collision } from "./collision.ts";
+import { boxBoxCollision } from "./narrow-phase/box-box-collision.ts";
+import { capsuleBoxCollision } from "./narrow-phase/capsule-box-collision.ts";
+import { sphereBoxCollision } from "./narrow-phase/sphere-box-collision.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
+import type { SphereCollider } from "./sphere-collider.ts";
 
 export interface BoxColliderOptions {
   readonly halfExtents: Readonly<Vector3>;
@@ -47,6 +53,23 @@ export class BoxCollider extends Collider {
       center.clone().addScaled(this.halfExtents, -1),
       center.addScaled(this.halfExtents, 1),
     );
+  }
+
+  public override getCollision(candidate: Collider): Collision | undefined {
+    // Let the candidate choose the handler for this box query.
+    return candidate.getCollisionWithBox(this);
+  }
+
+  public override getCollisionWithBox(query: BoxCollider): Collision | undefined {
+    return boxBoxCollision(query, this);
+  }
+
+  public override getCollisionWithSphere(query: SphereCollider): Collision | undefined {
+    return sphereBoxCollision(query, this);
+  }
+
+  public override getCollisionWithCapsule(query: CapsuleCollider): Collision | undefined {
+    return capsuleBoxCollision(query, this);
   }
 
   /**

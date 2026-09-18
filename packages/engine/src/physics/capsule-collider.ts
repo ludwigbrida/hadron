@@ -1,7 +1,12 @@
 import { Aabb } from "../math/aabb.ts";
 import { Vector3 } from "../math/vector3.ts";
+import type { BoxCollider } from "./box-collider.ts";
 import { Collider } from "./collider.ts";
+import type { Collision } from "./collision.ts";
+import { capsuleBoxCollision } from "./narrow-phase/capsule-box-collision.ts";
+import { reverseCollision } from "./narrow-phase/reverse-collision.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
+import type { SphereCollider } from "./sphere-collider.ts";
 
 export interface CapsuleColliderOptions {
   // total height, including rounded ends; must be at least twice the radius
@@ -71,6 +76,28 @@ export class CapsuleCollider extends Collider {
       center.clone().subtract(new Vector3(this.radius, this.height / 2, this.radius)),
       center.addScaled(new Vector3(this.radius, this.height / 2, this.radius), 1),
     );
+  }
+
+  public override getCollision(candidate: Collider): Collision | undefined {
+    // Let the candidate choose the handler for this capsule query.
+    return candidate.getCollisionWithCapsule(this);
+  }
+
+  public override getCollisionWithBox(query: BoxCollider): Collision | undefined {
+    // The available algorithm resolves a capsule, so reverse it to resolve the box query.
+    const collision = capsuleBoxCollision(this, query);
+
+    return collision === undefined ? undefined : reverseCollision(collision, this);
+  }
+
+  public override getCollisionWithSphere(_query: SphereCollider): Collision | undefined {
+    // Capsule-sphere collision is not supported yet.
+    return undefined;
+  }
+
+  public override getCollisionWithCapsule(_query: CapsuleCollider): Collision | undefined {
+    // Capsule-capsule collision is not supported yet.
+    return undefined;
   }
 
   private getRayCylinderHit(
