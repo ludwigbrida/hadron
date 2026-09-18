@@ -161,10 +161,14 @@ function update({ elapsedTime, deltaTime }: Frame): void {
       isGrounded = true;
     }
 
-    playerPosition.setXyz(
-      playerPosition[0] + (forwardX * forward + rightX * right) * distance,
-      Math.max(height, groundPosition),
-      playerPosition[2] + (forwardZ * forward + rightZ * right) * distance,
+    playerPosition.setXyz(playerPosition[0], Math.max(height, groundPosition), playerPosition[2]);
+    scene.world.moveAndResolve(
+      player,
+      new Vector3(
+        (forwardX * forward + rightX * right) * distance,
+        0,
+        (forwardZ * forward + rightZ * right) * distance,
+      ),
     );
 
     scene.camera.transform.rotation.setXyz(cameraPitch, -cameraYaw - Math.PI / 2, 0);
