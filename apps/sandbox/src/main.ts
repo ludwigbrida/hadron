@@ -34,6 +34,7 @@ const ground = engine.createGeometry({
 
 const scene = engine.createScene();
 const directionalLight = scene.createDirectionalLight();
+scene.root.addChild(directionalLight);
 scene.setSky(skyTexture);
 const blueMaterial = engine.createMaterial(new Color(0.2, 0.7, 1));
 const redMaterial = engine.createMaterial(new Color(1, 0.3, 0.2));

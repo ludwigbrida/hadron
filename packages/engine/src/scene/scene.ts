@@ -35,11 +35,13 @@ export class Scene {
     return new Node();
   }
 
+  /**
+   * Creates a detached directional light.
+   *
+   * Attach it to the scene graph with {@link Node.addChild}.
+   */
   createDirectionalLight(): DirectionalLight {
-    const light = new DirectionalLight();
-
-    this.root.addChild(light);
-    return light;
+    return new DirectionalLight();
   }
 
   /**
