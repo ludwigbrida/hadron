@@ -7,6 +7,7 @@ import type { Collision } from "./collision.ts";
 import { KinematicBody } from "./kinematic-body.ts";
 import { boxBoxCollision } from "./narrow-phase/box-box-collision.ts";
 import type { CollisionDetails } from "./narrow-phase/collision-details.ts";
+import { sphereSphereCollision } from "./narrow-phase/sphere-sphere-collision.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
 import { SphereCollider } from "./sphere-collider.ts";
 import { StaticBody } from "./static-body.ts";
@@ -113,7 +114,7 @@ export class World {
     }
 
     if (first instanceof SphereCollider && second instanceof SphereCollider) {
-      return this.spheresCollision(first, second);
+      return sphereSphereCollision(first, second);
     }
 
     if (first instanceof BoxCollider && second instanceof SphereCollider) {
@@ -151,27 +152,6 @@ export class World {
     }
 
     return undefined;
-  }
-
-  private spheresCollision(first: SphereCollider, second: SphereCollider): CollisionDetails {
-    const offset = first.getWorldPosition().subtract(second.getWorldPosition());
-    const radius = first.radius + second.radius;
-    const distanceSquared = offset.lengthSquared();
-
-    if (distanceSquared === 0) {
-      // Coincident centers have no geometric separation direction.
-      return {
-        normal: new Vector3(1, 0, 0),
-        penetration: radius,
-      };
-    }
-
-    const distance = Math.sqrt(distanceSquared);
-
-    return {
-      normal: offset.addScaled(offset, 1 / distance - 1),
-      penetration: radius - distance,
-    };
   }
 
   private boxAndSphereCollision(
