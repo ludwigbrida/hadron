@@ -5,6 +5,7 @@ export { Matrix4 } from "./math/matrix4.ts";
 export { Vector3 } from "./math/vector3.ts";
 export { Body } from "./physics/body.ts";
 export { BoxCollider, type BoxColliderOptions } from "./physics/box-collider.ts";
+export { CapsuleCollider, type CapsuleColliderOptions } from "./physics/capsule-collider.ts";
 export { Collider } from "./physics/collider.ts";
 export type { Collision } from "./physics/collision.ts";
 export { KinematicBody } from "./physics/kinematic-body.ts";

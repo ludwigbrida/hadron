@@ -1,6 +1,7 @@
 import { Vector3 } from "../math/vector3.ts";
 import { Body } from "./body.ts";
 import { BoxCollider } from "./box-collider.ts";
+import { CapsuleCollider } from "./capsule-collider.ts";
 import { Collider } from "./collider.ts";
 import type { Collision } from "./collision.ts";
 import { KinematicBody } from "./kinematic-body.ts";
@@ -130,6 +131,23 @@ export class World {
       return this.boxAndSphereCollision(second, first);
     }
 
+    if (first instanceof CapsuleCollider && second instanceof BoxCollider) {
+      return this.capsuleAndBoxCollision(first, second);
+    }
+
+    if (first instanceof BoxCollider && second instanceof CapsuleCollider) {
+      const collision = this.capsuleAndBoxCollision(second, first);
+
+      if (collision === undefined) {
+        return undefined;
+      }
+
+      return {
+        normal: new Vector3(-collision.normal[0], -collision.normal[1], -collision.normal[2]),
+        penetration: collision.penetration,
+      };
+    }
+
     return undefined;
   }
 
@@ -249,6 +267,80 @@ export class World {
       normal,
       penetration: sphere.radius + faceDistance,
     };
+  }
+
+  private capsuleAndBoxCollision(
+    capsule: CapsuleCollider,
+    box: BoxCollider,
+  ): CollisionDetails | undefined {
+    const bounds = box.getWorldBounds();
+    const center = capsule.getWorldPosition();
+    const segmentMinimumY = center[1] - capsule.halfSegmentHeight;
+    const segmentMaximumY = center[1] + capsule.halfSegmentHeight;
+    let capsuleY: number;
+    let boxY: number;
+
+    if (segmentMaximumY < bounds.minimum[1]) {
+      capsuleY = segmentMaximumY;
+      boxY = bounds.minimum[1];
+    } else if (segmentMinimumY > bounds.maximum[1]) {
+      capsuleY = segmentMinimumY;
+      boxY = bounds.maximum[1];
+    } else {
+      capsuleY = Math.max(segmentMinimumY, bounds.minimum[1]);
+      boxY = capsuleY;
+    }
+
+    const closestPoint = new Vector3(
+      Math.max(bounds.minimum[0], Math.min(center[0], bounds.maximum[0])),
+      boxY,
+      Math.max(bounds.minimum[2], Math.min(center[2], bounds.maximum[2])),
+    );
+    const offset = new Vector3(center[0], capsuleY, center[2]).subtract(closestPoint);
+    const distanceSquared = offset.lengthSquared();
+
+    if (distanceSquared !== 0) {
+      const distance = Math.sqrt(distanceSquared);
+
+      if (distance > capsule.radius) {
+        return undefined;
+      }
+
+      return {
+        normal: offset.addScaled(offset, 1 / distance - 1),
+        penetration: capsule.radius - distance,
+      };
+    }
+
+    let normal = new Vector3(-1, 0, 0);
+    let penetration = bounds.maximum[0] - center[0] + capsule.radius;
+
+    if (center[0] - bounds.minimum[0] + capsule.radius < penetration) {
+      normal = new Vector3(1, 0, 0);
+      penetration = center[0] - bounds.minimum[0] + capsule.radius;
+    }
+
+    if (center[1] + capsule.halfSegmentHeight + capsule.radius - bounds.minimum[1] < penetration) {
+      normal = new Vector3(0, -1, 0);
+      penetration = center[1] + capsule.halfSegmentHeight + capsule.radius - bounds.minimum[1];
+    }
+
+    if (bounds.maximum[1] - center[1] + capsule.halfSegmentHeight + capsule.radius < penetration) {
+      normal = new Vector3(0, 1, 0);
+      penetration = bounds.maximum[1] - center[1] + capsule.halfSegmentHeight + capsule.radius;
+    }
+
+    if (bounds.maximum[2] - center[2] + capsule.radius < penetration) {
+      normal = new Vector3(0, 0, -1);
+      penetration = bounds.maximum[2] - center[2] + capsule.radius;
+    }
+
+    if (center[2] - bounds.minimum[2] + capsule.radius < penetration) {
+      normal = new Vector3(0, 0, 1);
+      penetration = center[2] - bounds.minimum[2] + capsule.radius;
+    }
+
+    return { normal, penetration };
   }
 
   private hasOverlappingBounds(first: Collider, second: Collider): boolean {

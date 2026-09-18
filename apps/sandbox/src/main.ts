@@ -106,7 +106,7 @@ wallBody.transform.position.setXyz(0, 1, -6);
 wall.transform.scale.setXyz(16, 8, 1);
 wallBody.addChild(wall);
 wallBody.createBoxCollider({ halfExtents: new Vector3(4, 2, 0.25) });
-player.createBoxCollider({ halfExtents: new Vector3(0.3, 1.5, 0.3) });
+player.createCapsuleCollider({ radius: 0.3, height: 3 });
 player.addChild(scene.camera);
 cubeGroup.addChild(firstMesh).addChild(secondMesh);
 
