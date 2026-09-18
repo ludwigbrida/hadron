@@ -7,6 +7,7 @@ import type { Collision } from "./collision.ts";
 import { KinematicBody } from "./kinematic-body.ts";
 import { boxBoxCollision } from "./narrow-phase/box-box-collision.ts";
 import type { CollisionDetails } from "./narrow-phase/collision-details.ts";
+import { sphereBoxCollision } from "./narrow-phase/sphere-box-collision.ts";
 import { sphereSphereCollision } from "./narrow-phase/sphere-sphere-collision.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
 import { SphereCollider } from "./sphere-collider.ts";
@@ -118,20 +119,21 @@ export class World {
     }
 
     if (first instanceof BoxCollider && second instanceof SphereCollider) {
-      const collision = this.boxAndSphereCollision(first, second);
+      const collision = sphereBoxCollision(second, first);
 
       if (collision === undefined) {
         return undefined;
       }
 
+      // The narrow phase resolves the sphere, so reverse its normal to resolve the box.
       return {
-        normal: new Vector3(-collision.normal[0], -collision.normal[1], -collision.normal[2]),
+        normal: collision.normal.clone().scale(-1),
         penetration: collision.penetration,
       };
     }
 
     if (first instanceof SphereCollider && second instanceof BoxCollider) {
-      return this.boxAndSphereCollision(second, first);
+      return sphereBoxCollision(first, second);
     }
 
     if (first instanceof CapsuleCollider && second instanceof BoxCollider) {
@@ -152,69 +154,6 @@ export class World {
     }
 
     return undefined;
-  }
-
-  private boxAndSphereCollision(
-    box: BoxCollider,
-    sphere: SphereCollider,
-  ): CollisionDetails | undefined {
-    const bounds = box.getWorldBounds();
-    const center = sphere.getWorldPosition();
-
-    const closestPoint = new Vector3(
-      Math.max(bounds.min[0], Math.min(center[0], bounds.max[0])),
-      Math.max(bounds.min[1], Math.min(center[1], bounds.max[1])),
-      Math.max(bounds.min[2], Math.min(center[2], bounds.max[2])),
-    );
-
-    const offset = center.clone().subtract(closestPoint);
-    const distanceSquared = offset.lengthSquared();
-
-    if (distanceSquared !== 0) {
-      const distance = Math.sqrt(distanceSquared);
-
-      if (distance > sphere.radius) {
-        return undefined;
-      }
-
-      return {
-        normal: offset.addScaled(offset, 1 / distance - 1),
-        penetration: sphere.radius - distance,
-      };
-    }
-
-    let normal = new Vector3(-1, 0, 0);
-    let faceDistance = center[0] - bounds.min[0];
-
-    if (bounds.max[0] - center[0] < faceDistance) {
-      normal = new Vector3(1, 0, 0);
-      faceDistance = bounds.max[0] - center[0];
-    }
-
-    if (center[1] - bounds.min[1] < faceDistance) {
-      normal = new Vector3(0, -1, 0);
-      faceDistance = center[1] - bounds.min[1];
-    }
-
-    if (bounds.max[1] - center[1] < faceDistance) {
-      normal = new Vector3(0, 1, 0);
-      faceDistance = bounds.max[1] - center[1];
-    }
-
-    if (center[2] - bounds.min[2] < faceDistance) {
-      normal = new Vector3(0, 0, -1);
-      faceDistance = center[2] - bounds.min[2];
-    }
-
-    if (bounds.max[2] - center[2] < faceDistance) {
-      normal = new Vector3(0, 0, 1);
-      faceDistance = bounds.max[2] - center[2];
-    }
-
-    return {
-      normal,
-      penetration: sphere.radius + faceDistance,
-    };
   }
 
   private capsuleAndBoxCollision(
