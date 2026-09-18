@@ -5,7 +5,7 @@ import { CapsuleCollider } from "./capsule-collider.ts";
 import { Collider } from "./collider.ts";
 import type { Collision } from "./collision.ts";
 import { KinematicBody } from "./kinematic-body.ts";
-import type { CollisionDetails } from "./narrow-phase.ts";
+import type { CollisionDetails } from "./narrow-phase/collision-details.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
 import { SphereCollider } from "./sphere-collider.ts";
 import { StaticBody } from "./static-body.ts";

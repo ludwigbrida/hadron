@@ -1,4 +1,4 @@
-import type { Vector3 } from "../math/vector3.ts";
+import type { Vector3 } from "../../math/vector3.ts";
 
 /**
  * Describes the geometric result of a narrow-phase collision test.
