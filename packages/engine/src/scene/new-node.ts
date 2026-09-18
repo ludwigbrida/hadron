@@ -24,4 +24,16 @@ export class Node {
 
     return this;
   }
+
+  public getComponent<T extends Component>(type: ComponentType<T>): T | undefined {
+    for (const component of this.components) {
+      if (component instanceof type) {
+        return component;
+      }
+    }
+
+    return undefined;
+  }
 }
+
+type ComponentType<T extends Component> = abstract new (...args: never[]) => T;
