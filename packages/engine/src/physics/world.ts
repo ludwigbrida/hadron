@@ -3,8 +3,10 @@ import { Body } from "./body.ts";
 import { BoxCollider } from "./box-collider.ts";
 import { Collider } from "./collider.ts";
 import type { Collision } from "./collision.ts";
+import { KinematicBody } from "./kinematic-body.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
 import { SphereCollider } from "./sphere-collider.ts";
+import { StaticBody } from "./static-body.ts";
 
 export class World {
   private readonly bodies = new Set<Body>();
@@ -50,9 +52,43 @@ export class World {
     }
   }
 
+  /**
+   * Moves a kinematic body and resolves its overlaps with static bodies.
+   *
+   * For now, this is a discrete movement operation and can miss thin colliders when
+   * the requested displacement is large.
+   */
+  public moveAndResolve(body: KinematicBody, displacement: Readonly<Vector3>): Collision[] {
+    const resolvedCollisions: Collision[] = [];
+
+    body.transform.position.addScaled(displacement, 1);
+
+    for (const child of body) {
+      if (!(child instanceof Collider)) {
+        continue;
+      }
+
+      for (const collision of this.collisions(child)) {
+        if (!(collision.collider.parent instanceof StaticBody)) {
+          continue;
+        }
+
+        body.transform.position.addScaled(collision.normal, collision.penetration);
+        resolvedCollisions.push(collision);
+      }
+    }
+
+    return resolvedCollisions;
+  }
+
   public *collisions(collider: Collider): IterableIterator<Collision> {
     for (const other of this.getColliders()) {
-      if (other === collider || !this.hasOverlappingBounds(collider, other)) {
+      // Colliders on the same body form a compound shape, not a collision pair.
+      if (
+        other === collider ||
+        (collider.parent !== undefined && other.parent === collider.parent) ||
+        !this.hasOverlappingBounds(collider, other)
+      ) {
         continue;
       }
 
