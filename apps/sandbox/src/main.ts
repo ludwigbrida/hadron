@@ -153,23 +153,27 @@ function update({ elapsedTime, deltaTime }: Frame): void {
     }
 
     verticalVelocity += gravity * deltaTime;
-    const height = playerPosition[1] + verticalVelocity * deltaTime;
-    const groundPosition = groundHeight + playerEyeHeight;
-
-    if (height <= groundPosition) {
-      verticalVelocity = 0;
-      isGrounded = true;
-    }
-
-    playerPosition.setXyz(playerPosition[0], Math.max(height, groundPosition), playerPosition[2]);
-    scene.world.moveAndResolve(
+    const collisions = scene.world.moveAndResolve(
       player,
       new Vector3(
         (forwardX * forward + rightX * right) * distance,
-        0,
+        verticalVelocity * deltaTime,
         (forwardZ * forward + rightZ * right) * distance,
       ),
     );
+
+    isGrounded = false;
+
+    for (const collision of collisions) {
+      if (collision.normal[1] > 0 && verticalVelocity <= 0) {
+        verticalVelocity = 0;
+        isGrounded = true;
+      }
+
+      if (collision.normal[1] < 0 && verticalVelocity > 0) {
+        verticalVelocity = 0;
+      }
+    }
 
     scene.camera.transform.rotation.setXyz(cameraPitch, -cameraYaw - Math.PI / 2, 0);
   }
