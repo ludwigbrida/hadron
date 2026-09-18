@@ -9,9 +9,7 @@ export class Node {
     }
 
     component.owner?.removeComponent(component);
-
     this.components.add(component);
-
     component.owner = this;
 
     return this;
@@ -33,6 +31,14 @@ export class Node {
     }
 
     return undefined;
+  }
+
+  public *getComponents<T extends Component>(type: ComponentType<T>): IterableIterator<T> {
+    for (const component of this.components) {
+      if (component instanceof type) {
+        yield component;
+      }
+    }
   }
 }
 
