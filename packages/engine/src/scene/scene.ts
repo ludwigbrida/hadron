@@ -54,10 +54,14 @@ export class Scene {
     return body;
   }
 
+  /**
+   * Creates a detached kinematic body and registers it with this scene's physics world.
+   *
+   * Attach it to the scene graph with {@link Node.addChild}.
+   */
   createKinematicBody(): KinematicBody {
     const body = new KinematicBody();
 
-    this.root.addChild(body);
     this.world.addBody(body);
     return body;
   }

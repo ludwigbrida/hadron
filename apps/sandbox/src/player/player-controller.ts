@@ -48,6 +48,7 @@ export class PlayerController {
 
     this.body = scene.createKinematicBody();
     this.body.createCapsuleCollider({ radius: 0.3, height: 3 });
+    scene.root.addChild(this.body);
 
     // The sandbox ground's top surface is at Y = -1.
     this.body.transform.position.setXyz(0, -1 + PlayerController.eyeHeight, 1);
