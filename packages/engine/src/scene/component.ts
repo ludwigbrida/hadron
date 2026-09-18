@@ -1,4 +1,4 @@
-import type { Node } from "./node.ts";
+import type { Node } from "./new-node.ts";
 
 export abstract class Component {
   private ownerNode: Node | undefined;
