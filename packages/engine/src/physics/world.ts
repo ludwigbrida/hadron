@@ -199,12 +199,15 @@ export class World {
       };
     }
 
+    // Start with the lower X face. The capsule center travels to that face,
+    // then one radius farther so its rounded end clears the box.
     let normal = new Vector3(-1, 0, 0);
-    let penetration = bounds.max[0] - center[0] + capsule.radius;
+    let penetration = center[0] - bounds.min[0] + capsule.radius;
 
-    if (center[0] - bounds.min[0] + capsule.radius < penetration) {
+    // Resolve through the upper X face when it is closer.
+    if (bounds.max[0] - center[0] + capsule.radius < penetration) {
       normal = new Vector3(1, 0, 0);
-      penetration = center[0] - bounds.min[0] + capsule.radius;
+      penetration = bounds.max[0] - center[0] + capsule.radius;
     }
 
     if (center[1] + capsule.halfSegmentHeight + capsule.radius - bounds.min[1] < penetration) {
@@ -217,13 +220,15 @@ export class World {
       penetration = bounds.max[1] - center[1] + capsule.halfSegmentHeight + capsule.radius;
     }
 
+    // Compare the upper Z face.
     if (bounds.max[2] - center[2] + capsule.radius < penetration) {
-      normal = new Vector3(0, 0, -1);
+      normal = new Vector3(0, 0, 1);
       penetration = bounds.max[2] - center[2] + capsule.radius;
     }
 
+    // Compare the lower Z face.
     if (center[2] - bounds.min[2] + capsule.radius < penetration) {
-      normal = new Vector3(0, 0, 1);
+      normal = new Vector3(0, 0, -1);
       penetration = center[2] - bounds.min[2] + capsule.radius;
     }
 
