@@ -26,11 +26,13 @@ export class Scene {
     this.root.addChild(this.camera);
   }
 
+  /**
+   * Creates a detached node.
+   *
+   * Attach it to the scene graph with {@link Node.addChild}.
+   */
   createNode(): Node {
-    const node = new Node();
-
-    this.root.addChild(node);
-    return node;
+    return new Node();
   }
 
   createDirectionalLight(): DirectionalLight {
