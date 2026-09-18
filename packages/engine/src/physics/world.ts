@@ -2,6 +2,7 @@ import { Vector3 } from "../math/vector3.ts";
 import { Body } from "./body.ts";
 import { BoxCollider } from "./box-collider.ts";
 import { Collider } from "./collider.ts";
+import type { Collision } from "./collision.ts";
 import type { RaycastHit } from "./raycast-hit.ts";
 import { SphereCollider } from "./sphere-collider.ts";
 
@@ -44,47 +45,117 @@ export class World {
   }
 
   public *overlaps(collider: Collider): IterableIterator<Collider> {
+    for (const collision of this.collisions(collider)) {
+      yield collision.collider;
+    }
+  }
+
+  public *collisions(collider: Collider): IterableIterator<Collision> {
     for (const other of this.getColliders()) {
       if (other === collider || !this.hasOverlappingBounds(collider, other)) {
         continue;
       }
 
-      if (this.collidersOverlap(collider, other)) {
-        yield other;
+      const collision = this.getCollision(collider, other);
+
+      if (collision !== undefined) {
+        yield {
+          collider: other,
+          normal: collision.normal,
+          penetration: collision.penetration,
+        };
       }
     }
   }
 
-  private collidersOverlap(first: Collider, second: Collider): boolean {
-    // box vs. box
+  private getCollision(first: Collider, second: Collider): CollisionDetails | undefined {
     if (first instanceof BoxCollider && second instanceof BoxCollider) {
-      return true;
+      return this.boxesCollision(first, second);
     }
 
-    // sphere vs. sphere
     if (first instanceof SphereCollider && second instanceof SphereCollider) {
-      return this.spheresOverlap(first, second);
+      return this.spheresCollision(first, second);
     }
 
-    // box vs. sphere
     if (first instanceof BoxCollider && second instanceof SphereCollider) {
-      return this.boxAndSphereOverlap(first, second);
-    }
-    if (first instanceof SphereCollider && second instanceof BoxCollider) {
-      return this.boxAndSphereOverlap(second, first);
+      const collision = this.boxAndSphereCollision(first, second);
+
+      if (collision === undefined) {
+        return undefined;
+      }
+
+      return {
+        normal: new Vector3(-collision.normal[0], -collision.normal[1], -collision.normal[2]),
+        penetration: collision.penetration,
+      };
     }
 
-    return false;
+    if (first instanceof SphereCollider && second instanceof BoxCollider) {
+      return this.boxAndSphereCollision(second, first);
+    }
+
+    return undefined;
   }
 
-  private spheresOverlap(first: SphereCollider, second: SphereCollider): boolean {
+  private boxesCollision(first: BoxCollider, second: BoxCollider): CollisionDetails {
+    const firstBounds = first.getWorldBounds();
+    const secondBounds = second.getWorldBounds();
+    const overlaps = new Vector3(
+      Math.min(firstBounds.maximum[0], secondBounds.maximum[0]) -
+        Math.max(firstBounds.minimum[0], secondBounds.minimum[0]),
+      Math.min(firstBounds.maximum[1], secondBounds.maximum[1]) -
+        Math.max(firstBounds.minimum[1], secondBounds.minimum[1]),
+      Math.min(firstBounds.maximum[2], secondBounds.maximum[2]) -
+        Math.max(firstBounds.minimum[2], secondBounds.minimum[2]),
+    );
+    const firstCenter = first.getWorldPosition();
+    const secondCenter = second.getWorldPosition();
+
+    if (overlaps[0] <= overlaps[1] && overlaps[0] <= overlaps[2]) {
+      return {
+        normal: new Vector3(firstCenter[0] < secondCenter[0] ? -1 : 1, 0, 0),
+        penetration: overlaps[0],
+      };
+    }
+
+    if (overlaps[1] <= overlaps[2]) {
+      return {
+        normal: new Vector3(0, firstCenter[1] < secondCenter[1] ? -1 : 1, 0),
+        penetration: overlaps[1],
+      };
+    }
+
+    return {
+      normal: new Vector3(0, 0, firstCenter[2] < secondCenter[2] ? -1 : 1),
+      penetration: overlaps[2],
+    };
+  }
+
+  private spheresCollision(first: SphereCollider, second: SphereCollider): CollisionDetails {
     const offset = first.getWorldPosition().subtract(second.getWorldPosition());
     const radius = first.radius + second.radius;
+    const distanceSquared = offset.lengthSquared();
 
-    return offset.lengthSquared() <= radius * radius;
+    if (distanceSquared === 0) {
+      // Coincident centers have no geometric separation direction.
+      return {
+        normal: new Vector3(1, 0, 0),
+        penetration: radius,
+      };
+    }
+
+    const distance = Math.sqrt(distanceSquared);
+
+    return {
+      normal: offset.addScaled(offset, 1 / distance - 1),
+      penetration: radius - distance,
+    };
   }
 
-  private boxAndSphereOverlap(box: BoxCollider, sphere: SphereCollider): boolean {
+  private boxAndSphereCollision(
+    box: BoxCollider,
+    sphere: SphereCollider,
+  ): CollisionDetails | undefined {
     const bounds = box.getWorldBounds();
     const center = sphere.getWorldPosition();
 
@@ -94,9 +165,54 @@ export class World {
       Math.max(bounds.minimum[2], Math.min(center[2], bounds.maximum[2])),
     );
 
-    const distanceSquared = center.clone().subtract(closestPoint).lengthSquared();
+    const offset = center.clone().subtract(closestPoint);
+    const distanceSquared = offset.lengthSquared();
 
-    return distanceSquared <= sphere.radius * sphere.radius;
+    if (distanceSquared !== 0) {
+      const distance = Math.sqrt(distanceSquared);
+
+      if (distance > sphere.radius) {
+        return undefined;
+      }
+
+      return {
+        normal: offset.addScaled(offset, 1 / distance - 1),
+        penetration: sphere.radius - distance,
+      };
+    }
+
+    let normal = new Vector3(-1, 0, 0);
+    let faceDistance = center[0] - bounds.minimum[0];
+
+    if (bounds.maximum[0] - center[0] < faceDistance) {
+      normal = new Vector3(1, 0, 0);
+      faceDistance = bounds.maximum[0] - center[0];
+    }
+
+    if (center[1] - bounds.minimum[1] < faceDistance) {
+      normal = new Vector3(0, -1, 0);
+      faceDistance = center[1] - bounds.minimum[1];
+    }
+
+    if (bounds.maximum[1] - center[1] < faceDistance) {
+      normal = new Vector3(0, 1, 0);
+      faceDistance = bounds.maximum[1] - center[1];
+    }
+
+    if (center[2] - bounds.minimum[2] < faceDistance) {
+      normal = new Vector3(0, 0, -1);
+      faceDistance = center[2] - bounds.minimum[2];
+    }
+
+    if (bounds.maximum[2] - center[2] < faceDistance) {
+      normal = new Vector3(0, 0, 1);
+      faceDistance = bounds.maximum[2] - center[2];
+    }
+
+    return {
+      normal,
+      penetration: sphere.radius + faceDistance,
+    };
   }
 
   private hasOverlappingBounds(first: Collider, second: Collider): boolean {
@@ -126,4 +242,9 @@ export class World {
       }
     }
   }
+}
+
+interface CollisionDetails {
+  readonly normal: Vector3;
+  readonly penetration: number;
 }
