@@ -56,6 +56,10 @@ export class Node {
     return this.parentNode;
   }
 
+  public get children(): ReadonlySet<Node> {
+    return this.childNodes;
+  }
+
   public addChild(child: Node): this {
     if (child === this || this.isDescendantOf(child)) {
       throw new Error("A node cannot be its own ancestor.");
