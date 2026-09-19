@@ -1,7 +1,7 @@
 import { Matrix4 } from "../math/matrix4.ts";
-import { Node } from "./node.ts";
+import { Component } from "./component.ts";
 
-export class Camera extends Node {
+export class Camera extends Component {
   private fovY = Math.PI / 3;
   private near = 0.1;
   private far = 100;
@@ -28,7 +28,7 @@ export class Camera extends Node {
   }
 
   getViewProjection(): Readonly<Matrix4> {
-    this.view.setInverse(this.getWorldMatrix());
+    this.view.setInverse(this.owner!.worldMatrix);
     this.viewProjection.setMultiply(this.projection, this.view);
     return this.viewProjection;
   }

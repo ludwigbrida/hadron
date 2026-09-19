@@ -1,4 +1,4 @@
-import type { Node } from "./new-node.ts";
+import type { Node } from "./node.ts";
 import type { Scene } from "./scene.ts";
 
 export abstract class Component {

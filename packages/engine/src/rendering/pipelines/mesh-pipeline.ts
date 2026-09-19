@@ -167,8 +167,8 @@ export class MeshPipeline {
     this.device.queue.writeBuffer(this.ambientLightBuffer, 0, scene.ambientLight);
     this.device.queue.writeBuffer(this.directionalLightColorBuffer, 0, this.directionalLightColor);
 
-    for (const mesh of scene) {
-      const worldMatrix = mesh.getWorldMatrix();
+    for (const mesh of scene.getMeshes()) {
+      const worldMatrix = mesh.owner!.worldMatrix;
 
       this.device.queue.writeBuffer(mesh.transformBuffer, 0, worldMatrix);
 
@@ -180,7 +180,7 @@ export class MeshPipeline {
     pass.setPipeline(this.pipeline);
     pass.setBindGroup(0, this.renderBindGroup);
 
-    for (const mesh of scene) {
+    for (const mesh of scene.getMeshes()) {
       pass.setBindGroup(1, mesh.material.bindGroup);
       pass.setBindGroup(2, mesh.bindGroup);
       pass.setVertexBuffer(0, mesh.geometry.vertexBuffer);

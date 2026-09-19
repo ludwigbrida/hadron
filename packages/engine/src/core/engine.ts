@@ -106,9 +106,9 @@ export class Engine {
   }
 
   /**
-   * Creates a detached mesh.
+   * Creates a detached mesh component.
    *
-   * Attach it to a scene node with {@link Node.addChild} before rendering it.
+   * Attach it to a scene node with {@link Node.addComponent} before rendering it.
    */
   createMesh(geometry: Geometry, material: Material): Mesh {
     const mesh = this.renderer.createMesh(geometry, material);

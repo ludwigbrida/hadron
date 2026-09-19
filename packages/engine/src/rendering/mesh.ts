@@ -1,10 +1,11 @@
 import { Matrix4 } from "../math/matrix4.ts";
-import { Node } from "../scene/node.ts";
+import { Component } from "../scene/component.ts";
 import type { Geometry } from "./geometry.ts";
 import type { Material } from "./material.ts";
 
-export class Mesh extends Node {
-  private constructor(
+export class Mesh extends Component {
+  /** @internal */
+  public constructor(
     readonly geometry: Geometry,
     readonly material: Material,
     readonly transformBuffer: GPUBuffer,

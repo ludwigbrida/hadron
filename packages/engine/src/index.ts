@@ -29,7 +29,7 @@ export type { Geometry, GeometryData } from "./rendering/geometry.ts";
 export type { Material, MaterialOptions } from "./rendering/material.ts";
 export type { Mesh } from "./rendering/mesh.ts";
 export type { Texture, TextureOptions } from "./rendering/texture.ts";
-export type { Camera } from "./scene/camera.ts";
+export { Camera } from "./scene/camera.ts";
 export { Component } from "./scene/component.ts";
 export type { DirectionalLight } from "./scene/directional-light.ts";
 export type { Node } from "./scene/node.ts";

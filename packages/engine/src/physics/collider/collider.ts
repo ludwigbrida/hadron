@@ -1,13 +1,13 @@
 import type { Aabb } from "../../math/aabb.ts";
 import { Vector3 } from "../../math/vector3.ts";
-import { Node } from "../../scene/node.ts";
+import { Component } from "../../scene/component.ts";
 import type { Collision } from "../collision/collision.ts";
 import type { RaycastHit } from "../query/raycast-hit.ts";
 import type { BoxCollider } from "./box-collider.ts";
 import type { CapsuleCollider } from "./capsule-collider.ts";
 import type { SphereCollider } from "./sphere-collider.ts";
 
-export abstract class Collider extends Node {
+export abstract class Collider extends Component {
   abstract raycast(origin: Readonly<Vector3>, direction: Readonly<Vector3>): RaycastHit | undefined;
 
   abstract getWorldBounds(): Aabb;
@@ -44,7 +44,7 @@ export abstract class Collider extends Node {
 
   // TODO: widen this method to parent class
   getWorldPosition(): Vector3 {
-    const matrix = this.getWorldMatrix();
+    const matrix = this.owner!.worldMatrix;
 
     // TODO: realize transform reconstruction through matrix class
     return new Vector3(matrix[12], matrix[13], matrix[14]);

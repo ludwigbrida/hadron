@@ -1,4 +1,5 @@
 import {
+  BoxCollider,
   type Engine,
   type Geometry,
   type Material,
@@ -27,18 +28,20 @@ export function createStaticBox(
   material: Material,
   options: StaticBoxOptions,
 ): StaticBody {
+  const node = scene.createNode();
   const body = scene.createStaticBody();
   const mesh = engine.createMesh(cube, material);
 
-  body.transform.position.setXyz(options.position[0], options.position[1], options.position[2]);
-  mesh.transform.scale.setXyz(
+  node.transform.position.setXyz(options.position[0], options.position[1], options.position[2]);
+  node.transform.scale.setXyz(
     options.halfExtents[0] / cubeHalfExtent,
     options.halfExtents[1] / cubeHalfExtent,
     options.halfExtents[2] / cubeHalfExtent,
   );
-  body.addChild(mesh);
-  body.createBoxCollider({ halfExtents: options.halfExtents });
-  scene.root.addChild(body);
+  node.addComponent(mesh);
+  node.addComponent(body);
+  node.addComponent(new BoxCollider({ halfExtents: options.halfExtents }));
+  scene.root.addChild(node);
 
   return body;
 }

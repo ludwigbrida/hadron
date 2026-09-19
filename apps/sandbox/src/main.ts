@@ -1,4 +1,4 @@
-import { Color, Engine, Vector3, type Frame } from "@hadron/engine";
+import { BoxCollider, Color, Engine, Vector3, type Frame } from "@hadron/engine";
 import { loadCubeTexture, loadTexture } from "./assets/load-texture.ts";
 import "./main.css";
 import { PlayerController } from "./player/player-controller.ts";
@@ -34,7 +34,9 @@ const ground = engine.createGeometry({
 
 const scene = engine.createScene();
 const directionalLight = scene.createDirectionalLight();
-scene.root.addChild(directionalLight);
+const directionalLightNode = scene.createNode();
+directionalLightNode.addComponent(directionalLight);
+scene.root.addChild(directionalLightNode);
 scene.setSky(skyTexture);
 const blueMaterial = engine.createMaterial(new Color(0.2, 0.7, 1));
 const redMaterial = engine.createMaterial(new Color(1, 0.3, 0.2));
@@ -42,18 +44,23 @@ const groundMaterial = engine.createMaterial(new Color(1, 1, 1), {
   baseColorTexture: groundTexture,
 });
 const cubeGroup = scene.createNode();
+const firstNode = scene.createNode();
+const secondNode = scene.createNode();
 const firstMesh = engine.createMesh(cube, blueMaterial);
 const secondMesh = engine.createMesh(cube, redMaterial);
 const groundMesh = engine.createMesh(ground, groundMaterial);
 const groundBody = scene.createStaticBody();
+const groundNode = scene.createNode();
 const player = new PlayerController(scene, engine.input);
 
-firstMesh.transform.position.setXyz(0.5, 0, -2);
-firstMesh.transform.scale.setXyz(1, 1.5, 1);
-secondMesh.transform.position.setXyz(-0.5, 0, -2);
-secondMesh.transform.scale.setXyz(1.5, 1, 1);
-groundBody.transform.position.setXyz(0, -1.25, 0);
-groundBody.createBoxCollider({ halfExtents: new Vector3(10, 0.25, 10) });
+firstNode.transform.position.setXyz(0.5, 0, -2);
+firstNode.transform.scale.setXyz(1, 1.5, 1);
+secondNode.transform.position.setXyz(-0.5, 0, -2);
+secondNode.transform.scale.setXyz(1.5, 1, 1);
+groundNode.transform.position.setXyz(0, -1.25, 0);
+groundNode.addComponent(groundMesh);
+groundNode.addComponent(groundBody);
+groundNode.addComponent(new BoxCollider({ halfExtents: new Vector3(10, 0.25, 10) }));
 
 createPyramid(engine, scene, cube, groundMaterial);
 
@@ -61,12 +68,13 @@ createStaticBox(engine, scene, cube, groundMaterial, {
   halfExtents: new Vector3(4, 2, 0.25),
   position: new Vector3(0, 1, -9),
 });
-cubeGroup.addChild(firstMesh).addChild(secondMesh);
+firstNode.addComponent(firstMesh);
+secondNode.addComponent(secondMesh);
+cubeGroup.addChild(firstNode).addChild(secondNode);
 scene.root.addChild(cubeGroup);
-scene.root.addChild(groundMesh);
-scene.root.addChild(groundBody);
+scene.root.addChild(groundNode);
 
-directionalLight.transform.rotation.setXyz(-0.62, 0.46, 0);
+directionalLightNode.transform.rotation.setXyz(-0.62, 0.46, 0);
 
 canvas.addEventListener("click", () => {
   void engine.input.requestPointerLock();
@@ -75,8 +83,8 @@ canvas.addEventListener("click", () => {
 function update({ elapsedTime, deltaTime }: Frame): void {
   player.update(deltaTime);
 
-  firstMesh.transform.rotation.setXyz(elapsedTime / 1.5, elapsedTime, elapsedTime / 2);
-  secondMesh.transform.rotation.setXyz(-elapsedTime / 1.2, -elapsedTime / 2, -elapsedTime / 1.5);
+  firstNode.transform.rotation.setXyz(elapsedTime / 1.5, elapsedTime, elapsedTime / 2);
+  secondNode.transform.rotation.setXyz(-elapsedTime / 1.2, -elapsedTime / 2, -elapsedTime / 1.5);
   cubeGroup.transform.rotation.setXyz(0, elapsedTime / 4, 0);
 }
 

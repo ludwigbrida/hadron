@@ -1,88 +1,146 @@
 import { Matrix4 } from "../math/matrix4.ts";
+import { Component } from "./component.ts";
+import type { Scene } from "./scene.ts";
 import { Transform } from "./transform.ts";
 
-/** @internal */
-export interface NodeTree {
-  onNodeAttached(node: Node): void;
-  onNodeDetached(node: Node): void;
-}
-
 export class Node {
-  readonly transform = new Transform();
-  private readonly childNodes = new Set<Node>();
-  private readonly worldMatrix = new Matrix4();
-  private parentNode: Node | undefined;
-  private tree: NodeTree | undefined;
+  public readonly transform = new Transform();
+  private readonly _worldMatrix = new Matrix4();
 
-  get parent(): Node | undefined {
+  private hostScene: Scene | undefined;
+  private parentNode: Node | undefined;
+  private readonly childNodes = new Set<Node>();
+
+  private readonly components = new Set<Component>();
+
+  public get host(): Scene | undefined {
+    return this.hostScene;
+  }
+
+  public get worldMatrix(): Readonly<Matrix4> {
+    const parent = this.parent;
+
+    if (parent === undefined) {
+      return this.transform.getMatrix();
+    }
+
+    return this._worldMatrix.setMultiply(parent.worldMatrix, this.transform.getMatrix());
+  }
+
+  /** @internal */
+  public set host(scene: Scene | undefined) {
+    if (scene === this.hostScene) {
+      return;
+    }
+
+    const previousScene = this.host;
+
+    if (previousScene !== undefined) {
+      for (const component of this.getComponents(Component)) {
+        component.notifyExitScene(previousScene);
+      }
+    }
+
+    this.hostScene = scene;
+
+    if (scene !== undefined) {
+      for (const component of this.getComponents(Component)) {
+        component.notifyEnterScene(scene);
+      }
+    }
+
+    for (const child of this.childNodes) {
+      child.host = scene;
+    }
+  }
+
+  public get parent(): Node | undefined {
     return this.parentNode;
   }
 
-  addChild(child: Node): this {
+  public get children(): ReadonlySet<Node> {
+    return this.childNodes;
+  }
+
+  public addChild(child: Node): this {
     if (child === this || this.isDescendantOf(child)) {
       throw new Error("A node cannot be its own ancestor.");
     }
 
-    // Leaving the previous parent also deactivates the child's scene-tree subtree.
+    // Removing a child from its previous parent also removes its scene membership.
     child.parentNode?.removeChild(child);
 
-    // The child inherits this node's tree, which activates any bodies it contains.
     this.childNodes.add(child);
     child.parentNode = this;
-    child.setTree(this.tree);
+    child.host = this.host;
 
     return this;
   }
 
-  removeChild(child: Node): this {
+  public removeChild(child: Node): this {
     if (this.childNodes.delete(child)) {
-      // Detach the subtree before clearing its parent so scene lifecycle observers
-      // can remove any bodies that are no longer part of the scene.
-      child.setTree(undefined);
+      child.host = undefined;
       child.parentNode = undefined;
     }
 
     return this;
   }
 
-  getWorldMatrix(): Readonly<Matrix4> {
-    const parent = this.parentNode;
-
-    if (!parent) {
-      return this.transform.getMatrix();
+  public addComponent(component: Component): this {
+    if (component.owner === this) {
+      return this;
     }
 
-    return this.worldMatrix.setMultiply(parent.getWorldMatrix(), this.transform.getMatrix());
-  }
+    component.owner?.removeComponent(component);
+    this.components.add(component);
+    component.owner = this;
 
-  [Symbol.iterator](): IterableIterator<Node> {
-    return this.childNodes.values();
-  }
-
-  /** @internal */
-  setTree(tree: NodeTree | undefined): void {
-    if (tree === this.tree) {
-      return;
+    if (this.host !== undefined) {
+      component.notifyEnterScene(this.host);
     }
 
-    this.tree?.onNodeDetached(this);
-    this.tree = tree;
-    this.tree?.onNodeAttached(this);
+    return this;
+  }
 
-    // Descendants share their ancestor's scene membership.
-    for (const child of this.childNodes) {
-      child.setTree(tree);
+  public removeComponent(component: Component): this {
+    if (this.components.delete(component)) {
+      if (this.host !== undefined) {
+        component.notifyExitScene(this.host);
+      }
+
+      component.owner = undefined;
+    }
+
+    return this;
+  }
+
+  public getComponent<T extends Component>(type: ComponentType<T>): T | undefined {
+    for (const component of this.components) {
+      if (component instanceof type) {
+        return component;
+      }
+    }
+
+    return undefined;
+  }
+
+  public *getComponents<T extends Component>(type: ComponentType<T>): IterableIterator<T> {
+    for (const component of this.components) {
+      if (component instanceof type) {
+        yield component;
+      }
     }
   }
 
   private isDescendantOf(node: Node): boolean {
-    // walk the ancestry tree upwards until reaching the root node
+    // Walk the ancestry tree upwards until reaching the root node.
     for (let ancestor: Node | undefined = this; ancestor; ancestor = ancestor.parentNode) {
       if (ancestor === node) {
         return true;
       }
     }
-
     return false;
   }
 }
+
+type ComponentType<T extends Component> = abstract new (...args: never[]) => T;

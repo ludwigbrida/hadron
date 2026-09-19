@@ -1,4 +1,5 @@
 import {
+  CapsuleCollider,
   KeyboardKey,
   Vector3,
   type ActionMap,
@@ -25,6 +26,7 @@ export class PlayerController {
 
   private readonly actions: ActionMap<PlayerAction>;
   private readonly body;
+  private readonly bodyNode;
   private readonly displacement = new Vector3();
   private yaw = -Math.PI / 2;
   private pitch = Math.atan2(-0.5, 3);
@@ -47,14 +49,18 @@ export class PlayerController {
     this.actions.bindAction(PlayerAction.Jump, [KeyboardKey.Space]);
 
     this.body = scene.createKinematicBody();
-    this.body.createCapsuleCollider({ radius: 0.3, height: 3 });
-    scene.root.addChild(this.body);
+    this.bodyNode = scene.createNode();
+    this.bodyNode.addComponent(this.body);
+    this.bodyNode.addComponent(new CapsuleCollider({ radius: 0.3, height: 3 }));
+    scene.root.addChild(this.bodyNode);
 
     // The sandbox ground's top surface is at Y = -1.
-    this.body.transform.position.setXyz(0, -1 + PlayerController.eyeHeight, 1);
-    this.body.addChild(scene.camera);
+    this.bodyNode.transform.position.setXyz(0, -1 + PlayerController.eyeHeight, 1);
+    const cameraNode = scene.createNode();
+    cameraNode.addComponent(scene.camera);
+    this.bodyNode.addChild(cameraNode);
 
-    scene.camera.transform.rotation.setXyz(this.pitch, -this.yaw - Math.PI / 2, 0);
+    cameraNode.transform.rotation.setXyz(this.pitch, -this.yaw - Math.PI / 2, 0);
     scene.camera.setPerspective(Math.PI / 3, 0.1, 100);
   }
 
@@ -65,7 +71,7 @@ export class PlayerController {
 
     this.updateLook();
     this.updateMovement(deltaTime);
-    this.scene.camera.transform.rotation.setXyz(this.pitch, -this.yaw - Math.PI / 2, 0);
+    this.scene.camera.owner!.transform.rotation.setXyz(this.pitch, -this.yaw - Math.PI / 2, 0);
   }
 
   private updateLook(): void {

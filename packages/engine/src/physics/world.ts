@@ -61,19 +61,17 @@ export class World {
   public moveAndResolve(body: KinematicBody, displacement: Readonly<Vector3>): Collision[] {
     const resolvedCollisions: Collision[] = [];
 
-    body.transform.position.addScaled(displacement, 1);
+    const node = body.owner!;
 
-    for (const child of body) {
-      if (!(child instanceof Collider)) {
-        continue;
-      }
+    node.transform.position.addScaled(displacement, 1);
 
-      for (const collision of this.collisions(child)) {
-        if (!(collision.collider.parent instanceof StaticBody)) {
+    for (const collider of node.getComponents(Collider)) {
+      for (const collision of this.collisions(collider)) {
+        if (!collision.collider.owner?.getComponent(StaticBody)) {
           continue;
         }
 
-        body.transform.position.addScaled(collision.normal, collision.penetration);
+        node.transform.position.addScaled(collision.normal, collision.penetration);
         resolvedCollisions.push(collision);
       }
     }
@@ -97,11 +95,7 @@ export class World {
 
   *getColliders(): IterableIterator<Collider> {
     for (const body of this.bodies) {
-      for (const child of body) {
-        if (child instanceof Collider) {
-          yield child;
-        }
-      }
+      yield* body.owner!.getComponents(Collider);
     }
   }
 }

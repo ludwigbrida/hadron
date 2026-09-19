@@ -19,10 +19,7 @@ export class BruteForceBroadPhase implements BroadPhase {
     for (const candidate of colliders) {
       // A collider cannot collide with itself. Colliders on one body form a
       // compound shape and therefore are not treated as a collision pair.
-      if (
-        candidate === query ||
-        (query.parent !== undefined && candidate.parent === query.parent)
-      ) {
+      if (candidate === query || (query.owner !== undefined && candidate.owner === query.owner)) {
         continue;
       }
 
