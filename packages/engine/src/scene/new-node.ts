@@ -1,9 +1,11 @@
+import { Matrix4 } from "../math/matrix4.ts";
 import { Component } from "./component.ts";
 import type { Scene } from "./scene.ts";
 import { Transform } from "./transform.ts";
 
 export class Node {
   public readonly transform = new Transform();
+  private readonly _worldMatrix = new Matrix4();
 
   private hostScene: Scene | undefined;
   private parentNode: Node | undefined;
@@ -13,6 +15,16 @@ export class Node {
 
   public get host(): Scene | undefined {
     return this.hostScene;
+  }
+
+  public get worldMatrix(): Readonly<Matrix4> {
+    const parent = this.parent;
+
+    if (parent === undefined) {
+      return this.transform.getMatrix();
+    }
+
+    return this._worldMatrix.setMultiply(parent.worldMatrix, this.transform.getMatrix());
   }
 
   /** @internal */
