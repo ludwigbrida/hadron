@@ -1,6 +1,7 @@
 import {
   CapsuleCollider,
   KeyboardKey,
+  KinematicBody,
   Vector3,
   type ActionMap,
   type Collision,
@@ -48,7 +49,7 @@ export class PlayerController {
     });
     this.actions.bindAction(PlayerAction.Jump, [KeyboardKey.Space]);
 
-    this.body = scene.createKinematicBody();
+    this.body = new KinematicBody();
     this.bodyNode = scene.createNode();
     this.bodyNode.addComponent(this.body);
     this.bodyNode.addComponent(new CapsuleCollider({ radius: 0.3, height: 3 }));

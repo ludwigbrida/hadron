@@ -1,10 +1,10 @@
 import {
   BoxCollider,
+  StaticBody,
   type Engine,
   type Geometry,
   type Material,
   type Scene,
-  type StaticBody,
   type Vector3,
 } from "@hadron/engine";
 
@@ -29,7 +29,7 @@ export function createStaticBox(
   options: StaticBoxOptions,
 ): StaticBody {
   const node = scene.createNode();
-  const body = scene.createStaticBody();
+  const body = new StaticBody();
   const mesh = engine.createMesh(cube, material);
 
   node.transform.position.setXyz(options.position[0], options.position[1], options.position[2]);

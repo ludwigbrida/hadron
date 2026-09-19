@@ -1,5 +1,3 @@
-import { KinematicBody } from "../physics/body/kinematic-body.ts";
-import { StaticBody } from "../physics/body/static-body.ts";
 import { World } from "../physics/world.ts";
 import { Color } from "../rendering/color.ts";
 import type { CubeTexture } from "../rendering/cube-texture.ts";
@@ -30,21 +28,6 @@ export class Scene {
   /** Creates a detached hierarchy node. */
   public createNode(): Node {
     return new Node();
-  }
-
-  /** Creates a detached directional-light component. */
-  public createDirectionalLight(): DirectionalLight {
-    return new DirectionalLight();
-  }
-
-  /** Creates a detached static-body component. */
-  public createStaticBody(): StaticBody {
-    return new StaticBody();
-  }
-
-  /** Creates a detached kinematic-body component. */
-  public createKinematicBody(): KinematicBody {
-    return new KinematicBody();
   }
 
   public setSky(texture: CubeTexture): this {

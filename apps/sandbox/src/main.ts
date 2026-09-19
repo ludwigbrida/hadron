@@ -1,4 +1,12 @@
-import { BoxCollider, Color, Engine, Vector3, type Frame } from "@hadron/engine";
+import {
+  BoxCollider,
+  Color,
+  DirectionalLight,
+  Engine,
+  StaticBody,
+  Vector3,
+  type Frame,
+} from "@hadron/engine";
 import { loadCubeTexture, loadTexture } from "./assets/load-texture.ts";
 import "./main.css";
 import { PlayerController } from "./player/player-controller.ts";
@@ -33,7 +41,7 @@ const ground = engine.createGeometry({
 });
 
 const scene = engine.createScene();
-const directionalLight = scene.createDirectionalLight();
+const directionalLight = new DirectionalLight();
 const directionalLightNode = scene.createNode();
 directionalLightNode.addComponent(directionalLight);
 scene.root.addChild(directionalLightNode);
@@ -49,7 +57,7 @@ const secondNode = scene.createNode();
 const firstMesh = engine.createMesh(cube, blueMaterial);
 const secondMesh = engine.createMesh(cube, redMaterial);
 const groundMesh = engine.createMesh(ground, groundMaterial);
-const groundBody = scene.createStaticBody();
+const groundBody = new StaticBody();
 const groundMeshNode = scene.createNode();
 const groundNode = scene.createNode();
 const player = new PlayerController(scene, engine.input);

@@ -31,7 +31,7 @@ export type { Mesh } from "./rendering/mesh.ts";
 export type { Texture, TextureOptions } from "./rendering/texture.ts";
 export { Camera } from "./scene/camera.ts";
 export { Component } from "./scene/component.ts";
-export type { DirectionalLight } from "./scene/directional-light.ts";
+export { DirectionalLight } from "./scene/directional-light.ts";
 export type { Node } from "./scene/node.ts";
 export type { Scene } from "./scene/scene.ts";
 export type { Transform } from "./scene/transform.ts";
