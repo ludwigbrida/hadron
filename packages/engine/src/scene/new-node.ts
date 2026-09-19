@@ -5,29 +5,29 @@ import { Transform } from "./transform.ts";
 export class Node {
   public readonly transform = new Transform();
 
-  private sceneRef: Scene | undefined;
-  private parentRef: Node | undefined;
-  private readonly childRefs = new Set<Node>();
+  private hostScene: Scene | undefined;
+  private parentNode: Node | undefined;
+  private readonly childNodes = new Set<Node>();
 
   private readonly components = new Set<Component>();
 
-  public get scene(): Scene | undefined {
-    return this.sceneRef;
+  public get host(): Scene | undefined {
+    return this.hostScene;
   }
 
   /** @internal */
-  public set scene(scene: Scene | undefined) {
-    if (scene === this.sceneRef) {
+  public set host(scene: Scene | undefined) {
+    if (scene === this.hostScene) {
       return;
     }
 
-    if (this.sceneRef !== undefined) {
+    if (this.hostScene !== undefined) {
       for (const component of this.getComponents(Component)) {
         component.notifyExitScene();
       }
     }
 
-    this.sceneRef = scene;
+    this.hostScene = scene;
 
     if (scene !== undefined) {
       for (const component of this.getComponents(Component)) {
@@ -35,13 +35,13 @@ export class Node {
       }
     }
 
-    for (const child of this.childRefs) {
-      child.scene = scene;
+    for (const child of this.childNodes) {
+      child.host = scene;
     }
   }
 
   public get parent(): Node | undefined {
-    return this.parentRef;
+    return this.parentNode;
   }
 
   public addChild(child: Node): this {
@@ -50,19 +50,19 @@ export class Node {
     }
 
     // Removing a child from its previous parent also removes its scene membership.
-    child.parentRef?.removeChild(child);
+    child.parentNode?.removeChild(child);
 
-    this.childRefs.add(child);
-    child.parentRef = this;
-    child.scene = this.scene;
+    this.childNodes.add(child);
+    child.parentNode = this;
+    child.host = this.host;
 
     return this;
   }
 
   public removeChild(child: Node): this {
-    if (this.childRefs.delete(child)) {
-      child.scene = undefined;
-      child.parentRef = undefined;
+    if (this.childNodes.delete(child)) {
+      child.host = undefined;
+      child.parentNode = undefined;
     }
 
     return this;
@@ -77,11 +77,19 @@ export class Node {
     this.components.add(component);
     component.owner = this;
 
+    if (this.host !== undefined) {
+      component.notifyEnterScene();
+    }
+
     return this;
   }
 
   public removeComponent(component: Component): this {
     if (this.components.delete(component)) {
+      if (this.host !== undefined) {
+        component.notifyExitScene();
+      }
+
       component.owner = undefined;
     }
 
@@ -108,7 +116,7 @@ export class Node {
 
   private isDescendantOf(node: Node): boolean {
     // Walk the ancestry tree upwards until reaching the root node.
-    for (let ancestor: Node | undefined = this; ancestor; ancestor = ancestor.parentRef) {
+    for (let ancestor: Node | undefined = this; ancestor; ancestor = ancestor.parentNode) {
       if (ancestor === node) {
         return true;
       }
