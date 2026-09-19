@@ -50,6 +50,7 @@ const firstMesh = engine.createMesh(cube, blueMaterial);
 const secondMesh = engine.createMesh(cube, redMaterial);
 const groundMesh = engine.createMesh(ground, groundMaterial);
 const groundBody = scene.createStaticBody();
+const groundMeshNode = scene.createNode();
 const groundNode = scene.createNode();
 const player = new PlayerController(scene, engine.input);
 
@@ -58,9 +59,9 @@ firstNode.transform.scale.setXyz(1, 1.5, 1);
 secondNode.transform.position.setXyz(-0.5, 0, -2);
 secondNode.transform.scale.setXyz(1.5, 1, 1);
 groundNode.transform.position.setXyz(0, -1.25, 0);
-groundNode.addComponent(groundMesh);
 groundNode.addComponent(groundBody);
 groundNode.addComponent(new BoxCollider({ halfExtents: new Vector3(10, 0.25, 10) }));
+groundMeshNode.addComponent(groundMesh);
 
 createPyramid(engine, scene, cube, groundMaterial);
 
@@ -72,6 +73,7 @@ firstNode.addComponent(firstMesh);
 secondNode.addComponent(secondMesh);
 cubeGroup.addChild(firstNode).addChild(secondNode);
 scene.root.addChild(cubeGroup);
+scene.root.addChild(groundMeshNode);
 scene.root.addChild(groundNode);
 
 directionalLightNode.transform.rotation.setXyz(-0.62, 0.46, 0);
