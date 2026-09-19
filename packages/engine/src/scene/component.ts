@@ -1,4 +1,5 @@
 import type { Node } from "./new-node.ts";
+import type { Scene } from "./scene.ts";
 
 export abstract class Component {
   private ownerNode: Node | undefined;
@@ -26,20 +27,20 @@ export abstract class Component {
   /**
    * Called after this component's node enters the scene.
    */
-  protected onEnterScene(): void {}
+  protected onEnterScene(_scene: Scene): void {}
 
   /**
    * Called before this component's node leaves the scene.
    */
-  protected onExitScene(): void {}
+  protected onExitScene(_scene: Scene): void {}
 
   /** @internal */
-  public notifyEnterScene(): void {
-    this.onEnterScene();
+  public notifyEnterScene(scene: Scene): void {
+    this.onEnterScene(scene);
   }
 
   /** @internal */
-  public notifyExitScene(): void {
-    this.onExitScene();
+  public notifyExitScene(scene: Scene): void {
+    this.onExitScene(scene);
   }
 }

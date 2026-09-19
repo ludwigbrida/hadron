@@ -33,9 +33,11 @@ export class Node {
       return;
     }
 
-    if (this.hostScene !== undefined) {
+    const previousScene = this.host;
+
+    if (previousScene !== undefined) {
       for (const component of this.getComponents(Component)) {
-        component.notifyExitScene();
+        component.notifyExitScene(previousScene);
       }
     }
 
@@ -43,7 +45,7 @@ export class Node {
 
     if (scene !== undefined) {
       for (const component of this.getComponents(Component)) {
-        component.notifyEnterScene();
+        component.notifyEnterScene(scene);
       }
     }
 
@@ -94,7 +96,7 @@ export class Node {
     component.owner = this;
 
     if (this.host !== undefined) {
-      component.notifyEnterScene();
+      component.notifyEnterScene(this.host);
     }
 
     return this;
@@ -103,7 +105,7 @@ export class Node {
   public removeComponent(component: Component): this {
     if (this.components.delete(component)) {
       if (this.host !== undefined) {
-        component.notifyExitScene();
+        component.notifyExitScene(this.host);
       }
 
       component.owner = undefined;
