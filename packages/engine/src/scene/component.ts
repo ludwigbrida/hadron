@@ -22,4 +22,24 @@ export abstract class Component {
   protected onAttach(): void {}
 
   protected onDetach(): void {}
+
+  /**
+   * Called after this component's node enters the scene.
+   */
+  protected onEnterScene(): void {}
+
+  /**
+   * Called before this component's node leaves the scene.
+   */
+  protected onExitScene(): void {}
+
+  /** @internal */
+  public notifyEnterScene(): void {
+    this.onEnterScene();
+  }
+
+  /** @internal */
+  public notifyExitScene(): void {
+    this.onExitScene();
+  }
 }
