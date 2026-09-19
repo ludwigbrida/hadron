@@ -1,4 +1,4 @@
-export { Engine, type Frame, type UpdateCallback } from "./core/engine.ts";
+export { Engine, type Frame } from "./core/engine.ts";
 export { ActionMap, type AxisBinding } from "./input/action-map.ts";
 export { KeyboardKey, MouseButton, type InputControl } from "./input/input-control.ts";
 export type { Input } from "./input/input.ts";
@@ -34,4 +34,5 @@ export { Component } from "./scene/component.ts";
 export { DirectionalLight } from "./scene/directional-light.ts";
 export type { Node } from "./scene/node.ts";
 export type { Scene } from "./scene/scene.ts";
+export { Script } from "./scene/script.ts";
 export type { Transform } from "./scene/transform.ts";

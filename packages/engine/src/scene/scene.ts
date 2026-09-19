@@ -1,3 +1,4 @@
+import type { Frame } from "../core/engine.ts";
 import { World } from "../physics/world.ts";
 import { Color } from "../rendering/color.ts";
 import type { CubeTexture } from "../rendering/cube-texture.ts";
@@ -6,6 +7,7 @@ import { Camera } from "./camera.ts";
 import { Component } from "./component.ts";
 import { DirectionalLight } from "./directional-light.ts";
 import { Node } from "./node.ts";
+import { Script } from "./script.ts";
 
 export class Scene {
   public readonly root = new Node();
@@ -54,6 +56,13 @@ export class Scene {
   /** @internal */
   public *getMeshes(): IterableIterator<Mesh> {
     yield* this.getComponents(this.root, Mesh);
+  }
+
+  /** @internal */
+  public updateScripts(frame: Frame): void {
+    for (const script of this.getComponents(this.root, Script)) {
+      script.update(frame);
+    }
   }
 
   private *getComponents<T extends Component>(

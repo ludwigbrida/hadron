@@ -18,8 +18,6 @@ export interface Frame {
   readonly deltaTime: number;
 }
 
-export type UpdateCallback = (frame: Frame) => void;
-
 export class Engine {
   readonly input: Input;
   private readonly geometries = new Set<Geometry>();
@@ -30,7 +28,6 @@ export class Engine {
   private frameRequest: number | undefined;
   private previousTime: number | undefined;
   private scene: Scene | undefined;
-  private update: UpdateCallback | undefined;
 
   private constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -127,10 +124,9 @@ export class Engine {
     return createImageBitmap(await response.blob());
   }
 
-  start(scene: Scene, update: UpdateCallback): void {
+  start(scene: Scene): void {
     this.stop();
     this.scene = scene;
-    this.update = update;
     this.frameRequest = requestAnimationFrame(this.render);
   }
 
@@ -142,7 +138,6 @@ export class Engine {
     this.frameRequest = undefined;
     this.previousTime = undefined;
     this.scene = undefined;
-    this.update = undefined;
   }
 
   dispose(): void {
@@ -181,9 +176,7 @@ export class Engine {
     this.frameRequest = undefined;
 
     const scene = this.scene;
-    const update = this.update;
-
-    if (!scene || !update) {
+    if (!scene) {
       return;
     }
 
@@ -191,7 +184,7 @@ export class Engine {
     const deltaTime = elapsedTime - (this.previousTime ?? elapsedTime);
 
     this.previousTime = elapsedTime;
-    update({ elapsedTime, deltaTime });
+    scene.updateScripts({ elapsedTime, deltaTime });
     this.input.resetTransientState();
 
     if (this.scene !== scene) {

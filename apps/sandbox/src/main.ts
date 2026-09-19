@@ -1,11 +1,12 @@
 import {
   BoxCollider,
+  CapsuleCollider,
   Color,
   DirectionalLight,
   Engine,
+  KinematicBody,
   StaticBody,
   Vector3,
-  type Frame,
 } from "@hadron/engine";
 import { loadCubeTexture, loadTexture } from "./assets/load-texture.ts";
 import "./main.css";
@@ -13,6 +14,7 @@ import { PlayerController } from "./player/player-controller.ts";
 import { createCubeGeometry } from "./scene/create-cube-geometry.ts";
 import { createPyramid } from "./scene/create-pyramid.ts";
 import { createStaticBox } from "./scene/create-static-box.ts";
+import { RotatingCubes } from "./scene/rotating-cubes.ts";
 
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement;
 
@@ -60,7 +62,9 @@ const groundMesh = engine.createMesh(ground, groundMaterial);
 const groundBody = new StaticBody();
 const groundMeshNode = scene.createNode();
 const groundNode = scene.createNode();
-const player = new PlayerController(scene, engine.input);
+const playerNode = scene.createNode();
+const playerBody = new KinematicBody();
+const playerCameraNode = scene.createNode();
 
 firstNode.transform.position.setXyz(0.5, 0, -2);
 firstNode.transform.scale.setXyz(1, 1.5, 1);
@@ -70,6 +74,11 @@ groundNode.transform.position.setXyz(0, -1.25, 0);
 groundNode.addComponent(groundBody);
 groundNode.addComponent(new BoxCollider({ halfExtents: new Vector3(10, 0.25, 10) }));
 groundMeshNode.addComponent(groundMesh);
+playerCameraNode.addComponent(scene.camera);
+playerNode.addChild(playerCameraNode);
+playerNode.addComponent(playerBody);
+playerNode.addComponent(new CapsuleCollider({ radius: 0.3, height: 3 }));
+playerNode.addComponent(new PlayerController(engine.input, playerBody, scene.camera));
 
 createPyramid(engine, scene, cube, groundMaterial);
 
@@ -80,9 +89,11 @@ createStaticBox(engine, scene, cube, groundMaterial, {
 firstNode.addComponent(firstMesh);
 secondNode.addComponent(secondMesh);
 cubeGroup.addChild(firstNode).addChild(secondNode);
+cubeGroup.addComponent(new RotatingCubes(firstNode, secondNode));
 scene.root.addChild(cubeGroup);
 scene.root.addChild(groundMeshNode);
 scene.root.addChild(groundNode);
+scene.root.addChild(playerNode);
 
 directionalLightNode.transform.rotation.setXyz(-0.62, 0.46, 0);
 
@@ -90,12 +101,4 @@ canvas.addEventListener("click", () => {
   void engine.input.requestPointerLock();
 });
 
-function update({ elapsedTime, deltaTime }: Frame): void {
-  player.update(deltaTime);
-
-  firstNode.transform.rotation.setXyz(elapsedTime / 1.5, elapsedTime, elapsedTime / 2);
-  secondNode.transform.rotation.setXyz(-elapsedTime / 1.2, -elapsedTime / 2, -elapsedTime / 1.5);
-  cubeGroup.transform.rotation.setXyz(0, elapsedTime / 4, 0);
-}
-
-engine.start(scene, update);
+engine.start(scene);
